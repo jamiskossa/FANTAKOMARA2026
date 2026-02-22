@@ -64,15 +64,17 @@ export function ContactForm() {
         message: {
           subject: `Nouveau message site - ${formData.subject || formData.name}`,
           html: `
-            <div style="font-family: sans-serif; padding: 20px; color: #333;">
-              <h2 style="color: #009688;">Nouveau message de contact</h2>
+            <div style="font-family: sans-serif; padding: 20px; color: #333; line-height: 1.6;">
+              <h2 style="color: #009688; border-bottom: 2px solid #009688; padding-bottom: 10px;">Nouveau message de contact</h2>
               <p><strong>Nom :</strong> ${formData.name}</p>
               <p><strong>Email :</strong> ${formData.email}</p>
               <p><strong>Téléphone :</strong> ${formData.phone || 'Non renseigné'}</p>
               <p><strong>Sujet :</strong> ${formData.subject || 'Général'}</p>
-              <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-              <p><strong>Message :</strong></p>
-              <p style="white-space: pre-wrap; background: #f9f9f9; padding: 15px; border-radius: 8px;">${formData.message}</p>
+              <div style="margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 8px; border-left: 4px solid #4caf50;">
+                <p><strong>Message :</strong></p>
+                <p style="white-space: pre-wrap;">${formData.message}</p>
+              </div>
+              <p style="font-size: 12px; color: #999; margin-top: 30px;">Ce message a été envoyé via le formulaire de contact du site Pharmacie Nouvelle d'Ivry.</p>
             </div>
           `,
         }

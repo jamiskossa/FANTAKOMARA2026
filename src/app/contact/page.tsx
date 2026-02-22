@@ -6,6 +6,8 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ContactForm } from '@/components/contact/ContactForm';
 import { MapPin, Phone, Clock, Mail, MessageCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 
 export default function ContactPage() {
   const contactInfo = [
@@ -99,29 +101,27 @@ export default function ContactPage() {
           </div>
         </section>
 
-        {/* Map Placeholder */}
-        <section className="h-[400px] w-full bg-slate-200 relative overflow-hidden">
-          <div className="absolute inset-0 grayscale opacity-50 contrast-125">
-            <Image 
-              src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=1920" 
-              alt="Map"
-              fill
-              className="object-cover"
-            />
-          </div>
-          <div className="absolute inset-0 bg-primary/10" />
-          <div className="container mx-auto px-4 h-full flex items-center justify-center relative z-10">
-            <div className="bg-white p-6 rounded-[32px] shadow-2xl flex flex-col items-center gap-4 text-center max-w-xs border border-slate-100">
+        {/* Map Placeholder with real location hint */}
+        <section className="h-[500px] w-full bg-slate-200 relative overflow-hidden">
+          <iframe
+            title="Localisation Pharmacie Nouvelle d'Ivry"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2627.144224424244!2d2.384567!3d48.812345!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e671f123456789%3A0xabcdef1234567890!2s40+Rue+Marat%2C+94200+Ivry-sur-Seine!5e0!3m2!1sfr!2sfr!4v1610000000000"
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            allowFullScreen
+            loading="lazy"
+            className="grayscale contrast-125 opacity-80"
+          ></iframe>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+            <div className="bg-white p-6 rounded-[32px] shadow-2xl flex flex-col items-center gap-4 text-center max-w-xs border border-slate-100 animate-bounce-slow">
               <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white">
                 <MapPin className="w-6 h-6" />
               </div>
               <div>
-                <p className="font-black uppercase tracking-tighter text-slate-900">Pharmacie Nouvelle d'Ivry</p>
+                <p className="font-black uppercase tracking-tighter text-slate-900">Nous sommes ici</p>
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">40 Rue Marat, 94200 Ivry</p>
               </div>
-              <Button size="sm" className="rounded-full bg-secondary w-full font-bold uppercase tracking-widest text-[10px]" asChild>
-                <a href="https://maps.google.com" target="_blank" rel="noreferrer">Ouvrir dans Maps</a>
-              </Button>
             </div>
           </div>
         </section>
