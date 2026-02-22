@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -113,15 +114,15 @@ export function Header() {
 
   return (
     <>
-      <div className="bg-secondary text-white py-1 text-center text-[9px] sm:text-xs font-black tracking-widest px-4 uppercase">
+      <div className="bg-secondary text-white py-1 text-center text-[9px] sm:text-xs font-black tracking-widest px-4 uppercase h-6 sm:h-8 flex items-center justify-center shrink-0">
         <p>Retrait gratuit en 2h • Livraison offerte dès 49€</p>
       </div>
 
-      <header className="sticky top-0 z-[100] bg-white/95 backdrop-blur-md border-b shadow-sm h-14 sm:h-16 flex items-center">
+      <header className="sticky top-0 z-[100] bg-white/95 backdrop-blur-md border-b shadow-sm h-14 sm:h-16 flex items-center shrink-0">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center justify-between gap-2 sm:gap-4 h-full">
             <Link href="/" className="flex items-center gap-2 shrink-0 group">
-              <div className="relative w-8 h-8 lg:w-12 lg:h-12 rounded-xl overflow-hidden border-2 border-slate-100 p-0.5 bg-white shadow-soft transition-all group-hover:border-primary/20">
+              <div className="relative w-8 h-8 lg:w-12 lg:h-12 rounded-xl overflow-hidden border-2 border-slate-100 p-0.5 bg-white shadow-soft transition-all group-hover:border-primary/20 shrink-0">
                 <div className="relative w-full h-full rounded-lg overflow-hidden">
                   <Image 
                     src="/images/logo.png" 
@@ -129,6 +130,7 @@ export function Header() {
                     fill 
                     className="object-contain"
                     priority
+                    sizes="(max-width: 768px) 32px, 48px"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.src = "https://picsum.photos/seed/ph-logo/200/200";
@@ -137,8 +139,8 @@ export function Header() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] lg:text-base font-black text-slate-900 leading-none tracking-tighter uppercase">Pharmacie Nouvelle</span>
-                <span className="text-[8px] lg:text-[11px] font-bold text-primary uppercase tracking-[0.1em]">d'Ivry</span>
+                <span className="text-[9px] lg:text-base font-black text-slate-900 leading-none tracking-tighter uppercase">Pharmacie Nouvelle</span>
+                <span className="text-[7px] lg:text-[11px] font-bold text-primary uppercase tracking-[0.1em]">d'Ivry</span>
               </div>
             </Link>
 
@@ -178,7 +180,7 @@ export function Header() {
                 </Button>
               )}
 
-              <Button variant="ghost" size="icon" className="lg:hidden rounded-full hover:bg-slate-50 h-8 w-8" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <Button variant="ghost" size="icon" className="lg:hidden rounded-full hover:bg-slate-50 h-8 w-8 shrink-0" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                 {isMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
               </Button>
             </div>
@@ -186,9 +188,9 @@ export function Header() {
         </div>
 
         {mounted && (
-          <nav className="hidden lg:block absolute top-full left-0 w-full border-t bg-white">
-            <div className="container mx-auto px-4">
-              <ul className="flex items-center justify-center space-x-10 py-2 text-[9px] font-black uppercase tracking-[0.1em]">
+          <nav className="hidden lg:block absolute top-full left-0 w-full border-t bg-white h-10">
+            <div className="container mx-auto px-4 h-full">
+              <ul className="flex items-center justify-center space-x-10 h-full text-[9px] font-black uppercase tracking-[0.1em]">
                 <li>
                   <DropdownMenu>
                     <DropdownMenuTrigger className="flex items-center hover:text-primary transition-colors outline-none group">
