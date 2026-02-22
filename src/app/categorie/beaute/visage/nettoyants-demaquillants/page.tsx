@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -169,7 +168,7 @@ export default function NettoyantsDemaquillantsPage() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filtres */}
           <aside className="lg:w-72 space-y-8">
-            <div className="bg-white p-6 rounded-3xl shadow-soft border border-slate-100 sticky top-28">
+            <div className="bg-white p-6 rounded-3xl shadow-soft border border-slate-100 lg:sticky lg:top-28">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-xl font-black text-secondary flex items-center uppercase tracking-tight">
                   <Filter className="w-5 h-5 mr-3 text-primary" />
@@ -322,34 +321,45 @@ export default function NettoyantsDemaquillantsPage() {
         </div>
       </main>
 
-      {/* MODAL PRODUIT EXPERT AMÉLIORÉE */}
+      {/* MODAL PRODUIT ULTRA-RESPONSIVE */}
       {selectedProduct && (
         <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
-          <DialogContent className="max-w-4xl p-0 overflow-hidden border-none rounded-[32px] shadow-2xl flex flex-col h-[90vh]">
-            <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
-              {/* Image Section with Zoom */}
-              <div className="md:w-[45%] bg-slate-100 relative group overflow-hidden shrink-0">
+          <DialogContent className="max-w-4xl p-0 overflow-hidden border-none sm:rounded-[32px] shadow-2xl flex flex-col h-[100vh] sm:h-[90vh] w-full">
+            <div className="flex flex-col sm:flex-row flex-grow overflow-hidden">
+              
+              {/* Image Section - En haut sur mobile, à gauche sur desktop */}
+              <div className="w-full sm:w-[45%] bg-slate-100 relative group overflow-hidden shrink-0 aspect-square sm:aspect-auto">
                 <Image 
                   src={selectedProduct.image} 
                   alt={selectedProduct.name}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-110 cursor-zoom-in"
+                  onClick={() => window.open(selectedProduct.image, '_blank')}
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors pointer-events-none" />
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-2 opacity-0 sm:group-hover:opacity-100 transition-opacity">
                   <Maximize2 className="w-4 h-4 text-slate-600" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-600">Survolez pour zoomer</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-600">Agrandir</span>
                 </div>
                 {selectedProduct.promo && (
                   <div className="absolute top-6 left-6 bg-primary text-white font-black px-4 py-2 rounded-full text-xs shadow-xl z-10 uppercase tracking-widest">
                     {selectedProduct.promo}
                   </div>
                 )}
+                {/* Fermeture Mobile */}
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="absolute top-4 right-4 sm:hidden bg-white/50 backdrop-blur-md rounded-full h-10 w-10 z-30"
+                  onClick={() => setSelectedProduct(null)}
+                >
+                  <X className="w-6 h-6" />
+                </Button>
               </div>
 
-              {/* Info Section with Scroll */}
+              {/* Info Section - Scrollable */}
               <div className="flex-grow flex flex-col overflow-hidden bg-white">
-                <div className="flex-grow overflow-y-auto p-8 md:p-12 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
+                <div className="flex-grow overflow-y-auto p-6 sm:p-12 pb-32 sm:pb-32 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-xs font-black text-primary uppercase tracking-[0.2em]">{selectedProduct.brand}</span>
                     <div className="flex items-center gap-0.5">
@@ -360,10 +370,10 @@ export default function NettoyantsDemaquillantsPage() {
                   </div>
                   
                   <DialogHeader className="mb-8">
-                    <DialogTitle className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-4 uppercase tracking-tighter">
+                    <DialogTitle className="text-xl sm:text-3xl font-black text-slate-900 leading-tight mb-4 uppercase tracking-tighter text-left">
                       {selectedProduct.name}
                     </DialogTitle>
-                    <DialogDescription className="text-slate-500 font-medium text-base leading-relaxed">
+                    <DialogDescription className="text-slate-500 font-medium text-sm sm:text-base leading-relaxed text-left">
                       {selectedProduct.fullDescription || selectedProduct.description}
                     </DialogDescription>
                   </DialogHeader>
@@ -380,14 +390,14 @@ export default function NettoyantsDemaquillantsPage() {
                   )}
 
                   {/* Prix et Quantité Section */}
-                  <div className="space-y-8 mb-10 border-b border-slate-100 pb-8">
-                    <div className="flex items-center justify-between">
+                  <div className="space-y-6 sm:space-y-8 mb-10 border-b border-slate-100 pb-8">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                       <div className="flex items-baseline gap-4">
-                        <span className="text-4xl font-black text-slate-900 tracking-tighter">
+                        <span className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter">
                           {selectedProduct.price.toFixed(2).replace('.', ',')}€
                         </span>
                         {selectedProduct.oldPrice && (
-                          <span className="text-lg text-destructive font-bold line-through opacity-40">
+                          <span className="text-base sm:text-lg text-destructive font-bold line-through opacity-40">
                             {selectedProduct.oldPrice.toFixed(2).replace('.', ',')}€
                           </span>
                         )}
@@ -446,27 +456,27 @@ export default function NettoyantsDemaquillantsPage() {
                   </div>
                 </div>
 
-                {/* Sticky Action Bar */}
-                <div className="mt-auto border-t border-slate-100 bg-white/80 backdrop-blur-xl p-6 md:px-12 flex items-center justify-between gap-6 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] z-20">
-                  <div className="flex flex-col">
+                {/* Sticky Action Bar - Fixe en bas */}
+                <div className="fixed sm:absolute bottom-0 inset-x-0 border-t border-slate-100 bg-white/95 backdrop-blur-xl p-4 sm:p-6 sm:px-12 flex items-center justify-between gap-4 sm:gap-6 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] z-50">
+                  <div className="flex flex-col shrink-0">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Prix Total</span>
-                    <span className="text-2xl font-black text-secondary tracking-tighter">
+                    <span className="text-xl sm:text-2xl font-black text-secondary tracking-tighter">
                       {(selectedProduct.price * quantity).toFixed(2).replace('.', ',')}€
                     </span>
                   </div>
                   <div className="flex items-center gap-3 grow max-w-md">
                     <Button 
-                      className="grow rounded-full bg-primary hover:bg-primary/90 text-white font-black h-14 text-sm uppercase tracking-widest shadow-lg shadow-primary/20 transition-all hover:-translate-y-1"
+                      className="grow rounded-full bg-primary hover:bg-primary/90 text-white font-black h-12 sm:h-14 text-xs sm:text-sm uppercase tracking-widest shadow-lg shadow-primary/20 transition-all active:scale-95"
                       onClick={handleAddToCart}
                     >
-                      <ShoppingCart className="w-5 h-5 mr-3" />
-                      Ajouter au panier
+                      <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
+                      <span className="hidden xs:inline">Ajouter au panier</span>
+                      <span className="xs:hidden">Ajouter</span>
                     </Button>
                     <Button 
                       variant="outline" 
-                      className="rounded-full border-slate-200 font-black h-14 w-14 p-0 uppercase tracking-widest hover:bg-slate-50 transition-all"
+                      className="hidden sm:flex rounded-full border-slate-200 font-black h-14 w-14 p-0 uppercase tracking-widest hover:bg-slate-50 transition-all"
                       onClick={() => setSelectedProduct(null)}
-                      title="Fermer"
                     >
                       <X className="w-5 h-5" />
                     </Button>
