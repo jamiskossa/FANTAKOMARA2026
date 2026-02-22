@@ -11,14 +11,18 @@ export default function ConfidentialitePage() {
       <Header />
       <main className="flex-grow container mx-auto px-4 py-16 max-w-4xl">
         <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-12">Politique de Confidentialité</h1>
-        <div className="bg-white rounded-[32px] p-10 shadow-soft space-y-8 text-slate-600">
+        <div className="bg-white rounded-[32px] p-10 shadow-soft space-y-8 text-slate-600 border border-slate-100">
           <section>
             <h2 className="text-xl font-black text-primary uppercase mb-4">Protection des données</h2>
-            <p>Conformément au RGPD, la Pharmacie Nouvelle d'Ivry s'engage à protéger la vie privée de ses utilisateurs. Vos données de santé sont traitées avec la plus grande confidentialité.</p>
+            <p className="font-medium">Conformément au RGPD, la Pharmacie Nouvelle d'Ivry s'engage à protéger la vie privée de ses utilisateurs. Vos données de santé sont traitées avec la plus grande confidentialité et ne sont jamais partagées.</p>
           </section>
           <section>
             <h2 className="text-xl font-black text-primary uppercase mb-4">Finalité des données</h2>
-            <p>Les informations collectées sont exclusivement destinées à la gestion de vos commandes et au suivi de vos soins par nos pharmaciens.</p>
+            <p className="font-medium">Les informations collectées (y compris les ordonnances scannées) sont exclusivement destinées à la gestion de vos commandes et au suivi de vos soins par nos pharmaciens diplômés.</p>
+          </section>
+          <section>
+            <h2 className="text-xl font-black text-primary uppercase mb-4">Vos droits</h2>
+            <p className="font-medium">Vous disposez d'un droit d'accès, de rectification et de suppression de vos données personnelles. Contactez-nous à contact@pharmacienouvelledivry.fr pour toute demande.</p>
           </section>
         </div>
       </main>

@@ -10,7 +10,8 @@ export default function FAQPage() {
   const faqs = [
     { q: "Quels sont les délais de préparation pour le Click & Collect ?", a: "Vos commandes sont généralement prêtes en moins de 2 heures ouvrées." },
     { q: "Puis-je commander des médicaments sur ordonnance ?", a: "Vous pouvez réserver vos médicaments en scannant votre ordonnance via notre outil dédié. Le paiement et le retrait se font obligatoirement en officine." },
-    { q: "Quels sont les frais de livraison ?", a: "La livraison est gratuite dès 49€ d'achat en France métropolitaine." }
+    { q: "Quels sont les frais de livraison ?", a: "La livraison est gratuite dès 49€ d'achat en France métropolitaine." },
+    { q: "Comment fonctionne le scan d'ordonnance ?", a: "Prenez une photo de votre ordonnance. Notre IA extrait les médicaments pour que le pharmacien les prépare à l'avance. Apportez l'original lors du retrait." }
   ];
 
   return (
@@ -18,12 +19,16 @@ export default function FAQPage() {
       <Header />
       <main className="flex-grow container mx-auto px-4 py-16 max-w-3xl">
         <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-8 text-center">Foire Aux Questions</h1>
-        <div className="bg-white rounded-[32px] p-8 shadow-soft">
-          <Accordion type="single" collapsible>
+        <div className="bg-white rounded-[32px] p-8 shadow-soft border border-slate-100">
+          <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq, i) => (
-              <AccordionItem key={i} value={`item-${i}`}>
-                <AccordionTrigger className="text-sm font-bold uppercase tracking-tight text-left">{faq.q}</AccordionTrigger>
-                <AccordionContent className="text-slate-500 leading-relaxed">{faq.a}</AccordionContent>
+              <AccordionItem key={i} value={`item-${i}`} className="border-slate-100">
+                <AccordionTrigger className="text-sm font-bold uppercase tracking-tight text-left hover:text-primary transition-colors">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-slate-500 leading-relaxed font-medium">
+                  {faq.a}
+                </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>

@@ -100,18 +100,18 @@ export default function ScanOrdonnance() {
         <Header />
         <main className="flex-grow flex items-center justify-center p-4">
           <Card className="max-w-xl w-full border-none shadow-2xl rounded-[32px] overflow-hidden bg-white text-center p-12">
-            <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8 text-primary">
-              <CheckCircle2 className="w-12 h-12" />
+            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8 text-primary">
+              <CheckCircle2 className="w-10 h-10" />
             </div>
-            <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-4">Ordonnance transmise !</h1>
+            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter mb-4">Ordonnance transmise !</h1>
             <p className="text-slate-500 font-medium text-lg mb-10 leading-relaxed">
               L'IA a pré-rempli votre dossier. Un pharmacien valide actuellement la préparation. Vous serez notifié du retrait sous 2h.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button onClick={() => router.push('/client/dashboard')} className="rounded-full bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest h-14 px-10">
+              <Button onClick={() => router.push('/client/dashboard')} className="rounded-full bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest h-12 px-8 text-xs">
                 Suivre dans mon espace
               </Button>
-              <Button variant="outline" onClick={() => setStep('upload')} className="rounded-full border-slate-100 text-slate-400 font-black uppercase tracking-widest h-14 px-10">
+              <Button variant="outline" onClick={() => setStep('upload')} className="rounded-full border-slate-100 text-slate-400 font-black uppercase tracking-widest h-12 px-8 text-xs">
                 Scanner une autre
               </Button>
             </div>
@@ -169,13 +169,13 @@ export default function ScanOrdonnance() {
                       <Upload className="w-8 h-8 sm:w-12 sm:h-12" />
                     </div>
                     <div>
-                      <h3 className="text-xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight mb-2">
+                      <h3 className="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight mb-2">
                         {fileName ? fileName : "Déposez votre ordonnance"}
                       </h3>
                       <p className="text-slate-400 font-bold uppercase text-[8px] sm:text-[10px] tracking-widest">Formats : PHOTO, PDF • Max 5Mo</p>
                     </div>
                     <Button 
-                      className="rounded-full px-8 sm:px-12 h-12 sm:h-14 bg-secondary hover:bg-secondary/90 shadow-xl shadow-secondary/20 text-white font-black uppercase tracking-widest text-[10px] sm:text-xs"
+                      className="rounded-full px-8 sm:px-12 h-12 sm:h-14 bg-secondary hover:bg-secondary/90 shadow-xl shadow-secondary/20 text-white font-black uppercase tracking-widest text-[9px] sm:text-xs"
                     >
                       Sélectionner mon document
                     </Button>

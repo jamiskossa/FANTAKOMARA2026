@@ -2,57 +2,51 @@
 {
   "placeholderImages": [
     {
-      "id": "hero-pharmacy",
-      "description": "A clean modern pharmacy interior",
-      "imageUrl": "https://picsum.photos/seed/ph1/1920/1080",
-      "imageHint": "pharmacy interior"
+      "id": "hero-pharmacy-1",
+      "description": "Modern pharmacy skincare shelf",
+      "imageUrl": "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=1920&auto=format&fit=crop",
+      "imageHint": "skincare pharmacy"
+    },
+    {
+      "id": "hero-pharmacy-2",
+      "description": "Modern pharmacy interior and pharmacist",
+      "imageUrl": "https://images.unsplash.com/photo-1586015555751-63bb77f4322a?q=80&w=1920&auto=format&fit=crop",
+      "imageHint": "modern pharmacy"
+    },
+    {
+      "id": "hero-pharmacy-3",
+      "description": "Vitamins and health supplements",
+      "imageUrl": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=1920&auto=format&fit=crop",
+      "imageHint": "vitamins supplements"
     },
     {
       "id": "skincare-product",
       "description": "Dermo-cosmetic skincare products",
-      "imageUrl": "https://picsum.photos/seed/ph2/600/600",
+      "imageUrl": "https://images.unsplash.com/photo-1616750819574-7e38aa8046fa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
       "imageHint": "skincare bottle"
     },
     {
       "id": "vitamin-supplement",
       "description": "Health supplements and vitamins",
-      "imageUrl": "https://picsum.photos/seed/ph3/600/600",
+      "imageUrl": "https://images.unsplash.com/photo-1683394572742-1e471f60fc2a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
       "imageHint": "vitamins supplements"
     },
     {
       "id": "baby-care",
       "description": "Baby care and hygiene products",
-      "imageUrl": "https://picsum.photos/seed/ph4/600/600",
+      "imageUrl": "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
       "imageHint": "baby care"
     },
     {
       "id": "hygiene-products",
       "description": "Daily hygiene and shower products",
-      "imageUrl": "https://picsum.photos/seed/ph5/600/600",
+      "imageUrl": "https://images.unsplash.com/photo-1676192651289-92ddbb55c26b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
       "imageHint": "shower gel"
     },
     {
       "id": "brand-laroche",
-      "description": "La Roche-Posay brand logo placeholder",
-      "imageUrl": "https://picsum.photos/seed/brand1/300/150",
-      "imageHint": "brand logo"
-    },
-    {
-      "id": "brand-uriage",
-      "description": "Uriage brand logo placeholder",
-      "imageUrl": "https://picsum.photos/seed/brand2/300/150",
-      "imageHint": "brand logo"
-    },
-    {
-      "id": "brand-bioderma",
-      "description": "Bioderma brand logo placeholder",
-      "imageUrl": "https://picsum.photos/seed/brand3/300/150",
-      "imageHint": "brand logo"
-    },
-    {
-      "id": "brand-nuxe",
-      "description": "Nuxe brand logo placeholder",
-      "imageUrl": "https://picsum.photos/seed/brand4/300/150",
+      "description": "La Roche-Posay brand logo",
+      "imageUrl": "https://images.unsplash.com/photo-1555274175-75f4056dfd05?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
       "imageHint": "brand logo"
     }
   ]
