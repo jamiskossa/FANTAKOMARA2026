@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -15,18 +14,18 @@ export function QuickActions() {
   ];
 
   return (
-    <section className="py-10 bg-white border-b">
+    <section className="py-6 sm:py-10 bg-white border-b overflow-hidden">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           {actions.map((action, i) => (
             <Button 
               key={i} 
               asChild 
-              className={`h-16 lg:h-20 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95 shadow-md hover:shadow-xl ${action.color} text-white group`}
+              className={`h-12 sm:h-16 lg:h-20 rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 sm:gap-3 transition-all active:scale-95 shadow-md hover:shadow-xl ${action.color} text-white group`}
             >
               <Link href={action.href}>
-                <action.icon className="w-5 h-5 lg:w-6 lg:h-6 shrink-0 group-hover:scale-110 transition-transform" />
-                <span className="font-black uppercase tracking-tighter text-[10px] lg:text-xs">
+                <action.icon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 shrink-0 group-hover:scale-110 transition-transform" />
+                <span className="font-black uppercase tracking-tighter text-[8px] sm:text-[10px] lg:text-xs">
                   {action.label}
                 </span>
               </Link>
