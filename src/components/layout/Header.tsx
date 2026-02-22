@@ -89,16 +89,16 @@ export function Header() {
 
   return (
     <>
-      <div className="bg-[#002d5c] text-white py-1.5 text-center text-xs sm:text-sm font-bold tracking-tight">
+      <div className="bg-[#002d5c] text-white py-1.5 text-center text-[10px] sm:text-xs font-bold tracking-tight px-4">
         <p>HAPPY DAYS ! -10% , -15%, -20% à partir de 99€, 149€ et 199€ avec les codes HAPPY10, HAPPY15 et HAPPY20 !</p>
       </div>
 
       <header className="sticky top-0 z-50 bg-white border-b shadow-sm">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between py-4 gap-6 lg:gap-12">
+          <div className="flex items-center justify-between py-4 gap-4 lg:gap-12">
             <Link href="/" className="flex flex-col items-start shrink-0">
-              <span className="text-xl lg:text-2xl font-black text-primary leading-none tracking-tighter uppercase">Pharmacie Nouvelle</span>
-              <span className="text-sm lg:text-base font-bold text-secondary uppercase tracking-widest">d'Ivry</span>
+              <span className="text-lg lg:text-2xl font-black text-primary leading-none tracking-tighter uppercase">Pharmacie Nouvelle</span>
+              <span className="text-xs lg:text-base font-bold text-secondary uppercase tracking-widest">d'Ivry</span>
             </Link>
 
             <div className="hidden md:flex flex-1 max-w-2xl">
@@ -113,11 +113,12 @@ export function Header() {
               </div>
             </div>
 
-            <div className="flex items-center space-x-2 lg:space-x-4">
-              <Button variant="ghost" size="sm" className="hidden lg:flex flex-col h-auto py-1 px-2 items-center text-slate-600 hover:text-primary transition-colors" asChild>
+            <div className="flex items-center space-x-1 lg:space-x-4">
+              {/* COMPTE VISIBLE PARTOUT */}
+              <Button variant="ghost" size="sm" className="flex flex-col h-auto py-1 px-2 items-center text-slate-600 hover:text-primary transition-colors" asChild>
                 <Link href="/compte">
                   <User className="h-6 w-6 mb-0.5" />
-                  <span className="text-[10px] font-bold uppercase">Compte</span>
+                  <span className="text-[10px] font-bold uppercase hidden xs:block">Compte</span>
                 </Link>
               </Button>
               

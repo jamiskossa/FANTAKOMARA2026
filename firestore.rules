@@ -36,17 +36,17 @@ service cloud.firestore {
 
     // Réservations
     match /reservations/{reservationId} {
-      // get: lecture d'un document unique
       allow get: if isAuthenticated() && (isOwner(resource.data.clientId) || isCollaborator() || isAdmin());
-      
-      // list: exécution d'une query (doit être filtrée pour les clients)
       allow list: if isCollaborator() || isAdmin() || (isAuthenticated() && resource.data.clientId == request.auth.uid);
-
       allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
-      
       allow update: if isCollaborator() || isAdmin() || (isOwner(resource.data.clientId) && resource.data.status == "pending");
-      
       allow delete: if isAdmin();
+    }
+
+    // Support / Chat
+    match /supportMessages/{msgId} {
+      allow read: if isOwner(resource.data.clientId) || isCollaborator() || isAdmin();
+      allow create: if isAuthenticated() && request.resource.data.senderId == request.auth.uid;
     }
 
     // Notifications
