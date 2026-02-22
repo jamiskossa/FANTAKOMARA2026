@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Header } from '@/components/layout/Header';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
 import { 
   Select, 
   SelectContent, 
@@ -21,7 +22,8 @@ import {
   Star, 
   ChevronRight, 
   Filter, 
-  X
+  X,
+  Send
 } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ProductModal, type Product } from '@/components/ui/product-modal';
@@ -52,7 +54,7 @@ const initialProducts: Product[] = [
     oldPrice: 27.49, 
     image: PlaceHolderImages.find(img => img.id === 'skincare-product')?.imageUrl || "",
     description: 'Une texture baume fondante qui se transforme en huile puis en lait au contact de l\'eau.',
-    delivery: ['Livraison à domicile', 'Retrait gratuit en 2h']
+    delivery: ['Livraison à domicile en France', 'Retrait gratuit en pharmacie en 2h']
   },
   { 
     id: 'nd3', 
@@ -62,7 +64,8 @@ const initialProducts: Product[] = [
     price: 20.39, 
     oldPrice: 25.49, 
     image: PlaceHolderImages.find(img => img.id === 'skincare-product')?.imageUrl || "",
-    description: 'Une mousse onctueuse pour un nettoyage en profondeur tout en respectant l\'équilibre cutané.'
+    description: 'Une mousse onctueuse pour un nettoyage en profondeur tout en respectant l\'équilibre cutané.',
+    delivery: ['Livraison à domicile en France', 'Retrait gratuit en pharmacie en 2h']
   },
   { 
     id: 'nd4', 
@@ -72,20 +75,36 @@ const initialProducts: Product[] = [
     price: 22.49, 
     oldPrice: 24.99, 
     image: PlaceHolderImages.find(img => img.id === 'skincare-product')?.imageUrl || "",
-    description: 'Un coffret sensoriel à la rose pour un moment de bien-être absolu.'
+    description: 'Un coffret sensoriel à la rose pour un moment de bien-être absolu.',
+    delivery: ['Livraison à domicile en France', 'Retrait gratuit en pharmacie en 2h']
   },
 ];
 
 export default function NettoyantsDemaquillantsPage() {
   const [priceRange, setPriceRange] = useState([0, 100]);
+  const [brandFilter, setBrandFilter] = useState('toutes');
   const [sortBy, setSortBy] = useState('pertinence');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  const filteredProducts = useMemo(() => {
+    return initialProducts.filter(p => {
+      const matchesBrand = brandFilter === 'toutes' || p.brand === brandFilter;
+      const matchesPrice = p.price >= priceRange[0] && p.price <= priceRange[1];
+      return matchesBrand && matchesPrice;
+    });
+  }, [brandFilter, priceRange]);
+
+  const clearFilters = () => {
+    setPriceRange([0, 100]);
+    setBrandFilter('toutes');
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-fluid-gradient">
       <Header />
       
       <main className="flex-grow container mx-auto px-4 py-8">
+        {/* Fil d'Ariane */}
         <nav className="flex items-center space-x-2 text-sm text-slate-500 mb-8 overflow-x-auto whitespace-nowrap pb-2">
           <Link href="/" className="hover:text-primary transition-colors">Accueil</Link>
           <ChevronRight className="h-4 w-4" />
@@ -97,6 +116,7 @@ export default function NettoyantsDemaquillantsPage() {
         </nav>
 
         <div className="flex flex-col lg:flex-row gap-8">
+          {/* Sidebar Filtres */}
           <aside className="lg:w-72 space-y-8">
             <div className="bg-white p-6 rounded-3xl shadow-soft border border-slate-100 lg:sticky lg:top-28">
               <div className="flex items-center justify-between mb-8">
@@ -108,15 +128,15 @@ export default function NettoyantsDemaquillantsPage() {
 
               <div className="space-y-4 mb-10">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Marque</label>
-                <Select defaultValue="toutes">
+                <Select value={brandFilter} onValueChange={setBrandFilter}>
                   <SelectTrigger className="rounded-xl border-slate-200 h-11 focus:ring-primary">
                     <SelectValue placeholder="Toutes les marques" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="toutes">Toutes les marques</SelectItem>
-                    <SelectItem value="la-roche-posay">LA ROCHE-POSAY</SelectItem>
-                    <SelectItem value="condense-paris">CONDENSÉ PARIS</SelectItem>
-                    <SelectItem value="nuxe">NUXE</SelectItem>
+                    <SelectItem value="LA ROCHE-POSAY">LA ROCHE-POSAY</SelectItem>
+                    <SelectItem value="CONDENSÉ PARIS">CONDENSÉ PARIS</SelectItem>
+                    <SelectItem value="NUXE">NUXE</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -138,7 +158,7 @@ export default function NettoyantsDemaquillantsPage() {
               <Button 
                 variant="outline" 
                 className="w-full rounded-full border-primary/30 text-primary font-black text-xs h-12 uppercase tracking-widest hover:bg-primary hover:text-white"
-                onClick={() => setPriceRange([0, 100])}
+                onClick={clearFilters}
               >
                 <X className="w-4 h-4 mr-2" />
                 Effacer les filtres
@@ -146,11 +166,12 @@ export default function NettoyantsDemaquillantsPage() {
             </div>
           </aside>
 
+          {/* Zone Produits */}
           <div className="flex-1">
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
               <div>
                 <h1 className="text-3xl lg:text-4xl font-black text-slate-900 mb-2 uppercase tracking-tighter">Nettoyants et Démaquillants</h1>
-                <p className="text-slate-400 font-bold text-sm tracking-wide">607 produits trouvés</p>
+                <p className="text-slate-400 font-bold text-sm tracking-wide">{filteredProducts.length} produits trouvés</p>
               </div>
               
               <div className="flex items-center gap-4 bg-white p-1 rounded-2xl shadow-sm border border-slate-100 self-start md:self-center">
@@ -169,7 +190,7 @@ export default function NettoyantsDemaquillantsPage() {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-              {initialProducts.map((product) => (
+              {filteredProducts.map((product) => (
                 <Card 
                   key={product.id} 
                   className="group cursor-pointer overflow-hidden border-none shadow-none hover:shadow-2xl transition-all duration-500 rounded-3xl p-2 bg-white flex flex-col hover:scale-[1.02] hover:-translate-y-2"
@@ -222,6 +243,29 @@ export default function NettoyantsDemaquillantsPage() {
                   </CardFooter>
                 </Card>
               ))}
+            </div>
+
+            {/* Newsletter Section */}
+            <div className="mt-20 bg-white rounded-[32px] p-8 lg:p-12 shadow-soft border border-slate-100 text-center">
+              <h3 className="text-2xl lg:text-3xl font-black text-primary uppercase mb-4 tracking-tighter">Inscrivez-vous à notre newsletter</h3>
+              <p className="text-slate-500 mb-8 font-medium">
+                Recevez <span className="text-secondary font-black">-10%*</span> sur votre prochain achat dès 40€ d'achat.
+              </p>
+              <form className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto" onSubmit={(e) => e.preventDefault()}>
+                <Input 
+                  type="email" 
+                  placeholder="Votre adresse email" 
+                  className="rounded-full h-14 px-8 border-2 border-slate-100 focus:border-primary transition-all"
+                  required
+                />
+                <Button className="rounded-full h-14 px-10 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-xs">
+                  S'inscrire
+                  <Send className="ml-3 h-4 w-4" />
+                </Button>
+              </form>
+              <p className="text-[10px] text-slate-400 mt-6 font-bold uppercase tracking-widest">
+                *Code envoyé par email après inscription. Hors promotions et frais de livraison.
+              </p>
             </div>
           </div>
         </div>
