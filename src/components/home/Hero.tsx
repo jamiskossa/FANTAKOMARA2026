@@ -14,19 +14,19 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const heroSlides = [
   {
-    image: PlaceHolderImages.find(img => img.id === 'hero-pharmacy-1')?.imageUrl || "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=1920&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=1920&auto=format&fit=crop",
     hint: "skincare pharmacy",
     title: "Le meilleur de la dermo-cosmétique.",
     subtitle: "Retrouvez vos marques préférées au meilleur prix à Ivry."
   },
   {
-    image: PlaceHolderImages.find(img => img.id === 'hero-pharmacy-2')?.imageUrl || "https://images.unsplash.com/photo-1586015555751-63bb77f4322a?q=80&w=1920&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1586015555751-63bb77f4322a?q=80&w=1920&auto=format&fit=crop",
     hint: "modern pharmacy",
     title: "Votre santé, notre priorité au quotidien.",
     subtitle: "Des conseils personnalisés et un retrait en pharmacie en 2h."
   },
   {
-    image: PlaceHolderImages.find(img => img.id === 'hero-pharmacy-3')?.imageUrl || "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=1920&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=1920&auto=format&fit=crop",
     hint: "vitamins supplements",
     title: "Vitalité et Bien-être toute l'année.",
     subtitle: "Une sélection rigoureuse de vitamines et compléments alimentaires."
@@ -39,7 +39,7 @@ export function Hero() {
   );
 
   return (
-    <section className="relative w-full overflow-hidden bg-slate-100 h-[300px] sm:h-[450px] lg:h-[600px] shrink-0">
+    <section className="relative w-full overflow-hidden bg-slate-100 h-[300px] sm:h-[450px] lg:h-[600px]">
       <Carousel
         plugins={[plugin.current]}
         className="w-full h-full"
@@ -48,11 +48,11 @@ export function Hero() {
           loop: true,
         }}
       >
-        <CarouselContent className="h-[300px] sm:h-[450px] lg:h-[600px] ml-0">
+        <CarouselContent className="h-full ml-0">
           {heroSlides.map((slide, index) => (
-            <CarouselItem key={index} className="pl-0 h-full w-full relative">
+            <CarouselItem key={index} className="pl-0 h-[300px] sm:h-[450px] lg:h-[600px] w-full relative">
               <Link href="/categorie/sante" className="block relative w-full h-full group">
-                <div className="relative w-full h-full overflow-hidden min-h-[300px] sm:min-h-[450px] lg:min-h-[600px]">
+                <div className="relative w-full h-full overflow-hidden">
                   <Image 
                     src={slide.image} 
                     alt={slide.title}

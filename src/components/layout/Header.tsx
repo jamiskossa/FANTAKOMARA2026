@@ -64,62 +64,6 @@ export function Header() {
     signOut(auth);
   };
 
-  const navigationData = {
-    sante: {
-      label: "Santé",
-      links: [
-        { label: "Compléments alimentaires", href: "/categorie/sante/complements" },
-        { label: "Forme & Vitalité", href: "/categorie/sante/forme" },
-        { label: "Sommeil & Stress", href: "/categorie/sante/sommeil" },
-        { label: "Digestion", href: "/categorie/sante/digestion" },
-        { label: "Articulations & Muscles", href: "/categorie/sante/articulations" },
-        { label: "Immunité", href: "/categorie/sante/immunite" },
-      ],
-      allHref: "/categorie/sante"
-    },
-    beaute: {
-      label: "Beauté",
-      subCategories: [
-        {
-          label: "Soins du visage",
-          links: [
-            { label: "Anti-âge", href: "/categorie/beaute/visage/anti-age" },
-            { label: "Hydratation", href: "/categorie/beaute/visage/hydratation" },
-            { label: "Anti-imperfections", href: "/categorie/beaute/visage/anti-imperfections" },
-            { label: "Nettoyants & Démaquillants", href: "/categorie/beaute/visage/nettoyants-demaquillants", highlight: true },
-          ],
-          allHref: "/categorie/beaute/visage"
-        }
-      ],
-      links: [
-        { label: "Soins du corps", href: "/categorie/beaute/corps" },
-        { label: "Cheveux", href: "/categorie/beaute/cheveux" },
-        { label: "Solaires", href: "/categorie/beaute/solaires" },
-      ],
-      allHref: "/categorie/beaute"
-    },
-    hygiene: {
-      label: "Hygiène",
-      links: [
-        { label: "Douche & Bain", href: "/categorie/hygiene/douche" },
-        { label: "Dentaire", href: "/categorie/hygiene/dentaire" },
-        { label: "Hygiène intime", href: "/categorie/hygiene/intime" },
-        { label: "Déodorants", href: "/categorie/hygiene/deodorants" },
-      ],
-      allHref: "/categorie/hygiene"
-    },
-    bebe: {
-      label: "Bébé",
-      links: [
-        { label: "Lait infantile", href: "/categorie/bebe/lait" },
-        { label: "Soins bébé", href: "/categorie/bebe/soins" },
-        { label: "Soins maman", href: "/categorie/bebe/maman" },
-        { label: "Hygiène bébé", href: "/categorie/bebe/hygiene" },
-      ],
-      allHref: "/categorie/bebe"
-    }
-  };
-
   return (
     <>
       <div className="bg-secondary text-white py-1 text-center text-[9px] sm:text-xs font-black tracking-widest px-4 uppercase h-6 sm:h-8 flex items-center justify-center shrink-0">
@@ -138,7 +82,7 @@ export function Header() {
                     fill 
                     className="object-contain"
                     priority
-                    sizes="48px"
+                    sizes="(max-width: 768px) 32px, 48px"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.src = "https://picsum.photos/seed/ph-logo/200/200";
@@ -251,78 +195,6 @@ export function Header() {
           </div>
         </div>
 
-        {mounted && (
-          <nav className="hidden lg:block absolute top-full left-0 w-full border-t bg-white h-10">
-            <div className="container mx-auto px-4 h-full">
-              <ul className="flex items-center justify-center space-x-10 h-full text-[9px] font-black uppercase tracking-[0.1em]">
-                <li>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="flex items-center hover:text-primary transition-colors outline-none group">
-                      {navigationData.sante.label}
-                      <ChevronDown className="ml-1 h-3 w-3 group-data-[state=open]:rotate-180 transition-transform" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-64 p-2 shadow-2xl border-t-4 border-t-primary rounded-xl">
-                      {navigationData.sante.links.map((link) => (
-                        <DropdownMenuItem key={link.href} asChild className="rounded-lg font-bold">
-                          <Link href={link.href}>{link.label}</Link>
-                        </DropdownMenuItem>
-                      ))}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild className="font-black text-primary rounded-lg">
-                        <Link href={navigationData.sante.allHref}>Tous les produits Santé</Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </li>
-
-                <li>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="flex items-center hover:text-primary transition-colors outline-none group">
-                      {navigationData.beaute.label}
-                      <ChevronDown className="ml-1 h-3 w-3 group-data-[state=open]:rotate-180 transition-transform" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-64 p-2 shadow-2xl border-t-4 border-t-primary rounded-xl">
-                      {navigationData.beaute.subCategories.map((sub) => (
-                        <DropdownMenuSub key={sub.label}>
-                          <DropdownMenuSubTrigger className="flex items-center justify-between font-bold rounded-lg">
-                            {sub.label}
-                          </DropdownMenuSubTrigger>
-                          <DropdownMenuPortal>
-                            <DropdownMenuSubContent className="w-64 p-2 rounded-xl shadow-2xl">
-                              {sub.links.map((link) => (
-                                <DropdownMenuItem key={link.href} asChild className={link.highlight ? "text-secondary font-black rounded-lg" : "font-bold rounded-lg"}>
-                                  <Link href={link.href}>{link.label}</Link>
-                                </DropdownMenuItem>
-                              ))}
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem asChild className="font-black rounded-lg">
-                                <Link href={sub.allHref}>Tous les soins visage</Link>
-                              </DropdownMenuItem>
-                            </DropdownMenuSubContent>
-                          </DropdownMenuPortal>
-                        </DropdownMenuSub>
-                      ))}
-                      {navigationData.beaute.links.map((link) => (
-                        <DropdownMenuItem key={link.href} asChild className="font-bold rounded-lg">
-                          <Link href={link.href}>{link.label}</Link>
-                        </DropdownMenuItem>
-                      ))}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild className="font-black text-primary rounded-lg">
-                        <Link href={navigationData.beaute.allHref}>Tous les produits Beauté</Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </li>
-
-                <li><Link href="/marques" className="hover:text-primary transition-colors">Marques</Link></li>
-                <li><Link href="/promotions" className="text-destructive font-black hover:opacity-80">Promotions</Link></li>
-                <li><Link href="/contact" className="hover:text-primary transition-colors">Contact</Link></li>
-              </ul>
-            </div>
-          </nav>
-        )}
-
         {mounted && isMenuOpen && (
           <div className="lg:hidden fixed inset-0 top-14 bg-white z-[99] h-[calc(100vh-56px)] overflow-y-auto animate-in slide-in-from-right duration-300">
             <div className="p-4 space-y-4">
@@ -331,54 +203,9 @@ export function Header() {
                 <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
               </div>
 
-              <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="sante" className="border-b-slate-50">
-                  <AccordionTrigger className="text-xs font-black uppercase py-3 hover:no-underline">
-                    {navigationData.sante.label}
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-3">
-                    <ul className="space-y-3 pl-4">
-                      {navigationData.sante.links.map((link) => (
-                        <li key={link.href}>
-                          <Link href={link.href} className="text-slate-500 font-bold block text-[10px]" onClick={() => setIsMenuOpen(false)}>
-                            {link.label}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="beaute" className="border-b-slate-50">
-                  <AccordionTrigger className="text-xs font-black uppercase py-3 hover:no-underline">
-                    {navigationData.beaute.label}
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-3">
-                    <div className="space-y-4 pl-4">
-                      {navigationData.beaute.subCategories.map((sub) => (
-                        <div key={sub.label}>
-                          <p className="text-[8px] font-black text-secondary uppercase tracking-widest mb-2">{sub.label}</p>
-                          <ul className="space-y-3 pl-2">
-                            {sub.links.map((link) => (
-                              <li key={link.href}>
-                                <Link 
-                                  href={link.href} 
-                                  className={`block font-bold text-[10px] ${link.highlight ? "text-secondary" : "text-slate-500"}`}
-                                  onClick={() => setIsMenuOpen(false)}
-                                >
-                                  {link.label}
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-
               <ul className="space-y-4 pt-2">
+                <li><Link href="/categorie/sante" className="block text-xs font-black uppercase" onClick={() => setIsMenuOpen(false)}>Santé</Link></li>
+                <li><Link href="/categorie/beaute" className="block text-xs font-black uppercase" onClick={() => setIsMenuOpen(false)}>Beauté</Link></li>
                 <li><Link href="/marques" className="block text-xs font-black uppercase" onClick={() => setIsMenuOpen(false)}>Nos Marques</Link></li>
                 <li><Link href="/promotions" className="block text-xs font-black uppercase text-destructive" onClick={() => setIsMenuOpen(false)}>Promotions</Link></li>
                 <li><Link href="/contact" className="block text-xs font-black uppercase" onClick={() => setIsMenuOpen(false)}>Contact</Link></li>

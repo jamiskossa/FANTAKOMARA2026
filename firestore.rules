@@ -5,24 +5,24 @@ service cloud.firestore {
     
     function isAuthenticated() { return request.auth != null; }
     
-    function getUserProfile() {
+    function getUserData() {
       return get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data;
     }
 
     function isStaff() {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
-             getUserProfile().role in ["admin", "collaborator"];
+             (getUserData().role == "admin" || getUserData().role == "collaborator");
     }
 
     function isAdmin() {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
-             getUserProfile().role == "admin";
+             getUserData().role == "admin";
     }
 
     function isOwner(uid) {
-      return request.auth.uid == uid;
+      return isAuthenticated() && request.auth.uid == uid;
     }
 
     // Profils Utilisateurs
@@ -39,18 +39,17 @@ service cloud.firestore {
 
     // Réservations
     match /reservations/{reservationId} {
-      allow read: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isStaff());
-      allow list: if isAuthenticated() && (isStaff() || (request.query.limit <= 100 && request.auth.uid != null));
       allow create: if isAuthenticated();
+      // Utilisation de 'read' qui couvre 'get' et 'list'
+      allow read: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
       allow update: if isAuthenticated() && (isStaff() || (resource.data.clientId == request.auth.uid && resource.data.status == "pending"));
       allow delete: if isAdmin();
     }
 
     // Support Clients
     match /supportMessages/{msgId} {
-      allow read: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isStaff());
-      allow list: if isAuthenticated() && (isStaff() || (request.query.limit <= 100 && request.auth.uid != null));
       allow create: if isAuthenticated();
+      allow read: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
       allow update: if isStaff();
     }
 
