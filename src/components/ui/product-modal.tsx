@@ -16,6 +16,8 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -64,6 +66,14 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl p-0 overflow-hidden border-none sm:rounded-[32px] shadow-2xl flex flex-col h-[100vh] sm:h-[90vh] w-full bg-white">
+        {/* Accessibility titles (Hidden from view) */}
+        <DialogTitle className="sr-only">
+          Détails du produit : {product.name}
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          {product.description || `Informations détaillées sur le produit ${product.name} de la marque ${product.brand}.`}
+        </DialogDescription>
+
         <div className="flex flex-col sm:flex-row flex-grow overflow-hidden">
           
           {/* Image Section - Top on mobile, Left on desktop */}
