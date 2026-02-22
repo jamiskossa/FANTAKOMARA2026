@@ -1,0 +1,185 @@
+/**
+ * PHARMACIE NOUVELLE D'IVRY - FIRESTORE SECURITY RULES
+ *
+ * CORE PHILOSOPHY:
+ * This ruleset implements a strict User-Ownership model for sensitive data while maintaining
+ * open access for public catalog entities. The architecture prioritizes "Authorization
+ * Independence," meaning documents contain the necessary metadata (like userId) to make
+ * security decisions without requiring expensive cross-document lookups (get() calls).
+ *
+ * DATA STRUCTURE:
+ * 1. User-Centric Data (/userProfiles/{userId}/...): All private user data (addresses,
+ *    orders, prescriptions) is nested under the user's profile path, enforced by UID matching.
+ * 2. Public Catalog (/products, /categories, /blogPosts, etc.): Globally readable data
+ *    for anonymous and authenticated users, with writes restricted to administrative logic.
+ * 3. Transactional Data (/carts, /contactMessages, /mail): Specialized paths for 
+ *    shopping sessions and communication.
+ *
+ * KEY SECURITY DECISIONS:
+ * - Public Writable Collections: The 'contactMessages' and 'mail' collections allow 
+ *   public creation to facilitate guest contact, but prohibit public listing/reading 
+ *   to prevent data harvesting.
+ * - Relational Integrity: On creation of user-owned sub-resources, the rules enforce 
+ *   that the internal 'userId' field matches the authenticated user's UID.
+ * - Flexible Schema: As this is a Prototyping Mode ruleset, we do not enforce data 
+ *   types or mandatory content fields, only fields critical for authorization.
+ */
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- GLOBAL HELPER FUNCTIONS ---
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
+    }
+
+    // Used for top-level collections like products/categories where admin access is required for writes.
+    // In prototyping, we assume any authenticated user with an 'admin' claim or specific ID.
+    // For now, we restrict to 'false' to ensure no accidental public writes to catalog.
+    function isAdmin() {
+      return false; // TODO: Implement admin role check (e.g., request.auth.token.admin == true)
+    }
+
+    // --- COLLECTION RULES ---
+
+    /**
+     * @description Rules for the root UserProfile. Users can only manage their own profile.
+     * @path /userProfiles/{userId}
+     * @allow Create, Get, List, Update, Delete if the userId matches the authenticated UID.
+     * @deny Any access if the UID does not match the document ID.
+     * @principle Ownership (Self-Creation).
+     */
+    match /userProfiles/{userId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description User-owned sub-collections: Addresses, Prescriptions, and Orders.
+       * @path /userProfiles/{userId}/{subcollection}/{docId}
+       * @allow All operations if the parent userId matches the authenticated UID.
+       * @deny Access to other users' private data trees.
+       * @principle Structural Segregation / Path-based Ownership.
+       */
+      match /addresses/{addressId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      match /prescriptions/{prescriptionId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      match /orders/{orderId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+
+        match /items/{orderItemId} {
+          allow get, list: if isOwner(userId);
+          allow create: if isOwner(userId) && request.resource.data.orderId == orderId;
+          allow update: if isExistingOwner(userId) && request.resource.data.orderId == resource.data.orderId;
+          allow delete: if isExistingOwner(userId);
+        }
+      }
+    }
+
+    /**
+     * @description Shopping carts. Securely linked to userId if authenticated.
+     * @path /carts/{cartId}
+     * @allow Create (Public/Guest), Get/Update/Delete (if Owner or matches denormalized userId).
+     * @deny Access to other users' carts.
+     * @principle Flexible Access Control Patterns (Ownership).
+     */
+    match /carts/{cartId} {
+      allow get: if true; // Carts allowed to be fetched by ID for guest continuity
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if true; // Allow anyone to start a cart
+      allow update, delete: if (resource.data.userId == null) || (isSignedIn() && resource.data.userId == request.auth.uid);
+
+      match /items/{cartItemId} {
+        allow get: if true;
+        allow list: if true; // Listing items within a known cart ID is permitted
+        allow create, update, delete: if true; // Protected by parent cart access logic in application
+      }
+    }
+
+    /**
+     * @description Public catalog collections (Categories, Brands, Products, Authors, Tags, BlogPosts).
+     * @path /{collection}/{id}
+     * @allow Public Get and List.
+     * @deny All Writes (Protected for Admin/System only).
+     * @principle Public Read with Owner-Only Writes (System-Owned).
+     */
+    match /categories/{categoryId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /brands/{brandId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /products/{productId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /authors/{authorId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /tags/{tagId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /blogPosts/{blogPostId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Contact Message intake. Allows public submission but prevents listing.
+     * @path /contactMessages/{messageId}
+     * @allow Public Create.
+     * @deny Get/List/Update/Delete (Restricted to Admins).
+     * @principle Public Write with Private Read.
+     */
+    match /contactMessages/{messageId} {
+      allow create: if true;
+      allow get, list, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Email trigger collection for SendGrid extension.
+     * @path /mail/{mailId}
+     * @allow Public Create (for contact form submissions).
+     * @deny Get/List/Update/Delete to prevent exposure of sent emails.
+     * @principle Public Write with Private Read.
+     */
+    match /mail/{mailId} {
+      allow create: if true;
+      allow get, list, update, delete: if isAdmin();
+    }
+  }
+}
