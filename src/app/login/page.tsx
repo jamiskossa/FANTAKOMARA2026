@@ -1,34 +1,52 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/firebase';
+import { useAuth, useUser } from '@/firebase';
 import { initiateEmailSignIn, initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
 import { useRouter } from 'next/navigation';
-import { LogIn, UserPlus, ShieldCheck } from 'lucide-react';
+import { LogIn, UserPlus, ShieldCheck, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const auth = useAuth();
+  const { user, isUserLoading } = useUser();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Rediriger si déjà connecté
+  useEffect(() => {
+    if (user) {
+      router.push('/compte');
+    }
+  }, [user, router]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     initiateEmailSignIn(auth, email, password);
-    router.push('/compte');
+    // La redirection sera gérée par l'useEffect ci-dessus une fois l'auth réussie
   };
 
   const handleGuestLogin = () => {
     initiateAnonymousSignIn(auth);
-    router.push('/compte');
   };
+
+  if (isUserLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
@@ -78,9 +96,13 @@ export default function LoginPage() {
                     required 
                   />
                 </div>
-                <Button type="submit" className="w-full rounded-full bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest h-14 shadow-xl shadow-primary/20 transition-all active:scale-95">
-                  Se connecter
-                  <LogIn className="ml-2 h-4 w-4" />
+                <Button type="submit" disabled={isSubmitting} className="w-full rounded-full bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest h-14 shadow-xl shadow-primary/20 transition-all active:scale-95">
+                  {isSubmitting ? <Loader2 className="animate-spin h-5 w-5" /> : (
+                    <>
+                      Se connecter
+                      <LogIn className="ml-2 h-4 w-4" />
+                    </>
+                  )}
                 </Button>
               </form>
 
@@ -92,9 +114,11 @@ export default function LoginPage() {
               </div>
 
               <div className="grid grid-cols-1 gap-4">
-                <Button variant="outline" className="w-full rounded-full border-slate-100 font-black uppercase tracking-widest h-12 text-xs" onClick={() => router.push('/register')}>
-                  Créer un compte
-                  <UserPlus className="ml-2 h-4 w-4" />
+                <Button variant="outline" className="w-full rounded-full border-slate-100 font-black uppercase tracking-widest h-12 text-xs" asChild>
+                  <Link href="/register">
+                    Créer un compte
+                    <UserPlus className="ml-2 h-4 w-4" />
+                  </Link>
                 </Button>
                 <Button variant="ghost" className="w-full rounded-full font-black uppercase tracking-widest h-12 text-[10px] text-slate-400" onClick={handleGuestLogin}>
                   Continuer en tant qu'invité
