@@ -36,29 +36,30 @@
         "isMedication": { "type": "boolean" }
       }
     },
-    "Supplier": {
-      "title": "Supplier",
-      "type": "object",
-      "description": "Fournisseur ou partenaire de l'officine.",
-      "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "type": { "type": "string", "enum": ["fournisseur", "pharmacie", "partenaire", "urgence"] },
-        "contactName": { "type": "string" },
-        "phone": { "type": "string" },
-        "email": { "type": "string" },
-        "notes": { "type": "string" }
-      }
-    },
     "Reservation": {
       "title": "Reservation",
       "type": "object",
       "properties": {
         "id": { "type": "string" },
         "clientId": { "type": "string" },
-        "status": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "processing", "prepared", "ready", "delivered", "canceled"] },
+        "items": { "type": "array" },
         "totalPrice": { "type": "number" },
+        "deliveryOption": { "type": "string" },
+        "prescriptionUrl": { "type": "string" },
         "createdAt": { "type": "string" }
+      }
+    },
+    "StaffMessage": {
+      "title": "StaffMessage",
+      "type": "object",
+      "description": "Communication interne entre admin et collaborateurs.",
+      "properties": {
+        "id": { "type": "string" },
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
       }
     }
   },
@@ -70,7 +71,7 @@
       { "path": "/userProfiles/{userId}", "definition": { "entityName": "UserProfile" } },
       { "path": "/products/{productId}", "definition": { "entityName": "Product" } },
       { "path": "/reservations/{reservationId}", "definition": { "entityName": "Reservation" } },
-      { "path": "/suppliers/{supplierId}", "definition": { "entityName": "Supplier" } }
+      { "path": "/staffMessages/{msgId}", "definition": { "entityName": "StaffMessage" } }
     ]
   }
 }
