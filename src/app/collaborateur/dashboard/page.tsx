@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { useFirestore, useCollection, useMemoFirebase, useUser, useDoc, updateDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser, useDoc, addDocumentNonBlocking } from '@/firebase';
 import { collection, query, where, orderBy, limit, doc, serverTimestamp } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -17,17 +17,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Loader2, 
   ClipboardList, 
-  Package, 
-  Clock, 
-  CheckCircle2, 
+  Play, 
+  ShieldAlert, 
   MessageSquare, 
   Send,
   Camera,
-  Play,
-  ShieldAlert,
-  ArrowLeft,
-  Warehouse,
-  AlertTriangle,
   Sparkles,
   TrendingUp
 } from 'lucide-react';
@@ -161,7 +155,7 @@ export default function CollaboratorDashboard() {
       <main className="flex-grow container mx-auto px-4 py-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tighter flex items-center gap-3">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tighter flex items-center gap-3">
               <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center text-white">
                 <ClipboardList className="h-5 w-5" />
               </div>
@@ -242,7 +236,9 @@ export default function CollaboratorDashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {products?.map((p) => (
+                      {products?.length === 0 ? (
+                        <TableRow><TableCell colSpan={4} className="text-center py-20 text-slate-400 font-bold uppercase text-[10px]">Inventaire vide</TableCell></TableRow>
+                      ) : products?.map((p) => (
                         <TableRow key={p.id} className="hover:bg-slate-50/50">
                           <TableCell className="pl-6 py-4">
                             <div className="flex flex-col">

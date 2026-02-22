@@ -36,7 +36,7 @@ export function Hero() {
   );
 
   return (
-    <section className="relative w-full overflow-hidden bg-slate-100 h-[300px] sm:h-[450px] lg:h-[600px]">
+    <section className="relative w-full overflow-hidden bg-slate-100 min-h-[350px] sm:min-h-[450px] lg:min-h-[600px] h-[50vh] lg:h-[70vh]">
       <Carousel
         plugins={[plugin.current]}
         className="w-full h-full"
@@ -45,7 +45,7 @@ export function Hero() {
           loop: true,
         }}
       >
-        <CarouselContent className="h-[300px] sm:h-[450px] lg:h-[600px] ml-0">
+        <CarouselContent className="h-full ml-0">
           {heroSlides.map((slide, index) => {
             const imageData = PlaceHolderImages.find(img => img.id === slide.id);
             return (
@@ -65,16 +65,16 @@ export function Hero() {
                     
                     <div className="absolute inset-0 z-10 flex items-center">
                       <div className="container mx-auto px-4 md:px-12">
-                        <div className="max-w-[260px] sm:max-w-2xl space-y-2 lg:space-y-6 text-left">
-                          <div className="inline-flex items-center bg-primary/90 backdrop-blur-sm rounded-full px-3 py-0.5 sm:px-4 sm:py-1 text-white text-[7px] sm:text-[10px] lg:text-xs font-black uppercase tracking-[0.2em]">
+                        <div className="max-w-[280px] sm:max-w-2xl space-y-3 lg:space-y-6 text-left">
+                          <div className="inline-flex items-center bg-primary/90 backdrop-blur-sm rounded-full px-3 py-1 text-white text-[8px] sm:text-[10px] lg:text-xs font-black uppercase tracking-[0.2em]">
                             Officine d'Ivry-sur-Seine
                           </div>
                           
-                          <h1 className="text-lg sm:text-4xl lg:text-6xl font-black text-white leading-tight uppercase tracking-tighter drop-shadow-2xl">
+                          <h1 className="text-xl sm:text-4xl lg:text-6xl font-black text-white leading-tight uppercase tracking-tighter drop-shadow-2xl">
                             {slide.title}
                           </h1>
                           
-                          <p className="text-[9px] sm:text-base lg:text-xl text-white/90 max-w-lg leading-relaxed font-medium drop-shadow-md">
+                          <p className="text-[10px] sm:text-base lg:text-xl text-white/90 max-w-lg leading-relaxed font-medium drop-shadow-md">
                             {slide.subtitle} <br className="hidden md:block" /> 
                             <span className="font-black text-primary">Click & Collect en 2h.</span>
                           </p>

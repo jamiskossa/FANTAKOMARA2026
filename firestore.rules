@@ -40,18 +40,22 @@ service cloud.firestore {
     // Réservations
     match /reservations/{reservationId} {
       allow create: if isAuthenticated();
-      // On sépare explicitement get et list pour plus de robustesse
-      allow get: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
-      allow list: if isAuthenticated() && (isStaff() || (request.query.limit <= 100 && resource.data.clientId == request.auth.uid));
-      allow update: if isAuthenticated() && (isStaff() || (resource.data.clientId == request.auth.uid && resource.data.status == "pending"));
+      // Accès Staff : lecture totale
+      allow read: if isStaff();
+      // Accès Client : lecture de ses propres documents uniquement
+      allow read: if isAuthenticated() && resource.data.clientId == request.auth.uid;
+      
+      allow update: if isStaff();
+      allow update: if isAuthenticated() && resource.data.clientId == request.auth.uid && resource.data.status == "pending";
+      
       allow delete: if isAdmin();
     }
 
-    // Support Clients
+    // Support Clients (Chat)
     match /supportMessages/{msgId} {
       allow create: if isAuthenticated();
-      allow get: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
-      allow list: if isAuthenticated() && (isStaff() || (resource.data.clientId == request.auth.uid));
+      allow read: if isStaff();
+      allow read: if isAuthenticated() && resource.data.clientId == request.auth.uid;
       allow update: if isStaff();
     }
 
