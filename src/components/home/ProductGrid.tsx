@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -21,6 +22,8 @@ interface Product {
   rating?: number;
 }
 
+const DEFAULT_PLACEHOLDER = "https://picsum.photos/seed/placeholder/600/600";
+
 const mockProducts: Product[] = [
   {
     id: '1',
@@ -29,7 +32,7 @@ const mockProducts: Product[] = [
     volume: '400 ml',
     price: 18.90,
     oldPrice: 22.50,
-    image: PlaceHolderImages.find(img => img.id === 'skincare-product')?.imageUrl || "",
+    image: PlaceHolderImages.find(img => img.id === 'skincare-product')?.imageUrl || DEFAULT_PLACEHOLDER,
     badge: '-15%',
     rating: 5
   },
@@ -39,7 +42,7 @@ const mockProducts: Product[] = [
     name: 'Gelée Royale 1000mg Bio',
     volume: '20 ampoules',
     price: 12.99,
-    image: PlaceHolderImages.find(img => img.id === 'vitamin-supplement')?.imageUrl || "",
+    image: PlaceHolderImages.find(img => img.id === 'vitamin-supplement')?.imageUrl || DEFAULT_PLACEHOLDER,
     rating: 4
   },
   {
@@ -49,7 +52,7 @@ const mockProducts: Product[] = [
     volume: '1 L',
     price: 11.50,
     oldPrice: 14.90,
-    image: PlaceHolderImages.find(img => img.id === 'hygiene-products')?.imageUrl || "",
+    image: PlaceHolderImages.find(img => img.id === 'hygiene-products')?.imageUrl || DEFAULT_PLACEHOLDER,
     badge: 'TOP',
     rating: 5
   },
@@ -59,7 +62,7 @@ const mockProducts: Product[] = [
     name: 'Lait Bébé Calisma 1er âge',
     volume: '800 g',
     price: 19.95,
-    image: PlaceHolderImages.find(img => img.id === 'baby-care')?.imageUrl || "",
+    image: PlaceHolderImages.find(img => img.id === 'baby-care')?.imageUrl || DEFAULT_PLACEHOLDER,
     rating: 4
   }
 ];
@@ -82,13 +85,15 @@ export function ProductGrid({ title, subtitle, products = mockProducts }: { titl
           {products.map((product) => (
             <Card key={product.id} className="group overflow-hidden border-none shadow-none hover:shadow-2xl transition-all duration-500 rounded-3xl p-2 bg-white">
               <div className="relative aspect-[4/5] overflow-hidden bg-slate-50 rounded-2xl">
-                <Image 
-                  src={product.image} 
-                  alt={product.name}
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-700"
-                  data-ai-hint="pharmacy product"
-                />
+                {product.image && (
+                  <Image 
+                    src={product.image} 
+                    alt={product.name}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                    data-ai-hint="pharmacy product"
+                  />
+                )}
                 {product.badge && (
                   <Badge className="absolute top-4 left-4 bg-primary text-white font-bold px-3 py-1 rounded-full text-xs">
                     {product.badge}

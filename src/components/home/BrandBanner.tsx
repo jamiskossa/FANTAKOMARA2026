@@ -6,13 +6,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
+const DEFAULT_BRAND_LOGO = "https://picsum.photos/seed/brand/300/150";
+
 const brands = [
-  { name: 'La Roche-Posay', image: PlaceHolderImages.find(img => img.id === 'brand-laroche')?.imageUrl || "" },
-  { name: 'Uriage', image: PlaceHolderImages.find(img => img.id === 'brand-uriage')?.imageUrl || "" },
-  { name: 'Bioderma', image: PlaceHolderImages.find(img => img.id === 'brand-bioderma')?.imageUrl || "" },
-  { name: 'Nuxe', image: PlaceHolderImages.find(img => img.id === 'brand-nuxe')?.imageUrl || "" },
-  { name: 'SVR', image: PlaceHolderImages.find(img => img.id === 'brand-laroche')?.imageUrl || "" },
-  { name: 'Avène', image: PlaceHolderImages.find(img => img.id === 'brand-uriage')?.imageUrl || "" }
+  { name: 'La Roche-Posay', image: PlaceHolderImages.find(img => img.id === 'brand-laroche')?.imageUrl || DEFAULT_BRAND_LOGO },
+  { name: 'Uriage', image: PlaceHolderImages.find(img => img.id === 'brand-uriage')?.imageUrl || DEFAULT_BRAND_LOGO },
+  { name: 'Bioderma', image: PlaceHolderImages.find(img => img.id === 'brand-bioderma')?.imageUrl || DEFAULT_BRAND_LOGO },
+  { name: 'Nuxe', image: PlaceHolderImages.find(img => img.id === 'brand-nuxe')?.imageUrl || DEFAULT_BRAND_LOGO },
+  { name: 'SVR', image: PlaceHolderImages.find(img => img.id === 'brand-laroche')?.imageUrl || DEFAULT_BRAND_LOGO },
+  { name: 'Avène', image: PlaceHolderImages.find(img => img.id === 'brand-uriage')?.imageUrl || DEFAULT_BRAND_LOGO }
 ];
 
 export function BrandBanner() {

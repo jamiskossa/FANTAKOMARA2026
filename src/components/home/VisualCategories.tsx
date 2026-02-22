@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -5,26 +6,28 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
+const DEFAULT_CAT_IMAGE = "https://picsum.photos/seed/cat/600/400";
+
 export function VisualCategories() {
   const categories = [
     {
       title: "Soins Visage & Dermo",
       description: "Les meilleures marques au prix Ivry",
-      image: PlaceHolderImages.find(img => img.id === 'skincare-product')?.imageUrl || "",
+      image: PlaceHolderImages.find(img => img.id === 'skincare-product')?.imageUrl || DEFAULT_CAT_IMAGE,
       href: "/categorie/beaute",
       className: "lg:col-span-2 lg:row-span-2 min-h-[400px]"
     },
     {
       title: "Vitalité & Forme",
       description: "Boostez votre énergie",
-      image: PlaceHolderImages.find(img => img.id === 'vitamin-supplement')?.imageUrl || "",
+      image: PlaceHolderImages.find(img => img.id === 'vitamin-supplement')?.imageUrl || DEFAULT_CAT_IMAGE,
       href: "/categorie/sante",
       className: "lg:col-span-1 lg:row-span-1 min-h-[250px]"
     },
     {
       title: "Univers Bébé",
       description: "Douceur et sécurité",
-      image: PlaceHolderImages.find(img => img.id === 'bebe')?.imageUrl || PlaceHolderImages.find(img => img.id === 'baby-care')?.imageUrl || "",
+      image: PlaceHolderImages.find(img => img.id === 'baby-care')?.imageUrl || DEFAULT_CAT_IMAGE,
       href: "/categorie/bebe",
       className: "lg:col-span-1 lg:row-span-1 min-h-[250px]"
     }
