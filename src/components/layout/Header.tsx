@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Search, User, ShoppingCart, Menu, X, FileText, Clock, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -105,83 +106,80 @@ export function Header() {
 
   return (
     <>
-      <div className="bg-[#002d5c] text-white py-1.5 text-center text-[10px] sm:text-xs font-black tracking-widest px-4 uppercase">
-        <p>HAPPY DAYS ! Jusqu'à -20% sur vos marques préférées avec le code HAPPY20 !</p>
+      <div className="bg-secondary text-white py-1.5 text-center text-[10px] sm:text-xs font-black tracking-widest px-4 uppercase">
+        <p>Retrait en pharmacie gratuit en 2h • Livraison offerte dès 49€</p>
       </div>
 
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b shadow-sm">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between py-4 gap-4 lg:gap-12">
-            <Link href="/" className="flex flex-col items-start shrink-0">
-              <span className="text-xl lg:text-3xl font-black text-primary leading-none tracking-tighter uppercase">Pharmacie Nouvelle</span>
-              <span className="text-[10px] lg:text-sm font-black text-secondary uppercase tracking-[0.3em]">d'Ivry-sur-Seine</span>
+          <div className="flex items-center justify-between py-3 gap-4">
+            <Link href="/" className="flex items-center gap-3 shrink-0 group">
+              <div className="relative w-10 h-10 lg:w-12 lg:h-12 rounded-full overflow-hidden border-2 border-primary/20 p-0.5 bg-white shadow-sm transition-transform group-hover:scale-105">
+                <div className="relative w-full h-full rounded-full overflow-hidden">
+                  <Image 
+                    src="https://picsum.photos/seed/logo-p/100/100" 
+                    alt="Logo" 
+                    fill 
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-base lg:text-xl font-black text-slate-900 leading-none tracking-tight uppercase">Pharmacie Nouvelle</span>
+                <span className="text-[9px] lg:text-[11px] font-bold text-primary uppercase tracking-[0.2em]">d'Ivry-sur-Seine</span>
+              </div>
             </Link>
 
-            <div className="hidden md:flex flex-1 max-w-2xl">
+            <div className="hidden md:flex flex-1 max-w-xl mx-8">
               <div className="relative w-full group">
                 <Input 
-                  placeholder="Rechercher un soin, une marque..." 
-                  className="rounded-full pr-12 h-12 border-2 border-slate-100 focus-visible:ring-primary focus-visible:border-primary transition-all bg-slate-50/50"
+                  placeholder="Rechercher un produit, une marque..." 
+                  className="rounded-full pr-12 h-10 border-slate-200 focus-visible:ring-primary focus-visible:border-primary transition-all bg-slate-50/50 text-sm"
                 />
-                <Button size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-10 w-10 text-secondary hover:bg-transparent">
-                  <Search className="h-5 w-5" />
+                <Button size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 text-slate-400">
+                  <Search className="h-4 w-4" />
                 </Button>
               </div>
             </div>
 
-            <div className="flex items-center space-x-1 lg:space-x-4">
-              <Button variant="ghost" size="sm" className="flex flex-col h-auto py-1.5 px-3 items-center text-slate-600 hover:text-primary transition-colors group" asChild>
+            <div className="flex items-center space-x-1 lg:space-x-2">
+              <Button variant="ghost" size="sm" className="flex flex-col h-auto py-1 px-3 items-center text-slate-600 hover:text-primary transition-colors group" asChild>
                 <Link href="/compte">
-                  <User className="h-6 w-6 mb-0.5 group-hover:scale-110 transition-transform" />
-                  <span className="text-[9px] font-black uppercase tracking-widest">Compte</span>
+                  <User className="h-5 w-5 mb-0.5 group-hover:scale-110 transition-transform" />
+                  <span className="text-[8px] font-black uppercase tracking-widest">Compte</span>
                 </Link>
               </Button>
               
               {canShop && (
-                <Button variant="ghost" size="sm" className="flex flex-col h-auto py-1.5 px-3 items-center text-slate-600 hover:text-primary relative transition-colors group" asChild>
+                <Button variant="ghost" size="sm" className="flex flex-col h-auto py-1 px-3 items-center text-slate-600 hover:text-primary relative transition-colors group" asChild>
                   <Link href="/panier">
                     <div className="relative">
-                      <ShoppingCart className="h-6 w-6 mb-0.5 group-hover:scale-110 transition-transform" />
+                      <ShoppingCart className="h-5 w-5 mb-0.5 group-hover:scale-110 transition-transform" />
                       {itemCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-destructive text-white text-[9px] rounded-full h-4 w-4 flex items-center justify-center font-black animate-in zoom-in-50 duration-300">
+                        <span className="absolute -top-1 -right-1 bg-destructive text-white text-[8px] rounded-full h-3.5 w-3.5 flex items-center justify-center font-black">
                           {itemCount}
                         </span>
                       )}
                     </div>
-                    <span className="text-[9px] font-black uppercase tracking-widest">Panier</span>
+                    <span className="text-[8px] font-black uppercase tracking-widest">Panier</span>
                   </Link>
                 </Button>
               )}
 
-              <Button variant="ghost" size="icon" className="lg:hidden rounded-full hover:bg-slate-50" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              <Button variant="ghost" size="icon" className="lg:hidden rounded-full hover:bg-slate-50 h-9 w-9" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
             </div>
-          </div>
-
-          <div className="hidden lg:flex justify-center items-center pb-2 space-x-8">
-             <Button asChild variant="ghost" className="text-primary font-black uppercase text-[10px] tracking-widest hover:bg-primary/5 transition-all">
-                <Link href="/click-collect">
-                  <Clock className="w-3.5 h-3.5 mr-2" />
-                  Click & Collect 2h
-                </Link>
-              </Button>
-              <Button asChild variant="ghost" className="text-secondary font-black uppercase text-[10px] tracking-widest hover:bg-secondary/5 transition-all">
-                <Link href="/scan-ordonnance">
-                  <FileText className="w-3.5 h-3.5 mr-2" />
-                  Envoyer Ordonnance
-                </Link>
-              </Button>
           </div>
         </div>
 
         {mounted && (
           <nav className="hidden lg:block border-t bg-white">
             <div className="container mx-auto px-4">
-              <ul className="flex items-center justify-center space-x-10 py-3 text-[11px] font-black uppercase tracking-[0.15em]">
+              <ul className="flex items-center justify-center space-x-10 py-2.5 text-[10px] font-black uppercase tracking-[0.15em]">
                 <li>
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="flex items-center hover:text-primary transition-colors outline-none group py-1">
+                    <DropdownMenuTrigger className="flex items-center hover:text-primary transition-colors outline-none group">
                       {navigationData.sante.label}
                       <ChevronDown className="ml-1 h-3 w-3 group-data-[state=open]:rotate-180 transition-transform" />
                     </DropdownMenuTrigger>
@@ -201,7 +199,7 @@ export function Header() {
 
                 <li>
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="flex items-center hover:text-primary transition-colors outline-none group py-1">
+                    <DropdownMenuTrigger className="flex items-center hover:text-primary transition-colors outline-none group">
                       {navigationData.beaute.label}
                       <ChevronDown className="ml-1 h-3 w-3 group-data-[state=open]:rotate-180 transition-transform" />
                     </DropdownMenuTrigger>
@@ -241,7 +239,7 @@ export function Header() {
 
                 <li>
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="flex items-center hover:text-primary transition-colors outline-none group py-1">
+                    <DropdownMenuTrigger className="flex items-center hover:text-primary transition-colors outline-none group">
                       {navigationData.hygiene.label}
                       <ChevronDown className="ml-1 h-3 w-3 group-data-[state=open]:rotate-180 transition-transform" />
                     </DropdownMenuTrigger>
@@ -261,7 +259,7 @@ export function Header() {
 
                 <li>
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="flex items-center hover:text-primary transition-colors outline-none group py-1">
+                    <DropdownMenuTrigger className="flex items-center hover:text-primary transition-colors outline-none group">
                       {navigationData.bebe.label}
                       <ChevronDown className="ml-1 h-3 w-3 group-data-[state=open]:rotate-180 transition-transform" />
                     </DropdownMenuTrigger>
@@ -289,38 +287,33 @@ export function Header() {
         )}
 
         {mounted && isMenuOpen && (
-          <div className="lg:hidden bg-white border-t absolute w-full shadow-2xl z-50 h-[calc(100vh-64px)] overflow-y-auto animate-in slide-in-from-top duration-300">
-            <div className="p-6 space-y-8">
+          <div className="lg:hidden bg-white border-t absolute w-full shadow-2xl z-50 h-[calc(100vh-64px)] overflow-y-auto">
+            <div className="p-6 space-y-6">
               <div className="relative w-full">
-                <Input placeholder="Rechercher..." className="rounded-full pr-10 h-14 border-2 border-slate-100 bg-slate-50 font-bold" />
-                <Search className="absolute right-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <Input placeholder="Rechercher..." className="rounded-full pr-10 h-12 border-slate-200 bg-slate-50 font-bold text-sm" />
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               </div>
 
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="sante" className="border-b-slate-50">
-                  <AccordionTrigger className="text-lg font-black uppercase tracking-tighter py-4 hover:no-underline">
+                  <AccordionTrigger className="text-base font-black uppercase py-4 hover:no-underline">
                     {navigationData.sante.label}
                   </AccordionTrigger>
                   <AccordionContent className="pb-4">
                     <ul className="space-y-4 pl-4">
                       {navigationData.sante.links.map((link) => (
                         <li key={link.href}>
-                          <Link href={link.href} className="text-slate-500 font-bold block" onClick={() => setIsMenuOpen(false)}>
+                          <Link href={link.href} className="text-slate-500 font-bold block text-sm" onClick={() => setIsMenuOpen(false)}>
                             {link.label}
                           </Link>
                         </li>
                       ))}
-                      <li className="pt-2">
-                        <Link href={navigationData.sante.allHref} className="text-primary font-black block uppercase text-xs" onClick={() => setIsMenuOpen(false)}>
-                          Voir tout
-                        </Link>
-                      </li>
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
 
                 <AccordionItem value="beaute" className="border-b-slate-50">
-                  <AccordionTrigger className="text-lg font-black uppercase tracking-tighter py-4 hover:no-underline">
+                  <AccordionTrigger className="text-base font-black uppercase py-4 hover:no-underline">
                     {navigationData.beaute.label}
                   </AccordionTrigger>
                   <AccordionContent className="pb-4">
@@ -333,7 +326,7 @@ export function Header() {
                               <li key={link.href}>
                                 <Link 
                                   href={link.href} 
-                                  className={`block font-bold ${link.highlight ? "text-secondary" : "text-slate-500"}`}
+                                  className={`block font-bold text-sm ${link.highlight ? "text-secondary" : "text-slate-500"}`}
                                   onClick={() => setIsMenuOpen(false)}
                                 >
                                   {link.label}
@@ -343,92 +336,16 @@ export function Header() {
                           </ul>
                         </div>
                       ))}
-                      <div>
-                        <ul className="space-y-4">
-                          {navigationData.beaute.links.map((link) => (
-                            <li key={link.href}>
-                              <Link href={link.href} className="text-slate-500 font-bold block" onClick={() => setIsMenuOpen(false)}>
-                                {link.label}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <li className="pt-2 list-none">
-                        <Link href={navigationData.beaute.allHref} className="text-primary font-black block uppercase text-xs" onClick={() => setIsMenuOpen(false)}>
-                          Voir tout
-                        </Link>
-                      </li>
                     </div>
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="hygiene" className="border-b-slate-50">
-                  <AccordionTrigger className="text-lg font-black uppercase tracking-tighter py-4 hover:no-underline">
-                    {navigationData.hygiene.label}
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-4">
-                    <ul className="space-y-4 pl-4">
-                      {navigationData.hygiene.links.map((link) => (
-                        <li key={link.href}>
-                          <Link href={link.href} className="text-slate-500 font-bold block" onClick={() => setIsMenuOpen(false)}>
-                            {link.label}
-                          </Link>
-                        </li>
-                      ))}
-                      <li className="pt-2">
-                        <Link href={navigationData.hygiene.allHref} className="text-primary font-black block uppercase text-xs" onClick={() => setIsMenuOpen(false)}>
-                          Voir tout
-                        </Link>
-                      </li>
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="bebe" className="border-b-slate-50">
-                  <AccordionTrigger className="text-lg font-black uppercase tracking-tighter py-4 hover:no-underline">
-                    {navigationData.bebe.label}
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-4">
-                    <ul className="space-y-4 pl-4">
-                      {navigationData.bebe.links.map((link) => (
-                        <li key={link.href}>
-                          <Link href={link.href} className="text-slate-500 font-bold block" onClick={() => setIsMenuOpen(false)}>
-                            {link.label}
-                          </Link>
-                        </li>
-                      ))}
-                      <li className="pt-2">
-                        <Link href={navigationData.bebe.allHref} className="text-primary font-black block uppercase text-xs" onClick={() => setIsMenuOpen(false)}>
-                          Voir tout
-                        </Link>
-                      </li>
-                    </ul>
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
 
               <ul className="space-y-6 pt-4">
-                <li><Link href="/marques" className="block text-lg font-black uppercase tracking-tighter" onClick={() => setIsMenuOpen(false)}>Nos Marques</Link></li>
-                <li><Link href="/promotions" className="block text-lg font-black uppercase tracking-tighter text-destructive" onClick={() => setIsMenuOpen(false)}>Offres du moment</Link></li>
-                <li><Link href="/blog" className="block text-lg font-black uppercase tracking-tighter" onClick={() => setIsMenuOpen(false)}>Conseils Blog</Link></li>
-                <li><Link href="/contact" className="block text-lg font-black uppercase tracking-tighter" onClick={() => setIsMenuOpen(false)}>Nous contacter</Link></li>
+                <li><Link href="/marques" className="block text-base font-black uppercase" onClick={() => setIsMenuOpen(false)}>Nos Marques</Link></li>
+                <li><Link href="/promotions" className="block text-base font-black uppercase text-destructive" onClick={() => setIsMenuOpen(false)}>Promotions</Link></li>
+                <li><Link href="/contact" className="block text-base font-black uppercase" onClick={() => setIsMenuOpen(false)}>Contact</Link></li>
               </ul>
-
-              <div className="grid grid-cols-1 gap-4 pt-8 border-t border-slate-50">
-                <Button asChild variant="outline" className="rounded-full border-primary text-primary font-black uppercase text-xs h-14 shadow-soft">
-                  <Link href="/click-collect" onClick={() => setIsMenuOpen(false)}>
-                    <Clock className="w-4 h-4 mr-3" />
-                    Click & Collect 2h
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="rounded-full border-secondary text-secondary font-black uppercase text-xs h-14 shadow-soft">
-                  <Link href="/scan-ordonnance" onClick={() => setIsMenuOpen(false)}>
-                    <FileText className="w-4 h-4 mr-3" />
-                    Scan Ordonnance
-                  </Link>
-                </Button>
-              </div>
             </div>
           </div>
         )}
