@@ -24,6 +24,7 @@ export default function ClientDashboard() {
     }
   }, [user, isUserLoading, router]);
 
+  // Query impérativement filtrée par clientId pour respecter les Security Rules
   const reservationsQuery = useMemoFirebase(() => {
     if (!user) return null;
     return query(
