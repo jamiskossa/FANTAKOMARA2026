@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy, addDoc, serverTimestamp, doc } from 'firebase/firestore';
+import { collection, query, where, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -40,7 +40,7 @@ export default function ClientDashboard() {
     }
   }, [user, isUserLoading, router]);
 
-  // Query Réservations - Strictement filtrée par clientId pour les Security Rules
+  // Query Réservations - Filtrage strict par clientId
   const reservationsQuery = useMemoFirebase(() => {
     if (!user) return null;
     return query(
@@ -52,7 +52,7 @@ export default function ClientDashboard() {
 
   const { data: reservations, isLoading: isReservationsLoading } = useCollection(reservationsQuery);
 
-  // Query Chat (Support) - Filtre obligatoire clientId pour satisfaire allow list
+  // Query Chat (Support) - Filtrage strict par clientId
   const chatQuery = useMemoFirebase(() => {
     if (!user) return null;
     return query(
@@ -231,7 +231,7 @@ export default function ClientDashboard() {
                             <span className={`text-[9px] font-bold mt-2 block uppercase ${
                               msg.senderId === user?.uid ? 'text-white/60' : 'text-slate-400'
                             }`}>
-                              {msg.createdAt ? new Date(msg.createdAt.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '...'}
+                              {msg.createdAt ? (typeof msg.createdAt === 'object' && 'seconds' in msg.createdAt ? new Date(msg.createdAt.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})) : '...'}
                             </span>
                           </div>
                         </div>
