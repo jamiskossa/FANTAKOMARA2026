@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Search, User, ShoppingCart, Menu, X, FileText, Clock, ChevronDown, ChevronRight } from 'lucide-react';
+import { Search, User, ShoppingCart, Menu, X, FileText, Clock, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -92,7 +92,7 @@ export function Header() {
           </div>
         </div>
 
-        {/* 4. Menu de Navigation Horizontal (Exact Monge) */}
+        {/* 4. Menu de Navigation Horizontal */}
         <nav className="hidden lg:block border-t bg-white">
           <div className="container mx-auto px-4">
             <ul className="flex items-center justify-center space-x-8 py-3 text-sm font-bold uppercase tracking-wide">
@@ -129,10 +129,11 @@ export function Header() {
                         Soins du visage
                       </DropdownMenuSubTrigger>
                       <DropdownMenuPortal>
-                        <DropdownMenuSubContent className="w-56 p-2">
+                        <DropdownMenuSubContent className="w-64 p-2">
                           <DropdownMenuItem asChild><Link href="/categorie/beaute/visage/anti-age">Anti-âge</Link></DropdownMenuItem>
                           <DropdownMenuItem asChild><Link href="/categorie/beaute/visage/hydratation">Hydratation</Link></DropdownMenuItem>
                           <DropdownMenuItem asChild><Link href="/categorie/beaute/visage/anti-imperfections">Anti-imperfections</Link></DropdownMenuItem>
+                          <DropdownMenuItem asChild className="text-secondary font-bold"><Link href="/categorie/beaute/visage/nettoyants-demaquillants">Nettoyants & Démaquillants</Link></DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem asChild className="font-bold"><Link href="/categorie/beaute/visage">Tous les soins visage</Link></DropdownMenuItem>
                         </DropdownMenuSubContent>
@@ -209,14 +210,6 @@ export function Header() {
                 <li><Link href="/blog" className="block py-2 border-b">Blog</Link></li>
                 <li><Link href="/contact" className="block py-2">Contact</Link></li>
               </ul>
-              <div className="grid grid-cols-1 gap-3 pt-4 border-t">
-                <Button asChild className="bg-primary w-full rounded-full">
-                  <Link href="/click-collect">Click & Collect</Link>
-                </Button>
-                <Button asChild variant="outline" className="border-secondary text-secondary w-full rounded-full">
-                  <Link href="/scan-ordonnance">Scan Ordonnance</Link>
-                </Button>
-              </div>
             </div>
           </div>
         )}
