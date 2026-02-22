@@ -52,7 +52,7 @@ export function Hero() {
           {heroSlides.map((slide, index) => (
             <CarouselItem key={index} className="pl-0 h-full w-full relative">
               <Link href="/categorie/sante" className="block relative w-full h-full group">
-                <div className="relative w-full h-full overflow-hidden">
+                <div className="relative w-full h-full overflow-hidden min-h-[300px] sm:min-h-[450px] lg:min-h-[600px]">
                   <Image 
                     src={slide.image} 
                     alt={slide.title}

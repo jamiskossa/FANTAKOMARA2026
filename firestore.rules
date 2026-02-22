@@ -7,11 +7,13 @@ service cloud.firestore {
     
     function isStaff() {
       return isAuthenticated() && 
+             exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
              get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role in ["admin", "collaborator"];
     }
 
     function isAdmin() {
       return isAuthenticated() && 
+             exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
              get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == "admin";
     }
 
@@ -31,13 +33,18 @@ service cloud.firestore {
       allow write: if isStaff();
     }
 
-    // Réservations
+    // Réservations & Support
     match /reservations/{reservationId} {
-      allow get: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isStaff());
-      allow list: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isStaff());
+      allow read: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isStaff());
       allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
       allow update: if isAuthenticated() && (isStaff() || (resource.data.clientId == request.auth.uid && resource.data.status == "pending"));
       allow delete: if isAdmin();
+    }
+
+    match /supportMessages/{msgId} {
+      allow read: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isStaff());
+      allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
+      allow update: if isStaff();
     }
 
     // Fournisseurs
@@ -49,14 +56,6 @@ service cloud.firestore {
     // Chat Interne Staff
     match /staffMessages/{msgId} {
       allow read, write: if isStaff();
-    }
-
-    // Support Clients
-    match /supportMessages/{msgId} {
-      allow get: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isStaff());
-      allow list: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isStaff());
-      allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
-      allow update: if isStaff();
     }
 
     // Mail (Trigger Email Extension)

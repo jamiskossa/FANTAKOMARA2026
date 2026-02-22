@@ -1,9 +1,10 @@
+
 "use client";
 
 import React, { useState, useRef } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { Upload, ShieldCheck, Clock, CheckCircle2, Loader2, FileText, AlertCircle } from 'lucide-react';
+import { Upload, ShieldCheck, CheckCircle2, Loader2, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -37,7 +38,6 @@ export default function ScanOrdonnance() {
       return;
     }
 
-    // Validation taille (Max 5Mo)
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "Fichier trop volumineux",
@@ -51,27 +51,24 @@ export default function ScanOrdonnance() {
     setIsAnalyzing(true);
 
     try {
-      // Lecture du fichier en Base64
       const reader = new FileReader();
       reader.onload = async (event) => {
         const base64String = event.target?.result as string;
 
         try {
-          // Analyse IA réelle
           const extractedData = await extractPrescriptionInformation({
             prescriptionImage: base64String
           });
 
-          // Création de la réservation avec les données extraites
           await addDocumentNonBlocking(collection(db, 'reservations'), {
             clientId: user.uid,
             status: 'pending',
             type: 'prescription',
-            prescriptionUrl: 'image_analyzed_securely', // Dans un vrai flux, on uploaderait sur Storage
-            medications: extractedData.medications, // Données extraites par l'IA
+            prescriptionUrl: 'image_analyzed_securely',
+            medications: extractedData.medications,
             items: extractedData.medications.map(m => ({
               name: m.name,
-              quantity: 1, // Par défaut
+              quantity: 1,
               dosage: m.dosage,
               instructions: m.instructions
             })),
@@ -88,12 +85,6 @@ export default function ScanOrdonnance() {
         } catch (error) {
           console.error("Extraction error:", error);
           setIsAnalyzing(false);
-          toast({
-            title: "Erreur d'analyse",
-            description: "L'IA n'a pas pu lire le document. Nos pharmaciens le feront manuellement.",
-            variant: "destructive"
-          });
-          // Fallback : on crée quand même la demande sans les détails IA
           await addDocumentNonBlocking(collection(db, 'reservations'), {
             clientId: user.uid,
             status: 'pending',
@@ -116,7 +107,7 @@ export default function ScanOrdonnance() {
       <div className="min-h-screen flex flex-col bg-slate-50">
         <Header />
         <main className="flex-grow flex items-center justify-center p-4">
-          <Card className="max-w-xl w-full border-none shadow-2xl rounded-[32px] sm:rounded-[48px] overflow-hidden bg-white text-center p-8 sm:p-12">
+          <Card className="max-w-xl w-full border-none shadow-2xl rounded-[32px] overflow-hidden bg-white text-center p-8 sm:p-12">
             <div className="w-16 h-16 sm:w-24 sm:h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 sm:mb-8 text-primary">
               <CheckCircle2 className="w-8 h-8 sm:w-12 sm:h-12" />
             </div>
@@ -193,8 +184,8 @@ export default function ScanOrdonnance() {
                     </div>
                     <div className="pt-2 sm:pt-4">
                       <Button 
-                        size="lg" 
-                        className="w-full sm:w-auto rounded-full px-8 sm:px-12 h-12 sm:h-14 bg-secondary hover:bg-secondary/90 shadow-xl shadow-secondary/20 text-white font-black uppercase tracking-widest text-[10px] sm:text-xs transition-all active:scale-95"
+                        size="sm" 
+                        className="w-full sm:w-auto rounded-full px-8 h-12 bg-secondary hover:bg-secondary/90 shadow-xl shadow-secondary/20 text-white font-black uppercase tracking-widest text-[10px] transition-all active:scale-95"
                       >
                         Sélectionner mon document
                       </Button>
