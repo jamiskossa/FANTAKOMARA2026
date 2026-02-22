@@ -47,6 +47,7 @@
         "totalPrice": { "type": "number" },
         "deliveryOption": { "type": "string" },
         "prescriptionUrl": { "type": "string" },
+        "type": { "type": "string", "enum": ["shop", "prescription"] },
         "createdAt": { "type": "string" }
       }
     },
@@ -61,6 +62,18 @@
         "text": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       }
+    },
+    "SupportMessage": {
+      "title": "SupportMessage",
+      "type": "object",
+      "description": "Chat entre un client et le pharmacien.",
+      "properties": {
+        "id": { "type": "string" },
+        "clientId": { "type": "string" },
+        "senderId": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string" }
+      }
     }
   },
   "auth": {
@@ -71,7 +84,8 @@
       { "path": "/userProfiles/{userId}", "definition": { "entityName": "UserProfile" } },
       { "path": "/products/{productId}", "definition": { "entityName": "Product" } },
       { "path": "/reservations/{reservationId}", "definition": { "entityName": "Reservation" } },
-      { "path": "/staffMessages/{msgId}", "definition": { "entityName": "StaffMessage" } }
+      { "path": "/staffMessages/{msgId}", "definition": { "entityName": "StaffMessage" } },
+      { "path": "/supportMessages/{msgId}", "definition": { "entityName": "SupportMessage" } }
     ]
   }
 }

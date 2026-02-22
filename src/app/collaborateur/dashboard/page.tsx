@@ -23,12 +23,7 @@ import {
   MessageSquare, 
   Send,
   Camera,
-  Search,
-  AlertCircle,
-  FileSearch,
   Play,
-  Mail,
-  Trash2,
   ShieldAlert,
   ArrowLeft
 } from 'lucide-react';
@@ -94,11 +89,6 @@ export default function CollaboratorDashboard() {
     toast({ title: "Message traité", description: "Le statut a été mis à jour." });
   };
 
-  const handleWhatsApp = (phone?: string) => {
-    if (!phone) return toast({ title: "Erreur", description: "Pas de numéro", variant: "destructive" });
-    window.open(`https://wa.me/${phone.replace(/\s/g, '')}`, '_blank');
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return "bg-yellow-500";
@@ -117,7 +107,6 @@ export default function CollaboratorDashboard() {
     );
   }
 
-  // Vérification de rôle explicite au rendu
   if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) {
     return (
       <div className="min-h-screen flex flex-col bg-slate-50">
@@ -129,17 +118,12 @@ export default function CollaboratorDashboard() {
             </div>
             <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-4">Accès Refusé</h1>
             <p className="text-slate-500 font-medium mb-8 leading-relaxed">
-              Votre compte actuel ({profile?.role || 'sans rôle'}) n'a pas les autorisations nécessaires pour accéder à l'espace préparateur. 
-              Contactez l'administrateur pour mettre à jour vos droits.
+              Votre compte actuel n'a pas les autorisations pour accéder à l'espace préparateur. 
+              Contactez l'administrateur pour activer votre rôle.
             </p>
-            <div className="space-y-3">
-              <Button asChild className="w-full rounded-full bg-primary font-black uppercase tracking-widest h-12">
-                <Link href="/compte">Vérifier mon profil</Link>
-              </Button>
-              <Button variant="ghost" asChild className="w-full rounded-full text-slate-400 font-black uppercase text-[10px]">
-                <Link href="/"><ArrowLeft className="w-3 h-3 mr-2" /> Retour à l'accueil</Link>
-              </Button>
-            </div>
+            <Button asChild className="w-full rounded-full bg-primary font-black uppercase tracking-widest h-12">
+              <Link href="/compte">Mon Profil</Link>
+            </Button>
           </Card>
         </main>
         <Footer />
@@ -151,9 +135,7 @@ export default function CollaboratorDashboard() {
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-6">
-        
-        {/* Dashboard Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tighter flex items-center gap-3">
               <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center text-white">
@@ -161,36 +143,20 @@ export default function CollaboratorDashboard() {
               </div>
               Espace Préparateur
             </h1>
-            <p className="text-[10px] font-black uppercase text-slate-400 mt-1 tracking-widest">
-              Gestion des flux • Pharmacie Nouvelle d'Ivry
-            </p>
           </div>
-          
-          <div className="flex items-center gap-3">
-            <Button variant="outline" className="rounded-full h-10 px-6 font-black uppercase text-[10px] border-slate-200">
-              <Camera className="w-3.5 h-3.5 mr-2" /> Visio Patient
-            </Button>
-            <div className="bg-white px-4 py-2 rounded-full shadow-soft border border-slate-100 flex items-center gap-3">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Service Actif</span>
-            </div>
-          </div>
+          <Button variant="outline" className="rounded-full h-10 px-6 font-black uppercase text-[10px] border-slate-200">
+            <Camera className="w-3.5 h-3.5 mr-2" /> Visio Patient
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          {/* Main Area */}
           <div className="lg:col-span-2 space-y-6">
             <Tabs defaultValue="orders" className="w-full">
-              <div className="flex items-center justify-between mb-4">
-                <TabsList className="bg-white p-1 rounded-full shadow-soft border border-slate-100 h-10">
-                  <TabsTrigger value="orders" className="rounded-full px-6 font-black uppercase text-[9px]">File Active</TabsTrigger>
-                  <TabsTrigger value="client-messages" className="rounded-full px-6 font-black uppercase text-[9px]">Messages Clients</TabsTrigger>
-                  <TabsTrigger value="stock" className="rounded-full px-6 font-black uppercase text-[9px]">Alerte Stock</TabsTrigger>
-                </TabsList>
-              </div>
+              <TabsList className="bg-white p-1 rounded-full shadow-soft border border-slate-100 h-10 mb-4">
+                <TabsTrigger value="orders" className="rounded-full px-6 font-black uppercase text-[9px]">File Active</TabsTrigger>
+                <TabsTrigger value="client-messages" className="rounded-full px-6 font-black uppercase text-[9px]">Messages Clients</TabsTrigger>
+              </TabsList>
 
-              {/* FILE ACTIVE COMMANDES */}
               <TabsContent value="orders">
                 <Card className="border-none shadow-soft rounded-[24px] overflow-hidden bg-white">
                   <Table>
@@ -203,9 +169,7 @@ export default function CollaboratorDashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {isOrdersLoading ? (
-                        <TableRow><TableCell colSpan={4} className="text-center py-20"><Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" /></TableCell></TableRow>
-                      ) : activeOrders?.length === 0 ? (
+                      {activeOrders?.length === 0 ? (
                         <TableRow><TableCell colSpan={4} className="text-center py-20 text-slate-400 font-bold uppercase text-[10px]">Aucune commande en attente</TableCell></TableRow>
                       ) : activeOrders?.map((order) => (
                         <TableRow key={order.id} className="hover:bg-slate-50/50 transition-colors">
@@ -221,7 +185,7 @@ export default function CollaboratorDashboard() {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <span className="text-[10px] font-bold text-slate-500 uppercase">{order.deliveryOption === 'click-and-collect' ? 'Collect' : 'Livraison'}</span>
+                            <span className="text-[10px] font-bold text-slate-500 uppercase">{order.type === 'prescription' ? 'Ordonnance' : 'Panier'}</span>
                           </TableCell>
                           <TableCell className="text-right pr-6">
                             <Button 
@@ -239,7 +203,6 @@ export default function CollaboratorDashboard() {
                 </Card>
               </TabsContent>
 
-              {/* MESSAGES CLIENTS (Formulaire contact) */}
               <TabsContent value="client-messages">
                 <Card className="border-none shadow-soft rounded-[24px] overflow-hidden bg-white">
                   <Table>
@@ -268,30 +231,16 @@ export default function CollaboratorDashboard() {
                                 <CheckCircle2 className="h-3.5 w-3.5" />
                               </Button>
                             )}
-                            <Button size="icon" variant="ghost" className="h-7 w-7 text-secondary" onClick={() => handleWhatsApp(msg.senderPhone)}>
-                              <MessageCircle className="h-3.5 w-3.5" />
-                            </Button>
                           </TableCell>
                         </TableRow>
                       ))}
-                      {(!contactMessages || contactMessages.length === 0) && (
-                        <TableRow><TableCell colSpan={3} className="text-center py-10 text-slate-400 text-[10px]">Aucun message client.</TableCell></TableRow>
-                      )}
                     </TableBody>
                   </Table>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="stock">
-                <Card className="border-none shadow-soft rounded-[24px] p-12 text-center bg-white">
-                  <Package className="w-12 h-12 text-slate-100 mx-auto mb-4" />
-                  <p className="text-[10px] font-black uppercase text-slate-400">Section stock en cours de synchronisation</p>
                 </Card>
               </TabsContent>
             </Tabs>
           </div>
 
-          {/* Sidebar Chat Staff */}
           <div className="space-y-6">
             <Card className="border-none shadow-soft rounded-[24px] overflow-hidden bg-white flex flex-col h-[600px]">
               <CardHeader className="bg-slate-900 p-5 text-white">
@@ -300,8 +249,7 @@ export default function CollaboratorDashboard() {
                     <MessageSquare className="w-4 h-4" />
                   </div>
                   <div>
-                    <CardTitle className="text-xs font-black uppercase tracking-widest">Chat Interne Équipe</CardTitle>
-                    <p className="text-[8px] font-bold opacity-60 uppercase">Coordination</p>
+                    <CardTitle className="text-xs font-black uppercase tracking-widest">Chat Équipe</CardTitle>
                   </div>
                 </div>
               </CardHeader>
@@ -324,30 +272,16 @@ export default function CollaboratorDashboard() {
                 </ScrollArea>
                 <form onSubmit={handleSendStaffMessage} className="p-4 bg-white border-t border-slate-100 flex gap-2">
                   <Input 
-                    placeholder="Écrire à l'équipe..." 
+                    placeholder="Message..." 
                     className="h-10 rounded-full text-xs border-slate-100 bg-slate-50"
                     value={staffMessage}
                     onChange={(e) => setStaffMessage(e.target.value)}
                   />
-                  <Button type="submit" size="icon" className="h-10 w-10 rounded-full bg-secondary shadow-lg shadow-secondary/20">
+                  <Button type="submit" size="icon" className="h-10 w-10 rounded-full bg-secondary">
                     <Send className="w-4 h-4" />
                   </Button>
                 </form>
               </CardContent>
-            </Card>
-
-            <Card className="border-none shadow-soft rounded-[24px] p-6 bg-primary/5 border-l-4 border-l-primary">
-              <div className="flex items-center gap-3 mb-4">
-                <CheckCircle2 className="w-5 h-5 text-primary" />
-                <h4 className="text-[10px] font-black uppercase text-slate-900 tracking-widest">Rappel picking</h4>
-              </div>
-              <ul className="space-y-3">
-                {['Vérifier quantités', 'Vérifier péremption', 'Intégrité emballage'].map((text, i) => (
-                  <li key={i} className="text-[10px] font-bold text-slate-500 uppercase flex gap-2">
-                    <span className="text-primary">•</span> {text}
-                  </li>
-                ))}
-              </ul>
             </Card>
           </div>
         </div>

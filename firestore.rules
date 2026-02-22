@@ -5,16 +5,20 @@ service cloud.firestore {
     
     function isAuthenticated() { return request.auth != null; }
     
+    function getUserProfile() {
+      return get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data;
+    }
+
     function isStaff() {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role in ["admin", "collaborator"];
+             getUserProfile().role in ["admin", "collaborator"];
     }
 
     function isAdmin() {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == "admin";
+             getUserProfile().role == "admin";
     }
 
     function isOwner(uid) {
@@ -33,24 +37,21 @@ service cloud.firestore {
       allow write: if isStaff();
     }
 
-    // Réservations & Support
+    // Réservations
     match /reservations/{reservationId} {
       allow read: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isStaff());
-      allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
+      allow list: if isAuthenticated() && (isStaff() || (request.query.limit <= 100 && request.auth.uid != null));
+      allow create: if isAuthenticated();
       allow update: if isAuthenticated() && (isStaff() || (resource.data.clientId == request.auth.uid && resource.data.status == "pending"));
       allow delete: if isAdmin();
     }
 
+    // Support Clients
     match /supportMessages/{msgId} {
       allow read: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isStaff());
-      allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
+      allow list: if isAuthenticated() && (isStaff() || (request.query.limit <= 100 && request.auth.uid != null));
+      allow create: if isAuthenticated();
       allow update: if isStaff();
-    }
-
-    // Fournisseurs
-    match /suppliers/{supplierId} {
-      allow read: if isStaff();
-      allow write: if isAdmin();
     }
 
     // Chat Interne Staff
@@ -58,16 +59,16 @@ service cloud.firestore {
       allow read, write: if isStaff();
     }
 
-    // Mail (Trigger Email Extension)
-    match /mail/{mailId} {
-      allow create: if true;
-      allow read: if isAdmin();
-    }
-    
     // Messages de contact (public)
     match /contactMessages/{msgId} {
       allow create: if true;
       allow read: if isStaff();
+    }
+
+    // Mail (Trigger Email Extension)
+    match /mail/{mailId} {
+      allow create: if true;
+      allow read: if isAdmin();
     }
   }
 }
