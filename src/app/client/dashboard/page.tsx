@@ -48,27 +48,27 @@ export default function ClientDashboard() {
     }
   }, [user, isUserLoading, router]);
 
-  // Query Réservations - Uniquement si profil chargé et user présent
+  // Query Réservations - Uniquement si profil chargé et user présent pour éviter les erreurs de permission
   const reservationsQuery = useMemoFirebase(() => {
-    if (!user || isProfileLoading) return null;
+    if (!user || isProfileLoading || !profile) return null;
     return query(
       collection(db, 'reservations'),
       where('clientId', '==', user.uid),
       orderBy('createdAt', 'desc')
     );
-  }, [user, db, isProfileLoading]);
+  }, [user, db, isProfileLoading, profile]);
 
   const { data: reservations, isLoading: isReservationsLoading } = useCollection(reservationsQuery);
 
   // Query Chat (Support) - Uniquement si profil chargé et user présent
   const chatQuery = useMemoFirebase(() => {
-    if (!user || isProfileLoading) return null;
+    if (!user || isProfileLoading || !profile) return null;
     return query(
       collection(db, 'supportMessages'),
       where('clientId', '==', user.uid),
       orderBy('createdAt', 'asc')
     );
-  }, [user, db, isProfileLoading]);
+  }, [user, db, isProfileLoading, profile]);
 
   const { data: messages, isLoading: isChatLoading } = useCollection(chatQuery);
 

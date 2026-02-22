@@ -3,20 +3,22 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Fonctions de base sécurisées
+    // Fonctions de base sécurisées et optimisées
     function isAuthenticated() { return request.auth != null; }
     
     function getUserData() {
-      let path = /databases/$(database)/documents/userProfiles/$(request.auth.uid);
-      return exists(path) ? get(path).data : {"role": "guest"};
+      // Utilisation d'un chemin direct pour plus d'efficacité
+      return get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data;
     }
     
     function isStaff() {
-      return isAuthenticated() && getUserData().role in ["admin", "collaborator"];
+      let data = getUserData();
+      return isAuthenticated() && data != null && data.role in ["admin", "collaborator"];
     }
 
     function isAdmin() {
-      return isAuthenticated() && getUserData().role == "admin";
+      let data = getUserData();
+      return isAuthenticated() && data != null && data.role == "admin";
     }
 
     function isOwner(uid) {
@@ -35,10 +37,15 @@ service cloud.firestore {
       allow write: if isStaff();
     }
 
-    // Réservations
+    // Réservations - Séparation des règles list pour éviter les erreurs de validation
     match /reservations/{reservationId} {
       allow get: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isStaff());
-      allow list: if isAuthenticated() && ( (resource.data.clientId == request.auth.uid) || isStaff() );
+      
+      // Le staff peut tout lister
+      allow list: if isStaff();
+      // Le client ne peut lister que ses propres réservations (requête filtrée obligatoire)
+      allow list: if isAuthenticated() && resource.data.clientId == request.auth.uid;
+      
       allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
       allow update: if isAuthenticated() && (isStaff() || (resource.data.clientId == request.auth.uid && resource.data.status == "pending"));
       allow delete: if isAdmin();
@@ -58,7 +65,11 @@ service cloud.firestore {
     // Support Clients
     match /supportMessages/{msgId} {
       allow get: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isStaff());
-      allow list: if isAuthenticated() && ( (resource.data.clientId == request.auth.uid) || isStaff() );
+      
+      // Split list rules
+      allow list: if isStaff();
+      allow list: if isAuthenticated() && resource.data.clientId == request.auth.uid;
+      
       allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
       allow update: if isStaff();
     }
