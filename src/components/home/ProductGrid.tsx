@@ -1,7 +1,6 @@
-
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingCart, Heart, Star } from 'lucide-react';
@@ -9,18 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-
-interface Product {
-  id: string;
-  brand: string;
-  name: string;
-  volume: string;
-  price: number;
-  oldPrice?: number;
-  image: string;
-  badge?: string;
-  rating?: number;
-}
+import { ProductModal, type Product } from '@/components/ui/product-modal';
 
 const DEFAULT_PLACEHOLDER = "https://picsum.photos/seed/placeholder/600/600";
 
@@ -29,45 +17,43 @@ const mockProducts: Product[] = [
     id: '1',
     brand: 'LA ROCHE-POSAY',
     name: 'Lipikar Baume AP+M Relipidant',
-    volume: '400 ml',
     price: 18.90,
     oldPrice: 22.50,
     image: PlaceHolderImages.find(img => img.id === 'skincare-product')?.imageUrl || DEFAULT_PLACEHOLDER,
-    badge: '-15%',
-    rating: 5
+    promo: '-15%',
+    description: 'Baume relipidant triple-réparation. Apaise immédiatement la peau. Anti-grattage, anti-rechute.'
   },
   {
     id: '2',
     brand: 'ARKOPHARMA',
     name: 'Gelée Royale 1000mg Bio',
-    volume: '20 ampoules',
     price: 12.99,
     image: PlaceHolderImages.find(img => img.id === 'vitamin-supplement')?.imageUrl || DEFAULT_PLACEHOLDER,
-    rating: 4
+    description: 'Complément alimentaire à base de gelée royale bio pour renforcer l\'immunité.'
   },
   {
     id: '3',
     brand: 'URIAGE',
     name: 'Huile Lavante Nettoyante Corps',
-    volume: '1 L',
     price: 11.50,
     oldPrice: 14.90,
     image: PlaceHolderImages.find(img => img.id === 'hygiene-products')?.imageUrl || DEFAULT_PLACEHOLDER,
-    badge: 'TOP',
-    rating: 5
+    promo: 'TOP',
+    description: 'Huile lavante onctueuse pour les peaux sensibles et sèches.'
   },
   {
     id: '4',
     brand: 'GALLIA',
     name: 'Lait Bébé Calisma 1er âge',
-    volume: '800 g',
     price: 19.95,
     image: PlaceHolderImages.find(img => img.id === 'baby-care')?.imageUrl || DEFAULT_PLACEHOLDER,
-    rating: 4
+    description: 'Lait infantile pour nourrissons de 0 à 6 mois.'
   }
 ];
 
-export function ProductGrid({ title, subtitle, products = mockProducts }: { title: string, subtitle?: string, products?: Product[] }) {
+export function ProductGrid({ title, subtitle }: { title: string, subtitle?: string }) {
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
@@ -82,21 +68,22 @@ export function ProductGrid({ title, subtitle, products = mockProducts }: { titl
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-10">
-          {products.map((product) => (
-            <Card key={product.id} className="group overflow-hidden border-none shadow-none hover:shadow-2xl transition-all duration-500 rounded-3xl p-2 bg-white">
+          {mockProducts.map((product) => (
+            <Card 
+              key={product.id} 
+              className="group overflow-hidden border-none shadow-none hover:shadow-2xl transition-all duration-500 rounded-3xl p-2 bg-white cursor-pointer"
+              onClick={() => setSelectedProduct(product)}
+            >
               <div className="relative aspect-[4/5] overflow-hidden bg-slate-50 rounded-2xl">
-                {product.image && (
-                  <Image 
-                    src={product.image} 
-                    alt={product.name}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-700"
-                    data-ai-hint="pharmacy product"
-                  />
-                )}
-                {product.badge && (
+                <Image 
+                  src={product.image} 
+                  alt={product.name}
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                {product.promo && (
                   <Badge className="absolute top-4 left-4 bg-primary text-white font-bold px-3 py-1 rounded-full text-xs">
-                    {product.badge}
+                    {product.promo}
                   </Badge>
                 )}
                 <Button variant="ghost" size="icon" className="absolute top-4 right-4 bg-white/90 hover:bg-white rounded-full h-10 w-10 shadow-sm opacity-0 group-hover:opacity-100 transition-all scale-90 group-hover:scale-100">
@@ -106,16 +93,15 @@ export function ProductGrid({ title, subtitle, products = mockProducts }: { titl
               <CardContent className="pt-6 px-3">
                 <div className="flex items-center gap-1 mb-2">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`h-3 w-3 ${i < (product.rating || 4) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200'}`} />
+                    <Star key={i} className={`h-3 w-3 text-yellow-400 fill-yellow-400`} />
                   ))}
                 </div>
                 <p className="text-[11px] font-bold text-secondary uppercase tracking-widest mb-1">
                   {product.brand}
                 </p>
-                <h3 className="text-base font-semibold text-slate-800 line-clamp-2 min-h-[3rem] mb-1 group-hover:text-primary transition-colors">
+                <h3 className="text-base font-semibold text-slate-800 line-clamp-2 min-h-[3rem] mb-1 group-hover:text-primary">
                   {product.name}
                 </h3>
-                <p className="text-xs text-slate-500 mb-4">{product.volume}</p>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl font-black text-slate-900">
                     {product.price.toFixed(2)}€
@@ -137,6 +123,12 @@ export function ProductGrid({ title, subtitle, products = mockProducts }: { titl
           ))}
         </div>
       </div>
+
+      <ProductModal 
+        product={selectedProduct} 
+        isOpen={!!selectedProduct} 
+        onClose={() => setSelectedProduct(null)} 
+      />
     </section>
   );
 }
