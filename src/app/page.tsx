@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Header } from '@/components/layout/Header';
 import { Hero } from '@/components/home/Hero';
@@ -35,11 +36,11 @@ export default function Home() {
             <p className="text-xl text-slate-600 leading-relaxed font-medium">
               Depuis plus de 10 ans, la Pharmacie Nouvelle d'Ivry vous accompagne au quotidien avec des conseils personnalisés et une sélection rigoureuse des meilleures marques de parapharmacie. Profitez de nos services digitaux : Click & Collect en 2h et Scan d'Ordonnance sécurisé pour gagner du temps.
             </p>
-            <div className="mt-12 flex justify-center gap-12 grayscale opacity-40">
-               {/* Simulation de logos de certification */}
-               <div className="text-xs font-bold uppercase tracking-widest">Ordre National des Pharmaciens</div>
-               <div className="text-xs font-bold uppercase tracking-widest">Paiement 100% Sécurisé</div>
-               <div className="text-xs font-bold uppercase tracking-widest">Agréé ARS</div>
+            <div className="mt-12 flex justify-center gap-12 opacity-80">
+               {/* Simulation de logos de certification en couleurs originales */}
+               <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 border border-slate-200 px-4 py-2 rounded-lg">Ordre National des Pharmaciens</div>
+               <div className="text-[10px] font-black uppercase tracking-widest text-primary border border-primary/20 px-4 py-2 rounded-lg">Paiement 100% Sécurisé</div>
+               <div className="text-[10px] font-black uppercase tracking-widest text-secondary border border-secondary/20 px-4 py-2 rounded-lg">Agréé ARS</div>
             </div>
           </div>
         </section>

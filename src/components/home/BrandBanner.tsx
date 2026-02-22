@@ -59,7 +59,7 @@ export function BrandBanner() {
           <CarouselContent className="-ml-4 flex items-center">
             {brands.map((brand, index) => (
               <CarouselItem key={index} className="pl-4 basis-1/2 md:basis-1/3 lg:basis-1/5 xl:basis-1/6">
-                <div className="p-4 flex items-center justify-center grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-700 cursor-pointer group">
+                <div className="p-4 flex items-center justify-center transition-all duration-700 cursor-pointer group">
                   <div className="relative w-full aspect-[2/1] max-w-[220px] transition-transform duration-500 group-hover:scale-110">
                     <Image 
                       src={brand.image} 

@@ -33,7 +33,7 @@ export default function MarquesPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                {allBrands.map(name => (
                  <div key={name} className="bg-white p-10 border-2 border-slate-100 rounded-[32px] flex flex-col items-center justify-center gap-6 hover:border-primary hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer group">
-                   <div className="relative w-full aspect-[2/1] grayscale group-hover:grayscale-0 transition-all duration-700 opacity-60 group-hover:opacity-100">
+                   <div className="relative w-full aspect-[2/1] transition-all duration-700">
                       <Image 
                         src={`https://picsum.photos/seed/${name}/400/200`}
                         alt={name}
@@ -42,7 +42,7 @@ export default function MarquesPage() {
                         data-ai-hint="brand logo"
                       />
                    </div>
-                   <span className="font-black text-xs uppercase tracking-[0.2em] text-slate-400 group-hover:text-primary transition-colors">
+                   <span className="font-black text-xs uppercase tracking-[0.2em] text-slate-600 group-hover:text-primary transition-colors">
                      {name}
                    </span>
                  </div>
