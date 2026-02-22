@@ -7,9 +7,6 @@ import {
   Minus, 
   Plus, 
   ShoppingCart, 
-  Truck, 
-  Zap, 
-  Store, 
   CheckCircle2, 
   Maximize2 
 } from 'lucide-react';
@@ -46,7 +43,7 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
   const { toast } = useToast();
   const [quantity, setQuantity] = useState(1);
 
-  // Reset quantity when product changes
+  // Réinitialiser la quantité à l'ouverture pour un nouveau produit
   useEffect(() => {
     if (isOpen) setQuantity(1);
   }, [isOpen, product]);
@@ -65,18 +62,18 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl p-0 overflow-hidden border-none sm:rounded-[32px] shadow-2xl flex flex-col h-[100vh] sm:h-[90vh] w-full bg-white">
-        {/* Accessibility titles (Hidden from view) */}
+      <DialogContent className="max-w-4xl p-0 overflow-hidden border-none sm:rounded-[32px] shadow-2xl flex flex-col h-[100vh] sm:h-[90vh] w-full bg-white outline-none">
+        {/* Accessibilité (Masqué visuellement) */}
         <DialogTitle className="sr-only">
-          Détails du produit : {product.name}
+          {product.brand} - {product.name}
         </DialogTitle>
         <DialogDescription className="sr-only">
-          {product.description || `Informations détaillées sur le produit ${product.name} de la marque ${product.brand}.`}
+          {product.description || `Détails du produit ${product.name}`}
         </DialogDescription>
 
         <div className="flex flex-col sm:flex-row flex-grow overflow-hidden">
           
-          {/* Image Section - Top on mobile, Left on desktop */}
+          {/* Section Image - Haut sur mobile, Gauche sur desktop */}
           <div className="w-full sm:w-[45%] bg-slate-50 relative group overflow-hidden shrink-0 aspect-square sm:aspect-auto">
             <Image 
               src={product.image} 
@@ -95,34 +92,25 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                 {product.promo}
               </div>
             )}
-            {/* Mobile Close Button */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="absolute top-4 right-4 sm:hidden bg-white/50 backdrop-blur-md rounded-full h-10 w-10 z-30"
-              onClick={onClose}
-            >
-              <X className="w-6 h-6" />
-            </Button>
           </div>
 
-          {/* Info Section - Scrollable */}
-          <div className="flex-grow flex flex-col overflow-hidden">
+          {/* Section Infos - Scrollable */}
+          <div className="flex-grow flex flex-col overflow-hidden relative">
             <div className="flex-grow overflow-y-auto p-6 sm:p-12 pb-32 sm:pb-32">
-              <div className="flex items-center justify-between mb-4">
+              <div className="mb-2">
                 <span className="text-xs font-black text-primary uppercase tracking-[0.2em]">{product.brand}</span>
               </div>
               
               <div className="mb-8">
-                <h2 className="text-xl sm:text-3xl font-black text-slate-900 leading-tight mb-4 uppercase tracking-tighter text-left">
+                <h2 className="text-xl sm:text-3xl font-black text-slate-900 leading-tight mb-4 uppercase tracking-tighter">
                   {product.name}
                 </h2>
-                <p className="text-slate-500 font-medium text-sm sm:text-base leading-relaxed text-left">
+                <p className="text-slate-500 font-medium text-sm sm:text-base leading-relaxed">
                   {product.description || "Formulé sous contrôle dermatologique pour minimiser les risques d'allergies. Sans parabènes, sans colorants artificiels."}
                 </p>
               </div>
 
-              {/* Special Offer */}
+              {/* Offre Spéciale */}
               {product.offerText && (
                 <div className="bg-accent/50 border border-primary/10 rounded-2xl p-4 mb-8">
                   <p className="text-sm font-black text-secondary uppercase tracking-tight mb-1">Offre exclusive</p>
@@ -130,8 +118,8 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                 </div>
               )}
 
-              {/* Price and Quantity */}
-              <div className="space-y-6 sm:space-y-8 mb-10 border-b border-slate-100 pb-8">
+              {/* Prix et Quantité */}
+              <div className="space-y-6 mb-10 border-b border-slate-100 pb-8">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                   <div className="flex items-baseline gap-4">
                     <span className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter">
@@ -175,9 +163,9 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                 </div>
               </div>
 
-              {/* Delivery info */}
+              {/* Livraison / Retrait */}
               <div className="space-y-4 mb-10">
-                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Livraison & Retrait</h4>
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Livraison & Retrait</h4>
                 {(product.delivery || [
                   'Livraison à domicile en France',
                   'Retrait gratuit en pharmacie en 2h'
@@ -189,7 +177,7 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                 ))}
               </div>
 
-              {/* Long Description */}
+              {/* Ingrédients */}
               {product.ingredients && (
                 <div className="space-y-6 text-sm text-slate-600 leading-relaxed font-medium">
                   <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Ingrédients principaux</h4>
@@ -200,10 +188,10 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
               )}
             </div>
 
-            {/* Sticky Action Bar */}
+            {/* Barre d'Action Fixe (Sticky) */}
             <div className="absolute bottom-0 inset-x-0 border-t border-slate-100 bg-white/95 backdrop-blur-xl p-4 sm:p-6 sm:px-12 flex items-center justify-between gap-4 sm:gap-6 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] z-50">
               <div className="flex flex-col shrink-0">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Prix Total</span>
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total</span>
                 <span className="text-xl sm:text-2xl font-black text-secondary tracking-tighter">
                   {totalPrice}€
                 </span>

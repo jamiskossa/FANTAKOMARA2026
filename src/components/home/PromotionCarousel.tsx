@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingCart, ArrowRight, Star } from 'lucide-react';
@@ -15,16 +15,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-
-interface Product {
-  id: string;
-  brand: string;
-  name: string;
-  price: number;
-  oldPrice: number;
-  discount: string;
-  image: string;
-}
+import { ProductModal, type Product } from '@/components/ui/product-modal';
 
 const promotionProducts: Product[] = [
   {
@@ -33,8 +24,9 @@ const promotionProducts: Product[] = [
     name: "Coffret Noël Le Rituel d'Exception",
     price: 44.99,
     oldPrice: 48.99,
-    discount: '-4€',
-    image: PlaceHolderImages.find(img => img.id === 'skincare-product')?.imageUrl || ""
+    promo: '-4€',
+    image: PlaceHolderImages.find(img => img.id === 'skincare-product')?.imageUrl || "",
+    description: "Un coffret d'exception pour un rituel de soin complet à la fragrance iconique de Nuxe."
   },
   {
     id: 'p2',
@@ -42,8 +34,9 @@ const promotionProducts: Product[] = [
     name: 'Age Absolu Sérum',
     price: 40.99,
     oldPrice: 43.99,
-    discount: '-3€',
-    image: PlaceHolderImages.find(img => img.id === 'skincare-product')?.imageUrl || ""
+    promo: '-3€',
+    image: PlaceHolderImages.find(img => img.id === 'skincare-product')?.imageUrl || "",
+    description: "Sérum booster de collagène et d'élastine pour une peau redensifiée et raffermie."
   },
   {
     id: 'p3',
@@ -51,8 +44,9 @@ const promotionProducts: Product[] = [
     name: 'Topialyse Baume Protect+ x2',
     price: 28.79,
     oldPrice: 35.99,
-    discount: '-7,20€',
-    image: PlaceHolderImages.find(img => img.id === 'hygiene-products')?.imageUrl || ""
+    promo: '-7,20€',
+    image: PlaceHolderImages.find(img => img.id === 'hygiene-products')?.imageUrl || "",
+    description: "Le premier soin émollient qui protège contre les agresseurs environnementaux."
   },
   {
     id: 'p4',
@@ -60,8 +54,9 @@ const promotionProducts: Product[] = [
     name: 'Lipikar Baume AP+M Relipidant',
     price: 18.90,
     oldPrice: 22.50,
-    discount: '-15%',
-    image: PlaceHolderImages.find(img => img.id === 'skincare-product')?.imageUrl || ""
+    promo: '-15%',
+    image: PlaceHolderImages.find(img => img.id === 'skincare-product')?.imageUrl || "",
+    description: "Baume relipidant triple-réparation. Apaise immédiatement la peau."
   },
   {
     id: 'p5',
@@ -69,39 +64,15 @@ const promotionProducts: Product[] = [
     name: 'Atoderm Huile de Douche 1L',
     price: 12.50,
     oldPrice: 15.00,
-    discount: '-2,50€',
-    image: PlaceHolderImages.find(img => img.id === 'hygiene-products')?.imageUrl || ""
-  },
-  {
-    id: 'p6',
-    brand: 'ARKOPHARMA',
-    name: 'Gelée Royale 1000mg Bio',
-    price: 9.99,
-    oldPrice: 12.99,
-    discount: '-3€',
-    image: PlaceHolderImages.find(img => img.id === 'vitamin-supplement')?.imageUrl || ""
-  },
-  {
-    id: 'p7',
-    brand: 'NUXE',
-    name: 'Huile Prodigieuse 100ml',
-    price: 19.95,
-    oldPrice: 24.50,
-    discount: '-15%',
-    image: PlaceHolderImages.find(img => img.id === 'skincare-product')?.imageUrl || ""
-  },
-  {
-    id: 'p8',
-    brand: 'GALLIA',
-    name: 'Lait Bébé Calisma 1er âge 800g',
-    price: 18.50,
-    oldPrice: 21.90,
-    discount: '-3,40€',
-    image: PlaceHolderImages.find(img => img.id === 'baby-care')?.imageUrl || ""
+    promo: '-2,50€',
+    image: PlaceHolderImages.find(img => img.id === 'hygiene-products')?.imageUrl || "",
+    description: "Nettoie en douceur et apaise les peaux sensibles sèches à très sèches."
   }
 ];
 
 export function PromotionCarousel() {
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
   return (
     <section className="py-20 bg-[#f9fafb]">
       <div className="container mx-auto px-4">
@@ -130,19 +101,21 @@ export function PromotionCarousel() {
             <CarouselContent className="-ml-4">
               {promotionProducts.map((product) => (
                 <CarouselItem key={product.id} className="pl-4 md:basis-1/2 lg:basis-1/4">
-                  <Card className="group border-none shadow-none hover:shadow-xl transition-all duration-500 rounded-3xl p-3 bg-white h-full flex flex-col">
-                    <Link href={`/produit/${product.id}`} className="relative aspect-square overflow-hidden bg-slate-50 rounded-2xl block mb-6">
+                  <Card 
+                    className="group border-none shadow-none hover:shadow-xl transition-all duration-500 rounded-3xl p-3 bg-white h-full flex flex-col cursor-pointer"
+                    onClick={() => setSelectedProduct(product)}
+                  >
+                    <div className="relative aspect-square overflow-hidden bg-slate-50 rounded-2xl block mb-6">
                       <Image 
                         src={product.image || "https://picsum.photos/seed/placeholder/600/600"} 
                         alt={product.name}
                         fill
                         className="object-cover group-hover:scale-110 transition-transform duration-700"
-                        data-ai-hint="pharmacy product promotion"
                       />
                       <Badge className="absolute top-4 left-4 bg-destructive text-white font-black px-3 py-1 rounded-full text-xs shadow-sm">
-                        {product.discount}
+                        {product.promo}
                       </Badge>
-                    </Link>
+                    </div>
                     <CardContent className="p-2 flex flex-col flex-grow">
                       <div className="flex items-center gap-1 mb-2">
                          {[...Array(5)].map((_, i) => (
@@ -152,18 +125,16 @@ export function PromotionCarousel() {
                       <p className="text-[10px] font-black text-secondary uppercase tracking-widest mb-1">
                         {product.brand}
                       </p>
-                      <Link href={`/produit/${product.id}`}>
-                        <h3 className="text-sm font-bold text-slate-800 line-clamp-2 min-h-[2.5rem] mb-3 group-hover:text-primary transition-colors">
-                          {product.name}
-                        </h3>
-                      </Link>
+                      <h3 className="text-sm font-bold text-slate-800 line-clamp-2 min-h-[2.5rem] mb-3 group-hover:text-primary transition-colors">
+                        {product.name}
+                      </h3>
                       <div className="mt-auto pt-2">
                         <div className="flex items-baseline gap-2 mb-4">
                           <span className="text-2xl font-black text-slate-900">
                             {product.price.toFixed(2).replace('.', ',')}€
                           </span>
                           <span className="text-sm text-destructive font-medium line-through">
-                            {product.oldPrice.toFixed(2).replace('.', ',')}€
+                            {product.oldPrice?.toFixed(2).replace('.', ',')}€
                           </span>
                         </div>
                         <Button className="w-full rounded-full bg-primary hover:bg-primary/90 text-white font-bold h-11 transition-all shadow-md">
@@ -181,6 +152,12 @@ export function PromotionCarousel() {
           </Carousel>
         </div>
       </div>
+
+      <ProductModal 
+        product={selectedProduct} 
+        isOpen={!!selectedProduct} 
+        onClose={() => setSelectedProduct(null)} 
+      />
     </section>
   );
 }
