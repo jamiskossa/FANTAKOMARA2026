@@ -46,13 +46,23 @@ export default function AdminDashboard() {
     }
   }, [user, isUserLoading, profile, router]);
 
-  const productsQuery = useMemoFirebase(() => query(collection(db, 'products'), limit(20)), [db]);
+  // Guard: Only fetch if user is admin
+  const productsQuery = useMemoFirebase(() => {
+    if (!profile || profile.role !== 'admin') return null;
+    return query(collection(db, 'products'), limit(20));
+  }, [db, profile]);
   const { data: products, isLoading: isProductsLoading } = useCollection(productsQuery);
 
-  const reservationsQuery = useMemoFirebase(() => query(collection(db, 'reservations'), orderBy('createdAt', 'desc'), limit(10)), [db]);
+  const reservationsQuery = useMemoFirebase(() => {
+    if (!profile || profile.role !== 'admin') return null;
+    return query(collection(db, 'reservations'), orderBy('createdAt', 'desc'), limit(10));
+  }, [db, profile]);
   const { data: reservations, isLoading: isReservationsLoading } = useCollection(reservationsQuery);
 
-  const clientsQuery = useMemoFirebase(() => query(collection(db, 'userProfiles'), limit(10)), [db]);
+  const clientsQuery = useMemoFirebase(() => {
+    if (!profile || profile.role !== 'admin') return null;
+    return query(collection(db, 'userProfiles'), limit(10));
+  }, [db, profile]);
   const { data: clients, isLoading: isClientsLoading } = useCollection(clientsQuery);
 
   const handleAISuggest = async (product: any) => {
@@ -81,6 +91,8 @@ export default function AdminDashboard() {
       </div>
     );
   }
+
+  if (!profile || profile.role !== 'admin') return null;
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">

@@ -34,12 +34,16 @@ export default function CollaboratorDashboard() {
     }
   }, [user, isUserLoading, profile, router]);
 
-  const reservationsQuery = useMemoFirebase(() => query(
-    collection(db, 'reservations'), 
-    where('status', 'in', ['pending', 'prepared']),
-    orderBy('createdAt', 'desc'), 
-    limit(20)
-  ), [db]);
+  // Guard: Only fetch if user is authorized
+  const reservationsQuery = useMemoFirebase(() => {
+    if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) return null;
+    return query(
+      collection(db, 'reservations'), 
+      where('status', 'in', ['pending', 'prepared']),
+      orderBy('createdAt', 'desc'), 
+      limit(20)
+    );
+  }, [db, profile]);
   
   const { data: reservations, isLoading: isReservationsLoading } = useCollection(reservationsQuery);
 
@@ -63,6 +67,8 @@ export default function CollaboratorDashboard() {
       </div>
     );
   }
+
+  if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) return null;
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">

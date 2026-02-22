@@ -7,15 +7,15 @@ service cloud.firestore {
     function isAuthenticated() { return request.auth != null; }
     function isOwner(userId) { return isAuthenticated() && request.auth.uid == userId; }
 
-    // Récupération sécurisée du rôle
-    function getRole() {
+    // Récupération sécurisée du rôle (depuis userProfiles)
+    function getUserRole() {
       return get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role;
     }
     
     function hasRole(role) {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) && 
-             getRole() == role;
+             getUserRole() == role;
     }
 
     function isAdmin() { return hasRole("admin"); }
@@ -36,22 +36,26 @@ service cloud.firestore {
 
     // Réservations
     match /reservations/{reservationId} {
-      allow get: if isAuthenticated() && (isOwner(resource.data.clientId) || isCollaborator() || isAdmin());
-      allow list: if isCollaborator() || isAdmin() || (isAuthenticated() && resource.data.clientId == request.auth.uid);
+      // Accès direct si propriétaire, ou via rôle
+      allow get: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isCollaborator() || isAdmin());
+      
+      // Liste (query) - Autorise si filtre sur clientId == uid, ou via rôle admin/collab
+      allow list: if isAuthenticated() && (isCollaborator() || isAdmin() || resource.data.clientId == request.auth.uid);
+      
       allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
-      allow update: if isCollaborator() || isAdmin() || (isOwner(resource.data.clientId) && resource.data.status == "pending");
+      allow update: if isCollaborator() || isAdmin() || (isAuthenticated() && resource.data.clientId == request.auth.uid && resource.data.status == "pending");
       allow delete: if isAdmin();
     }
 
     // Support / Chat
     match /supportMessages/{msgId} {
-      allow read: if isOwner(resource.data.clientId) || isCollaborator() || isAdmin();
+      allow read: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isCollaborator() || isAdmin());
       allow create: if isAuthenticated() && request.resource.data.senderId == request.auth.uid;
     }
 
     // Notifications
     match /notifications/{notifId} {
-      allow read: if isOwner(resource.data.recipientId);
+      allow read: if isAuthenticated() && resource.data.recipientId == request.auth.uid;
       allow create: if isCollaborator() || isAdmin();
     }
 
