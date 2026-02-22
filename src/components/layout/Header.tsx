@@ -17,17 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
-  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -75,20 +65,18 @@ export function Header() {
           <div className="flex items-center justify-between gap-2 sm:gap-4 h-full">
             <Link href="/" className="flex items-center gap-2 shrink-0 group">
               <div className="relative w-8 h-8 lg:w-12 lg:h-12 rounded-xl overflow-hidden border-2 border-slate-100 p-0.5 bg-white shadow-soft transition-all group-hover:border-primary/20 shrink-0">
-                <div className="relative w-full h-full rounded-lg overflow-hidden">
-                  <Image 
-                    src="/images/logo.png" 
-                    alt="Logo PNI" 
-                    fill 
-                    className="object-contain"
-                    priority
-                    sizes="(max-width: 768px) 32px, 48px"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = "https://picsum.photos/seed/ph-logo/200/200";
-                    }}
-                  />
-                </div>
+                <Image 
+                  src="/images/logo.png" 
+                  alt="Logo PNI" 
+                  fill 
+                  className="object-contain"
+                  priority
+                  sizes="48px"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = "https://picsum.photos/seed/ph-logo/200/200";
+                  }}
+                />
               </div>
               <div className="flex flex-col">
                 <span className="text-[9px] lg:text-base font-black text-slate-900 leading-none tracking-tighter uppercase">Pharmacie Nouvelle</span>
@@ -122,17 +110,12 @@ export function Header() {
                       <div className="px-2 py-3 mb-1 bg-slate-50 rounded-xl">
                         <p className="text-[10px] font-black uppercase text-primary leading-none mb-1">Session Active</p>
                         <p className="text-xs font-bold text-slate-900 truncate">{user.email}</p>
-                        {profile?.role && (
-                          <span className="inline-block mt-2 px-2 py-0.5 bg-primary/10 text-primary text-[8px] font-black uppercase rounded-full tracking-widest">
-                            {profile.role}
-                          </span>
-                        )}
+                        <span className="inline-block mt-2 px-2 py-0.5 bg-primary/10 text-primary text-[8px] font-black uppercase rounded-full tracking-widest">
+                          {role}
+                        </span>
                       </div>
                       <DropdownMenuItem asChild className="rounded-lg py-2 font-bold cursor-pointer">
-                        <Link href="/compte">Mon profil patient</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="rounded-lg py-2 font-bold cursor-pointer">
-                        <Link href="/client/dashboard">Mes réservations</Link>
+                        <Link href="/compte">Mon profil</Link>
                       </DropdownMenuItem>
                       
                       {isStaff && (
@@ -152,6 +135,12 @@ export function Header() {
                             </DropdownMenuItem>
                           )}
                         </>
+                      )}
+                      
+                      {!isStaff && (
+                        <DropdownMenuItem asChild className="rounded-lg py-2 font-bold cursor-pointer">
+                          <Link href="/client/dashboard">Mes réservations</Link>
+                        </DropdownMenuItem>
                       )}
                       
                       <DropdownMenuSeparator />
@@ -198,11 +187,6 @@ export function Header() {
         {mounted && isMenuOpen && (
           <div className="lg:hidden fixed inset-0 top-14 bg-white z-[99] h-[calc(100vh-56px)] overflow-y-auto animate-in slide-in-from-right duration-300">
             <div className="p-4 space-y-4">
-              <div className="relative w-full">
-                <Input placeholder="Rechercher..." className="rounded-full pr-10 h-10 border-slate-200 bg-slate-50 font-bold text-[10px]" />
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-              </div>
-
               <ul className="space-y-4 pt-2">
                 <li><Link href="/categorie/sante" className="block text-xs font-black uppercase" onClick={() => setIsMenuOpen(false)}>Santé</Link></li>
                 <li><Link href="/categorie/beaute" className="block text-xs font-black uppercase" onClick={() => setIsMenuOpen(false)}>Beauté</Link></li>
