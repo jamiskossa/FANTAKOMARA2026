@@ -1,10 +1,10 @@
-
 "use client";
 
 import React from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { BrandBanner } from '@/components/home/BrandBanner';
+import { MarquesSection } from '@/components/home/MarquesSection';
 import Image from 'next/image';
 
 export default function MarquesPage() {
@@ -30,7 +30,7 @@ export default function MarquesPage() {
         
         <section className="py-24">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-24">
                {allBrands.map(name => (
                  <div key={name} className="bg-white p-10 border-2 border-slate-100 rounded-[32px] flex flex-col items-center justify-center gap-6 hover:border-primary hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 cursor-pointer group">
                    <div className="relative w-full aspect-[2/1] transition-all duration-700">
@@ -48,6 +48,9 @@ export default function MarquesPage() {
                  </div>
                ))}
             </div>
+
+            {/* Index alphabétique complet déplacé ici */}
+            <MarquesSection />
           </div>
         </section>
       </main>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Header } from '@/components/layout/Header';
 import { Hero } from '@/components/home/Hero';
@@ -6,7 +5,6 @@ import { ProductGrid } from '@/components/home/ProductGrid';
 import { PromotionCarousel } from '@/components/home/PromotionCarousel';
 import { VisualCategories } from '@/components/home/VisualCategories';
 import { BrandBanner } from '@/components/home/BrandBanner';
-import { MarquesSection } from '@/components/home/MarquesSection';
 import { Footer } from '@/components/layout/Footer';
 import { Badge } from '@/components/ui/badge';
 
@@ -44,8 +42,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        <MarquesSection />
       </main>
 
       <Footer />
