@@ -1,6 +1,7 @@
+
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Header } from '@/components/layout/Header';
@@ -33,9 +34,13 @@ import {
   Zap, 
   Store, 
   CheckCircle2,
-  Info
+  Info,
+  Plus,
+  Minus,
+  Maximize2
 } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useToast } from '@/hooks/use-toast';
 
 interface Product {
   id: string;
@@ -124,12 +129,25 @@ const initialProducts: Product[] = [
 ];
 
 export default function NettoyantsDemaquillantsPage() {
+  const { toast } = useToast();
   const [priceRange, setPriceRange] = useState([0, 100]);
   const [sortBy, setSortBy] = useState('pertinence');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [quantity, setQuantity] = useState(1);
 
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
+    setQuantity(1);
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedProduct) return;
+    
+    toast({
+      title: "Ajouté au panier",
+      description: `${quantity} x ${selectedProduct.name} a été ajouté à votre panier.`,
+    });
+    setSelectedProduct(null);
   };
 
   return (
@@ -280,7 +298,7 @@ export default function NettoyantsDemaquillantsPage() {
                       className="w-full rounded-full bg-slate-900 hover:bg-primary text-white font-black h-12 transition-all shadow-md group-hover:shadow-primary/20 text-xs uppercase tracking-widest"
                       onClick={(e) => {
                         e.stopPropagation();
-                        // Add to cart logic
+                        handleProductClick(product);
                       }}
                     >
                       <ShoppingCart className="w-4 h-4 mr-2" />
@@ -304,29 +322,34 @@ export default function NettoyantsDemaquillantsPage() {
         </div>
       </main>
 
-      {/* MODAL PRODUIT EXPERT */}
+      {/* MODAL PRODUIT EXPERT AMÉLIORÉE */}
       {selectedProduct && (
         <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
-          <DialogContent className="max-w-4xl p-0 overflow-hidden border-none rounded-[32px] shadow-2xl">
-            <div className="flex flex-col md:flex-row h-full max-h-[90vh] overflow-y-auto md:overflow-hidden">
-              {/* Image Section */}
-              <div className="md:w-1/2 bg-slate-50 relative aspect-square md:aspect-auto h-80 md:h-auto">
+          <DialogContent className="max-w-4xl p-0 overflow-hidden border-none rounded-[32px] shadow-2xl flex flex-col h-[90vh]">
+            <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
+              {/* Image Section with Zoom */}
+              <div className="md:w-[45%] bg-slate-100 relative group overflow-hidden shrink-0">
                 <Image 
                   src={selectedProduct.image} 
                   alt={selectedProduct.name}
                   fill
-                  className="object-cover"
+                  className="object-cover transition-transform duration-700 group-hover:scale-110 cursor-zoom-in"
                 />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors pointer-events-none" />
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Maximize2 className="w-4 h-4 text-slate-600" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-600">Survolez pour zoomer</span>
+                </div>
                 {selectedProduct.promo && (
-                  <div className="absolute top-6 left-6 bg-primary text-white font-black px-4 py-2 rounded-full text-xs shadow-xl z-10">
+                  <div className="absolute top-6 left-6 bg-primary text-white font-black px-4 py-2 rounded-full text-xs shadow-xl z-10 uppercase tracking-widest">
                     {selectedProduct.promo}
                   </div>
                 )}
               </div>
 
-              {/* Info Section */}
-              <div className="md:w-1/2 p-8 md:p-12 bg-white flex flex-col">
-                <div className="flex-grow">
+              {/* Info Section with Scroll */}
+              <div className="flex-grow flex flex-col overflow-hidden bg-white">
+                <div className="flex-grow overflow-y-auto p-8 md:p-12 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-xs font-black text-primary uppercase tracking-[0.2em]">{selectedProduct.brand}</span>
                     <div className="flex items-center gap-0.5">
@@ -336,11 +359,11 @@ export default function NettoyantsDemaquillantsPage() {
                     </div>
                   </div>
                   
-                  <DialogHeader>
+                  <DialogHeader className="mb-8">
                     <DialogTitle className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-4 uppercase tracking-tighter">
                       {selectedProduct.name}
                     </DialogTitle>
-                    <DialogDescription className="text-slate-500 font-medium text-base mb-8 leading-relaxed">
+                    <DialogDescription className="text-slate-500 font-medium text-base leading-relaxed">
                       {selectedProduct.fullDescription || selectedProduct.description}
                     </DialogDescription>
                   </DialogHeader>
@@ -350,26 +373,60 @@ export default function NettoyantsDemaquillantsPage() {
                     <div className="bg-accent/50 border border-primary/10 rounded-2xl p-4 mb-8 flex items-start gap-3">
                       <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-sm font-black text-secondary uppercase tracking-tight mb-1">Offre en cours</p>
+                        <p className="text-sm font-black text-secondary uppercase tracking-tight mb-1">Offre exclusive</p>
                         <p className="text-sm text-slate-600 font-bold">{selectedProduct.offerDetails}</p>
                       </div>
                     </div>
                   )}
 
-                  {/* Prix */}
-                  <div className="flex items-baseline gap-4 mb-10">
-                    <span className="text-4xl font-black text-slate-900 tracking-tighter">
-                      {selectedProduct.price.toFixed(2).replace('.', ',')}€
-                    </span>
-                    {selectedProduct.oldPrice && (
-                      <span className="text-lg text-destructive font-bold line-through opacity-40">
-                        {selectedProduct.oldPrice.toFixed(2).replace('.', ',')}€
-                      </span>
-                    )}
+                  {/* Prix et Quantité Section */}
+                  <div className="space-y-8 mb-10 border-b border-slate-100 pb-8">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-baseline gap-4">
+                        <span className="text-4xl font-black text-slate-900 tracking-tighter">
+                          {selectedProduct.price.toFixed(2).replace('.', ',')}€
+                        </span>
+                        {selectedProduct.oldPrice && (
+                          <span className="text-lg text-destructive font-bold line-through opacity-40">
+                            {selectedProduct.oldPrice.toFixed(2).replace('.', ',')}€
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-4">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Quantité</span>
+                        <div className="flex items-center bg-slate-50 rounded-full border border-slate-200 p-1">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 rounded-full hover:bg-white hover:shadow-sm"
+                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                            disabled={quantity <= 1}
+                          >
+                            <Minus className="h-3 w-3" />
+                          </Button>
+                          <input 
+                            type="number" 
+                            value={quantity}
+                            onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                            className="w-10 text-center bg-transparent border-none focus:ring-0 font-black text-sm"
+                          />
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 rounded-full hover:bg-white hover:shadow-sm"
+                            onClick={() => setQuantity(quantity + 1)}
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Livraison & Services */}
-                  <div className="space-y-4 mb-10 border-t border-slate-100 pt-8">
+                  <div className="space-y-4 mb-10">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Livraison & Retrait</h4>
                     {selectedProduct.deliveryOptions.map((option, idx) => (
                       <div key={idx} className="flex items-center gap-3 text-slate-600">
                         {option.includes('domicile') && <Truck className="w-5 h-5 text-primary" />}
@@ -380,20 +437,40 @@ export default function NettoyantsDemaquillantsPage() {
                       </div>
                     ))}
                   </div>
+
+                  {/* Description Détail (Contenu Long) */}
+                  <div className="space-y-6 text-sm text-slate-600 leading-relaxed font-medium pb-8">
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Conseils d'expert</h4>
+                    <p>Appliquer matin et/ou soir sur le visage et le cou préalablement nettoyés. Sa texture fondante pénètre instantanément sans laisser de film gras, idéale comme base de maquillage.</p>
+                    <p>Formulé sous contrôle dermatologique pour minimiser les risques d'allergies. Sans parabènes, sans colorants artificiels.</p>
+                  </div>
                 </div>
 
-                <div className="mt-auto pt-6 flex flex-col sm:flex-row gap-4">
-                  <Button className="flex-1 rounded-full bg-primary hover:bg-primary/90 text-white font-black h-14 text-sm uppercase tracking-widest shadow-lg shadow-primary/20">
-                    <ShoppingCart className="w-5 h-5 mr-3" />
-                    Ajouter au panier
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="flex-1 rounded-full border-slate-200 font-black h-14 text-sm uppercase tracking-widest hover:bg-slate-50 transition-all"
-                    onClick={() => setSelectedProduct(null)}
-                  >
-                    Continuer mes achats
-                  </Button>
+                {/* Sticky Action Bar */}
+                <div className="mt-auto border-t border-slate-100 bg-white/80 backdrop-blur-xl p-6 md:px-12 flex items-center justify-between gap-6 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] z-20">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Prix Total</span>
+                    <span className="text-2xl font-black text-secondary tracking-tighter">
+                      {(selectedProduct.price * quantity).toFixed(2).replace('.', ',')}€
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 grow max-w-md">
+                    <Button 
+                      className="grow rounded-full bg-primary hover:bg-primary/90 text-white font-black h-14 text-sm uppercase tracking-widest shadow-lg shadow-primary/20 transition-all hover:-translate-y-1"
+                      onClick={handleAddToCart}
+                    >
+                      <ShoppingCart className="w-5 h-5 mr-3" />
+                      Ajouter au panier
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="rounded-full border-slate-200 font-black h-14 w-14 p-0 uppercase tracking-widest hover:bg-slate-50 transition-all"
+                      onClick={() => setSelectedProduct(null)}
+                      title="Fermer"
+                    >
+                      <X className="w-5 h-5" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
