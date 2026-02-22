@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -39,7 +40,7 @@ export default function ClientDashboard() {
     }
   }, [user, isUserLoading, router]);
 
-  // Query Réservations
+  // Query Réservations - Strictement filtrée pour respecter les Security Rules
   const reservationsQuery = useMemoFirebase(() => {
     if (!user) return null;
     return query(
@@ -51,7 +52,7 @@ export default function ClientDashboard() {
 
   const { data: reservations, isLoading: isReservationsLoading } = useCollection(reservationsQuery);
 
-  // Query Chat (Support)
+  // Query Chat (Support) - Strictement filtrée pour respecter les Security Rules
   const chatQuery = useMemoFirebase(() => {
     if (!user) return null;
     return query(
@@ -78,7 +79,7 @@ export default function ClientDashboard() {
       });
       setNewMessage('');
     } catch (e) {
-      console.error(e);
+      console.error("Erreur lors de l'envoi du message:", e);
     }
   };
 

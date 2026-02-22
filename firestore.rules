@@ -8,19 +8,18 @@ service cloud.firestore {
     function isOwner(userId) { return isAuthenticated() && request.auth.uid == userId; }
 
     // Récupération sécurisée du rôle (depuis userProfiles)
-    function getUserRole() {
-      return get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role;
+    function getUserData() {
+      return get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data;
     }
     
     function hasRole(role) {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) && 
-             getUserRole() == role;
+             getUserData().role == role;
     }
 
     function isAdmin() { return hasRole("admin"); }
     function isCollaborator() { return hasRole("collaborator"); }
-    function isClient() { return hasRole("client"); }
 
     // Profils Utilisateurs
     match /userProfiles/{userId} {
@@ -49,7 +48,12 @@ service cloud.firestore {
 
     // Support / Chat
     match /supportMessages/{msgId} {
-      allow read: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isCollaborator() || isAdmin());
+      // Autorise la lecture individuelle
+      allow get: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isCollaborator() || isAdmin());
+      
+      // Autorise la liste (query) si filtrée par clientId ou si staff
+      allow list: if isAuthenticated() && (isCollaborator() || isAdmin() || resource.data.clientId == request.auth.uid);
+      
       allow create: if isAuthenticated() && request.resource.data.senderId == request.auth.uid;
     }
 
