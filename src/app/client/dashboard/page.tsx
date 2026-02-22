@@ -40,7 +40,7 @@ export default function ClientDashboard() {
     }
   }, [user, isUserLoading, router]);
 
-  // Query Réservations - Strictement filtrée pour respecter les Security Rules
+  // Query Réservations - Strictement filtrée par clientId pour les Security Rules
   const reservationsQuery = useMemoFirebase(() => {
     if (!user) return null;
     return query(
@@ -52,7 +52,7 @@ export default function ClientDashboard() {
 
   const { data: reservations, isLoading: isReservationsLoading } = useCollection(reservationsQuery);
 
-  // Query Chat (Support) - Strictement filtrée pour respecter les Security Rules
+  // Query Chat (Support) - Filtre obligatoire clientId pour satisfaire allow list
   const chatQuery = useMemoFirebase(() => {
     if (!user) return null;
     return query(
@@ -119,7 +119,6 @@ export default function ClientDashboard() {
       <main className="flex-grow container mx-auto px-4 py-8 lg:py-12">
         <div className="max-w-5xl mx-auto">
           
-          {/* Header Dashboard */}
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 lg:mb-12 gap-6">
             <div>
               <h1 className="text-3xl lg:text-4xl font-black text-slate-900 uppercase tracking-tighter">Mon Espace Santé</h1>
@@ -177,7 +176,7 @@ export default function ClientDashboard() {
                               {res.deliveryOption === 'click-and-collect' ? 'Retrait Pharmacie' : 'Livraison Domicile'}
                             </h3>
                             <div className="flex flex-wrap items-center text-[10px] text-slate-500 font-bold gap-4 uppercase tracking-widest">
-                              <span className="flex items-center"><Clock className="h-3.5 w-3.5 mr-1.5 text-primary" /> {new Date(res.createdAt).toLocaleDateString('fr-FR')}</span>
+                              <span className="flex items-center"><Clock className="h-3.5 w-3.5 mr-1.5 text-primary" /> {res.createdAt ? (typeof res.createdAt === 'string' ? new Date(res.createdAt).toLocaleDateString('fr-FR') : new Date(res.createdAt.seconds * 1000).toLocaleDateString('fr-FR')) : '...'}</span>
                               <span className="flex items-center"><MapPin className="h-3.5 w-3.5 mr-1.5 text-secondary" /> {res.deliveryOption === 'click-and-collect' ? 'Ivry' : 'Votre adresse'}</span>
                             </div>
                           </div>

@@ -7,7 +7,7 @@ service cloud.firestore {
     function isAuthenticated() { return request.auth != null; }
     function isOwner(userId) { return isAuthenticated() && request.auth.uid == userId; }
 
-    // Récupération sécurisée du rôle (depuis userProfiles)
+    // Récupération sécurisée du rôle
     function getUserData() {
       return get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data;
     }
@@ -20,53 +20,47 @@ service cloud.firestore {
 
     function isAdmin() { return hasRole("admin"); }
     function isCollaborator() { return hasRole("collaborator"); }
+    function isStaff() { return isAdmin() || isCollaborator(); }
 
     // Profils Utilisateurs
     match /userProfiles/{userId} {
-      allow read: if isOwner(userId) || isCollaborator() || isAdmin();
+      allow read: if isOwner(userId) || isStaff();
       allow write: if isOwner(userId) || isAdmin();
     }
 
     // Catalogue Produits
     match /products/{productId} {
       allow read: if true;
-      allow write: if isCollaborator() || isAdmin();
+      allow write: if isStaff();
     }
 
     // Réservations
     match /reservations/{reservationId} {
-      // Accès direct si propriétaire, ou via rôle
-      allow get: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isCollaborator() || isAdmin());
-      
-      // Liste (query) - Autorise si filtre sur clientId == uid, ou via rôle admin/collab
-      allow list: if isAuthenticated() && (isCollaborator() || isAdmin() || resource.data.clientId == request.auth.uid);
-      
+      allow get: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isStaff());
+      allow list: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
       allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
-      allow update: if isCollaborator() || isAdmin() || (isAuthenticated() && resource.data.clientId == request.auth.uid && resource.data.status == "pending");
+      allow update: if isStaff() || (isAuthenticated() && resource.data.clientId == request.auth.uid && resource.data.status == "pending");
       allow delete: if isAdmin();
     }
 
-    // Support / Chat
+    // Support / Chat - Correction ici
     match /supportMessages/{msgId} {
-      // Autorise la lecture individuelle
-      allow get: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isCollaborator() || isAdmin());
-      
-      // Autorise la liste (query) si filtrée par clientId ou si staff
-      allow list: if isAuthenticated() && (isCollaborator() || isAdmin() || resource.data.clientId == request.auth.uid);
-      
+      allow get: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isStaff());
+      allow list: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
       allow create: if isAuthenticated() && request.resource.data.senderId == request.auth.uid;
+      allow update: if isAuthenticated() && isStaff();
     }
 
     // Notifications
     match /notifications/{notifId} {
       allow read: if isAuthenticated() && resource.data.recipientId == request.auth.uid;
-      allow create: if isCollaborator() || isAdmin();
+      allow create: if isStaff();
     }
 
     // Messages de contact
     match /contactMessages/{messageId} {
       allow create: if true;
-      allow read: if isCollaborator() || isAdmin();
+      allow read: if isStaff();
     }
     
     match /mail/{mailId} {
