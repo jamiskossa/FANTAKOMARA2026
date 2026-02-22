@@ -12,7 +12,7 @@
         "lastName": { "type": "string" },
         "role": { "type": "string", "enum": ["client", "collaborator", "admin"] },
         "phone": { "type": "string" },
-        "carteVitale": { "type": "string", "description": "Numéro de carte vitale chiffré" },
+        "carteVitale": { "type": "string" },
         "verified": { "type": "boolean" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
@@ -21,42 +21,44 @@
     "Product": {
       "title": "Product",
       "type": "object",
-      "description": "Produit du catalogue avec gestion de stock.",
+      "description": "Produit avec gestion de stock détaillée.",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string", "description": "Code barre ou SKU" },
+        "name": { "type": "string" },
+        "brand": { "type": "string" },
+        "category": { "type": "string" },
+        "price": { "type": "number" },
+        "stockInitial": { "type": "number" },
+        "stockFinal": { "type": "number" },
+        "ecart": { "type": "number" },
+        "expiryDate": { "type": "string", "format": "date" },
+        "isMedication": { "type": "boolean" }
+      }
+    },
+    "Supplier": {
+      "title": "Supplier",
+      "type": "object",
+      "description": "Fournisseur ou partenaire de l'officine.",
       "properties": {
         "id": { "type": "string" },
         "name": { "type": "string" },
-        "brand": { "type": "string" },
-        "price": { "type": "number" },
-        "stock": { "type": "number" },
-        "isMedication": { "type": "boolean" },
-        "imageUrl": { "type": "string" }
+        "type": { "type": "string", "enum": ["fournisseur", "pharmacie", "partenaire", "urgence"] },
+        "contactName": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "notes": { "type": "string" }
       }
     },
     "Reservation": {
       "title": "Reservation",
       "type": "object",
-      "description": "Réservation de produits ou préparation d'ordonnance.",
       "properties": {
         "id": { "type": "string" },
         "clientId": { "type": "string" },
-        "status": { "type": "string", "enum": ["pending", "prepared", "ready", "delivered", "canceled"] },
-        "items": { "type": "array", "items": { "type": "object" } },
+        "status": { "type": "string" },
         "totalPrice": { "type": "number" },
-        "prescriptionScan": { "type": "string" },
-        "deliveryOption": { "type": "string", "enum": ["click-and-collect", "delivery"] },
-        "assignedCollaborator": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      }
-    },
-    "Notification": {
-      "title": "Notification",
-      "type": "object",
-      "properties": {
-        "recipientId": { "type": "string" },
-        "type": { "type": "string" },
-        "message": { "type": "string" },
-        "read": { "type": "boolean" },
-        "createdAt": { "type": "string", "format": "date-time" }
+        "createdAt": { "type": "string" }
       }
     }
   },
@@ -68,7 +70,7 @@
       { "path": "/userProfiles/{userId}", "definition": { "entityName": "UserProfile" } },
       { "path": "/products/{productId}", "definition": { "entityName": "Product" } },
       { "path": "/reservations/{reservationId}", "definition": { "entityName": "Reservation" } },
-      { "path": "/notifications/{notifId}", "definition": { "entityName": "Notification" } }
+      { "path": "/suppliers/{supplierId}", "definition": { "entityName": "Supplier" } }
     ]
   }
 }
