@@ -8,6 +8,7 @@ import { Footer } from '@/components/layout/Footer';
 import { ArticleModal, type Article } from '@/components/blog/ArticleModal';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
