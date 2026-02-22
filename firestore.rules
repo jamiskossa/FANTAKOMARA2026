@@ -3,18 +3,28 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Fonctions de rôles
+    // Fonctions de base
     function isAuthenticated() { return request.auth != null; }
-    function getUserRole() { return get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role; }
-    function isAdmin() { return isAuthenticated() && getUserRole() == "admin"; }
-    function isCollaborator() { return isAuthenticated() && getUserRole() == "collaborator"; }
     function isOwner(userId) { return isAuthenticated() && request.auth.uid == userId; }
 
-    // Profils Utilisateurs
+    // Récupération sécurisée du rôle (évite les erreurs si le doc n'existe pas)
+    function getUserData() {
+      return get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data;
+    }
+    
+    function hasRole(role) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) && 
+             getUserData().role == role;
+    }
+
+    function isAdmin() { return hasRole("admin"); }
+    function isCollaborator() { return hasRole("collaborator"); }
+
+    // Profils Utilisateurs : Un utilisateur peut toujours créer/modifier son propre profil
     match /userProfiles/{userId} {
       allow read: if isOwner(userId) || isCollaborator() || isAdmin();
-      allow create: if isAuthenticated();
-      allow update: if isOwner(userId) || isAdmin();
+      allow write: if isOwner(userId) || isAdmin();
     }
 
     // Catalogue Produits
@@ -25,7 +35,7 @@ service cloud.firestore {
 
     // Réservations
     match /reservations/{reservationId} {
-      allow read: if isOwner(resource.data.clientId) || isCollaborator() || isAdmin();
+      allow read: if isAuthenticated() && (isOwner(resource.data.clientId) || isCollaborator() || isAdmin());
       allow create: if isAuthenticated();
       allow update: if isCollaborator() || isAdmin() || (isOwner(resource.data.clientId) && resource.data.status == "pending");
     }
@@ -34,6 +44,17 @@ service cloud.firestore {
     match /notifications/{notifId} {
       allow read: if isOwner(resource.data.recipientId);
       allow create: if isCollaborator() || isAdmin();
+    }
+
+    // Messages de contact (utilisés par l'extension Trigger Email)
+    match /contactMessages/{messageId} {
+      allow create: if true;
+      allow read: if isCollaborator() || isAdmin();
+    }
+    
+    match /mail/{mailId} {
+      allow create: if true;
+      allow read: if isAdmin();
     }
   }
 }

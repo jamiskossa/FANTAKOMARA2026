@@ -12,9 +12,10 @@ import { useAuth, useFirestore, useUser } from '@/firebase';
 import { initiateEmailSignUp } from '@/firebase/non-blocking-login';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useRouter } from 'next/navigation';
-import { UserPlus, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
-import { doc, serverTimestamp } from 'firebase/firestore';
+import { UserPlus, ShieldCheck, Loader2 } from 'lucide-react';
+import { doc } from 'firebase/firestore';
 import Link from 'next/link';
+import { toast } from '@/hooks/use-toast';
 
 export default function RegisterPage() {
   const auth = useAuth();
@@ -31,7 +32,6 @@ export default function RegisterPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Rediriger si déjà connecté
   useEffect(() => {
     if (user && !isSubmitting) {
       router.push('/compte');
@@ -41,32 +41,47 @@ export default function RegisterPage() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      alert("Les mots de passe ne correspondent pas.");
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Les mots de passe ne correspondent pas.",
+      });
       return;
     }
 
     setIsSubmitting(true);
-    
-    // 1. Créer l'utilisateur Auth
-    initiateEmailSignUp(auth, formData.email, formData.password);
-    
-    // Note: Le profil Firestore sera créé par l'effet de synchronisation ci-dessous
-    // dès que l'utilisateur sera détecté par useUser()
+    try {
+      initiateEmailSignUp(auth, formData.email, formData.password);
+    } catch (error: any) {
+      setIsSubmitting(false);
+      toast({
+        variant: "destructive",
+        title: "Erreur d'inscription",
+        description: error.message || "Impossible de créer le compte.",
+      });
+    }
   };
 
-  // Effet pour créer le profil Firestore dès que l'auth réussit
   useEffect(() => {
     if (user && isSubmitting) {
       const userRef = doc(db, 'userProfiles', user.uid);
-      setDocumentNonBlocking(userRef, {
+      
+      const profileData = {
         id: user.uid,
-        email: formData.email,
+        email: formData.email || user.email,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        role: 'client', // Rôle par défaut
+        role: 'client',
         verified: false,
         createdAt: new Date().toISOString(),
-      }, { merge: true });
+      };
+
+      setDocumentNonBlocking(userRef, profileData, { merge: true });
+      
+      toast({
+        title: "Bienvenue !",
+        description: "Votre compte a été créé avec succès.",
+      });
       
       router.push('/compte');
     }
