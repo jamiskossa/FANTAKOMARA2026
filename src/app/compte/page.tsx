@@ -3,10 +3,10 @@
 
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser, useFirestore, useDoc, useAuth } from '@/firebase';
+import { useUser, useFirestore, useDoc, useAuth, useMemoFirebase } from '@/firebase';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { Loader2, ShieldCheck, ShoppingBag, ClipboardList, Settings, User as UserIcon, LogOut, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Loader2, ShieldCheck, ShoppingBag, ClipboardList, Settings, User as UserIcon, LogOut, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -20,7 +20,7 @@ export default function AccountRouterPage() {
   const router = useRouter();
   const db = useFirestore();
   
-  const userProfileRef = React.useMemo(() => {
+  const userProfileRef = useMemoFirebase(() => {
     if (!user) return null;
     return doc(db, 'userProfiles', user.uid);
   }, [user, db]);

@@ -56,7 +56,7 @@ export function Header() {
 
   return (
     <>
-      <div className="bg-secondary text-white py-1 text-center text-[8px] sm:text-xs font-black tracking-widest px-4 uppercase h-6 flex items-center justify-center shrink-0">
+      <div className="bg-secondary text-white py-1 text-center text-[8px] sm:text-[10px] font-black tracking-widest px-4 uppercase h-6 flex items-center justify-center shrink-0">
         <p>Retrait gratuit en 2h • Livraison offerte dès 49€</p>
       </div>
 

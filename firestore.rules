@@ -40,9 +40,9 @@ service cloud.firestore {
     // Réservations
     match /reservations/{reservationId} {
       allow create: if isAuthenticated();
-      // Accès Staff : lecture totale
+      // Read englobe get et list. 
+      // Pour le list, Firestore vérifie si la condition est vraie pour TOUS les docs demandés.
       allow read: if isStaff();
-      // Accès Client : lecture de ses propres documents uniquement
       allow read: if isAuthenticated() && resource.data.clientId == request.auth.uid;
       
       allow update: if isStaff();

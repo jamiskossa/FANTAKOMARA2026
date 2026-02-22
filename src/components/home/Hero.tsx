@@ -49,11 +49,11 @@ export function Hero() {
           {heroSlides.map((slide, index) => {
             const imageData = PlaceHolderImages.find(img => img.id === slide.id);
             return (
-              <CarouselItem key={index} className="pl-0 h-full w-full relative">
-                <Link href="/categorie/sante" className="block relative w-full h-full group">
-                  <div className="relative w-full h-full overflow-hidden">
+              <CarouselItem key={index} className="pl-0 h-full w-full relative min-h-[350px] sm:min-h-[450px] lg:min-h-[600px]">
+                <Link href="/categorie/sante" className="block relative w-full h-full group min-h-[350px] sm:min-h-[450px] lg:min-h-[600px]">
+                  <div className="relative w-full h-full overflow-hidden min-h-[350px] sm:min-h-[450px] lg:min-h-[600px]">
                     <Image 
-                      src={imageData?.imageUrl || "https://picsum.photos/seed/ph1/1920/1080"} 
+                      src={imageData?.imageUrl || "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=1920&auto=format&fit=crop"} 
                       alt={slide.title}
                       fill
                       priority={index === 0}
