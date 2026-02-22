@@ -1,10 +1,9 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, User, ShoppingCart, Menu, X, FileText, Clock, ChevronDown } from 'lucide-react';
+import { Search, User, ShoppingCart, Menu, X, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCart } from '@/components/providers/CartProvider';
@@ -114,27 +113,32 @@ export function Header() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between py-3 gap-4">
             <Link href="/" className="flex items-center gap-3 shrink-0 group">
-              <div className="relative w-10 h-10 lg:w-12 lg:h-12 rounded-full overflow-hidden border-2 border-primary/20 p-0.5 bg-white shadow-sm transition-transform group-hover:scale-105">
-                <div className="relative w-full h-full rounded-full overflow-hidden">
+              <div className="relative w-12 h-12 lg:w-14 lg:h-14 rounded-2xl overflow-hidden border-2 border-slate-100 p-1 bg-white shadow-soft transition-all group-hover:border-primary/20 group-hover:scale-105">
+                <div className="relative w-full h-full rounded-xl overflow-hidden">
                   <Image 
-                    src="https://picsum.photos/seed/logo-p/100/100" 
-                    alt="Logo" 
+                    src="/images/logo.png" 
+                    alt="Logo Pharmacie Nouvelle d'Ivry" 
                     fill 
-                    className="object-cover"
+                    className="object-contain"
+                    onError={(e) => {
+                      // Fallback if user hasn't added the logo yet
+                      const target = e.target as HTMLImageElement;
+                      target.src = "https://picsum.photos/seed/ph-logo/200/200";
+                    }}
                   />
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-base lg:text-xl font-black text-slate-900 leading-none tracking-tight uppercase">Pharmacie Nouvelle</span>
-                <span className="text-[9px] lg:text-[11px] font-bold text-primary uppercase tracking-[0.2em]">d'Ivry-sur-Seine</span>
+                <span className="text-sm lg:text-lg font-black text-slate-900 leading-none tracking-tighter uppercase">Pharmacie Nouvelle</span>
+                <span className="text-[10px] lg:text-[12px] font-bold text-primary uppercase tracking-[0.1em]">d'Ivry</span>
               </div>
             </Link>
 
-            <div className="hidden md:flex flex-1 max-w-xl mx-8">
+            <div className="hidden md:flex flex-1 max-w-lg mx-4">
               <div className="relative w-full group">
                 <Input 
-                  placeholder="Rechercher un produit, une marque..." 
-                  className="rounded-full pr-12 h-10 border-slate-200 focus-visible:ring-primary focus-visible:border-primary transition-all bg-slate-50/50 text-sm"
+                  placeholder="Rechercher un produit..." 
+                  className="rounded-full pr-12 h-10 border-slate-200 focus-visible:ring-primary transition-all bg-slate-50/50 text-sm"
                 />
                 <Button size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 text-slate-400">
                   <Search className="h-4 w-4" />
@@ -176,7 +180,7 @@ export function Header() {
         {mounted && (
           <nav className="hidden lg:block border-t bg-white">
             <div className="container mx-auto px-4">
-              <ul className="flex items-center justify-center space-x-10 py-2.5 text-[10px] font-black uppercase tracking-[0.15em]">
+              <ul className="flex items-center justify-center space-x-10 py-2 text-[10px] font-black uppercase tracking-[0.1em]">
                 <li>
                   <DropdownMenu>
                     <DropdownMenuTrigger className="flex items-center hover:text-primary transition-colors outline-none group">
@@ -279,7 +283,6 @@ export function Header() {
 
                 <li><Link href="/marques" className="hover:text-primary transition-colors">Marques</Link></li>
                 <li><Link href="/promotions" className="text-destructive font-black hover:opacity-80">Promotions</Link></li>
-                <li><Link href="/blog" className="hover:text-primary transition-colors">Blog</Link></li>
                 <li><Link href="/contact" className="hover:text-primary transition-colors">Contact</Link></li>
               </ul>
             </div>
