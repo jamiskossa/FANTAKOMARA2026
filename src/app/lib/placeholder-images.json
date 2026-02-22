@@ -1,0 +1,59 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-pharmacy",
+      "description": "A clean modern pharmacy interior",
+      "imageUrl": "https://picsum.photos/seed/ph1/1920/1080",
+      "imageHint": "pharmacy interior"
+    },
+    {
+      "id": "skincare-product",
+      "description": "Dermo-cosmetic skincare products",
+      "imageUrl": "https://picsum.photos/seed/ph2/600/600",
+      "imageHint": "skincare bottle"
+    },
+    {
+      "id": "vitamin-supplement",
+      "description": "Health supplements and vitamins",
+      "imageUrl": "https://picsum.photos/seed/ph3/600/600",
+      "imageHint": "vitamins supplements"
+    },
+    {
+      "id": "baby-care",
+      "description": "Baby care and hygiene products",
+      "imageUrl": "https://picsum.photos/seed/ph4/600/600",
+      "imageHint": "baby care"
+    },
+    {
+      "id": "hygiene-products",
+      "description": "Daily hygiene and shower products",
+      "imageUrl": "https://picsum.photos/seed/ph5/600/600",
+      "imageHint": "shower gel"
+    },
+    {
+      "id": "brand-laroche",
+      "description": "La Roche-Posay brand logo placeholder",
+      "imageUrl": "https://picsum.photos/seed/brand1/300/150",
+      "imageHint": "brand logo"
+    },
+    {
+      "id": "brand-uriage",
+      "description": "Uriage brand logo placeholder",
+      "imageUrl": "https://picsum.photos/seed/brand2/300/150",
+      "imageHint": "brand logo"
+    },
+    {
+      "id": "brand-bioderma",
+      "description": "Bioderma brand logo placeholder",
+      "imageUrl": "https://picsum.photos/seed/brand3/300/150",
+      "imageHint": "brand logo"
+    },
+    {
+      "id": "brand-nuxe",
+      "description": "Nuxe brand logo placeholder",
+      "imageUrl": "https://picsum.photos/seed/brand4/300/150",
+      "imageHint": "brand logo"
+    }
+  ]
+}
