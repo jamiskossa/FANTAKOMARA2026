@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -57,8 +56,10 @@ export function Header() {
   const navLinks = [
     { label: 'Santé', href: '/categorie/sante' },
     { label: 'Beauté', href: '/categorie/beaute' },
-    { label: 'Nos Marques', href: '/marques' },
-    { label: 'Promotions', href: '/promotions', highlight: true },
+    { label: 'Hygiène', href: '/categorie/hygiene' },
+    { label: 'Bébé', href: '/categorie/bebe' },
+    { label: 'Marques', href: '/marques' },
+    { label: 'Promos', href: '/promotions', highlight: true },
     { label: 'Contact', href: '/contact' },
   ];
 
@@ -71,21 +72,17 @@ export function Header() {
 
       <header className="sticky top-0 z-[100] bg-white/95 backdrop-blur-md border-b shadow-sm h-14 sm:h-20 flex flex-col justify-center shrink-0">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between gap-4 h-full">
+          <div className="flex items-center justify-between gap-2 sm:gap-4 h-full">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 shrink-0 group">
               <div className="relative w-8 h-8 lg:w-12 lg:h-12 rounded-xl overflow-hidden border-2 border-slate-100 p-0.5 bg-white shadow-soft transition-all group-hover:border-primary/20 shrink-0">
                 <Image 
-                  src="/images/logo.png" 
+                  src="https://picsum.photos/seed/ph-logo/200/200" 
                   alt="Logo PNI" 
                   fill 
                   className="object-contain"
                   priority
                   sizes="(max-width: 768px) 32px, 48px"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = "https://picsum.photos/seed/ph-logo/200/200";
-                  }}
                 />
               </div>
               <div className="flex flex-col">
@@ -95,7 +92,7 @@ export function Header() {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-8 text-[11px] font-black uppercase tracking-widest">
+            <nav className="hidden xl:flex items-center space-x-6 text-[10px] font-black uppercase tracking-widest">
               {navLinks.map((link) => (
                 <Link 
                   key={link.href} 
@@ -107,8 +104,8 @@ export function Header() {
               ))}
             </nav>
 
-            {/* Search (Desktop) */}
-            <div className="hidden md:flex flex-1 max-w-xs mx-4">
+            {/* Search (Desktop) - Hidden on small screens to avoid crowding */}
+            <div className="hidden lg:flex flex-1 max-w-[200px] xl:max-w-xs mx-2">
               <div className="relative w-full group">
                 <Input 
                   placeholder="Rechercher..." 
@@ -121,7 +118,7 @@ export function Header() {
             </div>
 
             {/* Actions Icons */}
-            <div className="flex items-center space-x-1 sm:space-x-3">
+            <div className="flex items-center space-x-1 sm:space-x-2">
               {/* Account Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -205,7 +202,7 @@ export function Header() {
               )}
 
               {/* Mobile Menu Button */}
-              <Button variant="ghost" size="icon" className="lg:hidden rounded-full hover:bg-slate-50 h-10 w-10 shrink-0" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <Button variant="ghost" size="icon" className="xl:hidden rounded-full hover:bg-slate-50 h-10 w-10 shrink-0" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                 {isMenuOpen ? <X className="h-6 w-6 text-slate-900" /> : <Menu className="h-6 w-6 text-slate-900" />}
               </Button>
             </div>
@@ -214,7 +211,7 @@ export function Header() {
 
         {/* Mobile Navigation Drawer */}
         {mounted && isMenuOpen && (
-          <div className="lg:hidden fixed inset-0 top-14 sm:top-20 bg-white z-[99] h-[calc(100vh-56px)] overflow-y-auto animate-in slide-in-from-right duration-300">
+          <div className="xl:hidden fixed inset-0 top-14 sm:top-20 bg-white z-[99] h-[calc(100vh-56px)] overflow-y-auto animate-in slide-in-from-right duration-300">
             <div className="p-8 flex flex-col h-full">
               <div className="mb-10">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Menu principal</p>
