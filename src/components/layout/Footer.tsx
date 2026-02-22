@@ -19,7 +19,7 @@ export function Footer() {
           <p className="text-muted-foreground mb-8 text-lg">
             Recevez <span className="text-secondary font-bold">-10%*</span> sur votre prochain achat dès 40€ d'achat.
           </p>
-          <form className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto" onSubmit={(e) => e.preventDefault()}>
+          <form className="flex flex-col sm:flex-row gap-4 max-lg mx-auto" onSubmit={(e) => e.preventDefault()}>
             <Input 
               type="email" 
               placeholder="Votre adresse email" 
@@ -98,16 +98,21 @@ export function Footer() {
               <CreditCard className="h-5 w-5 mr-2" />
               <span className="text-xs font-medium">Paiement sécurisé</span>
             </div>
-            {/* Payment logos would go here */}
             <div className="flex space-x-3 opacity-50">
               <div className="w-8 h-5 bg-foreground/20 rounded"></div>
               <div className="w-8 h-5 bg-foreground/20 rounded"></div>
               <div className="w-8 h-5 bg-foreground/20 rounded"></div>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Pharmacie Nouvelle d'Ivry – Tous droits réservés.
-          </p>
+          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-6 text-center md:text-right">
+            <p className="text-xs text-muted-foreground">
+              © {new Date().getFullYear()} Pharmacie Nouvelle d'Ivry – Tous droits réservés.
+            </p>
+            <span className="hidden md:block w-1 h-1 bg-muted-foreground/30 rounded-full"></span>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">
+              Site créé par Yattara Ousmane
+            </p>
+          </div>
         </div>
       </div>
     </footer>
