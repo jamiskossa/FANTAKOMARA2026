@@ -3,21 +3,20 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Fonctions de base
+    // Fonctions de base sécurisées
     function isAuthenticated() { return request.auth != null; }
     
     function getUserData() {
-      return get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data;
+      let path = /databases/$(database)/documents/userProfiles/$(request.auth.uid);
+      return exists(path) ? get(path).data : {"role": "guest"};
     }
     
     function isStaff() {
-      return isAuthenticated() && 
-             getUserData().role in ["admin", "collaborator"];
+      return isAuthenticated() && getUserData().role in ["admin", "collaborator"];
     }
 
     function isAdmin() {
-      return isAuthenticated() && 
-             getUserData().role == "admin";
+      return isAuthenticated() && getUserData().role == "admin";
     }
 
     function isOwner(uid) {
@@ -39,7 +38,7 @@ service cloud.firestore {
     // Réservations
     match /reservations/{reservationId} {
       allow get: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isStaff());
-      allow list: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
+      allow list: if isAuthenticated() && ( (resource.data.clientId == request.auth.uid) || isStaff() );
       allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
       allow update: if isAuthenticated() && (isStaff() || (resource.data.clientId == request.auth.uid && resource.data.status == "pending"));
       allow delete: if isAdmin();
@@ -59,8 +58,8 @@ service cloud.firestore {
     // Support Clients
     match /supportMessages/{msgId} {
       allow get: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isStaff());
-      allow list: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
-      allow create: if isAuthenticated() && request.resource.data.senderId == request.auth.uid;
+      allow list: if isAuthenticated() && ( (resource.data.clientId == request.auth.uid) || isStaff() );
+      allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
       allow update: if isStaff();
     }
 
@@ -68,6 +67,12 @@ service cloud.firestore {
     match /mail/{mailId} {
       allow create: if true;
       allow read: if isAdmin();
+    }
+    
+    // Messages de contact (public)
+    match /contactMessages/{msgId} {
+      allow create: if true;
+      allow read: if isStaff();
     }
   }
 }

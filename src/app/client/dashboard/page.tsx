@@ -5,8 +5,8 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useUser, useFirestore, useCollection, useMemoFirebase, useDoc } from '@/firebase';
+import { collection, query, where, orderBy, addDoc, serverTimestamp, doc } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -34,33 +34,41 @@ export default function ClientDashboard() {
   const router = useRouter();
   const [newMessage, setNewMessage] = useState('');
 
+  // Chargement du profil pour être sûr des droits avant de requêter
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user) return null;
+    return doc(db, 'userProfiles', user.uid);
+  }, [user, db]);
+
+  const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
+
   useEffect(() => {
     if (!isUserLoading && !user) {
       router.push('/login');
     }
   }, [user, isUserLoading, router]);
 
-  // Query Réservations - Filtrage strict par clientId
+  // Query Réservations - Uniquement si profil chargé et user présent
   const reservationsQuery = useMemoFirebase(() => {
-    if (!user) return null;
+    if (!user || isProfileLoading) return null;
     return query(
       collection(db, 'reservations'),
       where('clientId', '==', user.uid),
       orderBy('createdAt', 'desc')
     );
-  }, [user, db]);
+  }, [user, db, isProfileLoading]);
 
   const { data: reservations, isLoading: isReservationsLoading } = useCollection(reservationsQuery);
 
-  // Query Chat (Support) - Filtrage strict par clientId
+  // Query Chat (Support) - Uniquement si profil chargé et user présent
   const chatQuery = useMemoFirebase(() => {
-    if (!user) return null;
+    if (!user || isProfileLoading) return null;
     return query(
       collection(db, 'supportMessages'),
       where('clientId', '==', user.uid),
       orderBy('createdAt', 'asc')
     );
-  }, [user, db]);
+  }, [user, db, isProfileLoading]);
 
   const { data: messages, isLoading: isChatLoading } = useCollection(chatQuery);
 
@@ -72,7 +80,7 @@ export default function ClientDashboard() {
       await addDoc(collection(db, 'supportMessages'), {
         clientId: user.uid,
         senderId: user.uid,
-        senderName: user.displayName || user.email,
+        senderName: profile?.firstName || user.displayName || user.email,
         text: newMessage,
         createdAt: serverTimestamp(),
         read: false
@@ -86,7 +94,8 @@ export default function ClientDashboard() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-500';
-      case 'prepared': return 'bg-blue-500';
+      case 'processing': return 'bg-blue-500';
+      case 'prepared': return 'bg-primary';
       case 'ready': return 'bg-primary';
       case 'delivered': return 'bg-slate-500';
       case 'canceled': return 'bg-destructive';
@@ -97,7 +106,8 @@ export default function ClientDashboard() {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'pending': return 'En attente';
-      case 'prepared': return 'En préparation';
+      case 'processing': return 'En préparation';
+      case 'prepared': return 'Préparée';
       case 'ready': return 'Prêt au retrait';
       case 'delivered': return 'Récupérée';
       case 'canceled': return 'Annulée';
@@ -105,7 +115,7 @@ export default function ClientDashboard() {
     }
   };
 
-  if (isUserLoading) {
+  if (isUserLoading || isProfileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
