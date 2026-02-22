@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Header } from '@/components/layout/Header';
 import { Hero } from '@/components/home/Hero';
@@ -9,32 +8,39 @@ import { Footer } from '@/components/layout/Footer';
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col selection:bg-primary/20">
       <Header />
       
       <main className="flex-grow">
         <Hero />
         
         <ProductGrid 
-          title="Les meilleures ventes" 
-          subtitle="Vos produits préférés au meilleur prix à Ivry" 
+          title="Les meilleures ventes de la Pharmacie Nouvelle d'Ivry" 
+          subtitle="Vos produits préférés au meilleur prix à Ivry-sur-Seine" 
         />
         
         <VisualCategories />
         
         <ProductGrid 
-          title="Promotions du moment" 
-          subtitle="Profitez de nos offres exceptionnelles cette semaine"
+          title="Promotions Pharmacie Nouvelle d'Ivry" 
+          subtitle="Le meilleur des promotions parapharmacie cette semaine"
         />
         
         <BrandBanner />
         
-        <section className="py-16 bg-white">
-          <div className="container mx-auto px-4 text-center max-w-3xl">
-            <h2 className="text-3xl font-bold mb-6 text-primary">Votre pharmacie de proximité à Ivry-sur-Seine</h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              Depuis plus de 10 ans, la Pharmacie Nouvelle d'Ivry vous accompagne au quotidien avec des conseils personnalisés et une large sélection de produits de parapharmacie. Profitez de nos services digitaux : Click & Collect en 2h et Scan d'Ordonnance pour gagner du temps.
+        <section className="py-24 bg-fluid-gradient border-t">
+          <div className="container mx-auto px-4 text-center max-w-4xl">
+            <Badge className="bg-primary/10 text-primary border-primary/20 mb-6 rounded-full px-4 py-1 text-sm font-bold">À propos de nous</Badge>
+            <h2 className="text-4xl lg:text-5xl font-bold mb-8 text-slate-900 tracking-tight">Votre pharmacie de proximité à Ivry-sur-Seine</h2>
+            <p className="text-xl text-slate-600 leading-relaxed font-medium">
+              Depuis plus de 10 ans, la Pharmacie Nouvelle d'Ivry vous accompagne au quotidien avec des conseils personnalisés et une sélection rigoureuse des meilleures marques de parapharmacie. Profitez de nos services digitaux : Click & Collect en 2h et Scan d'Ordonnance sécurisé pour gagner du temps.
             </p>
+            <div className="mt-12 flex justify-center gap-12 grayscale opacity-40">
+               {/* Simulation de logos de certification */}
+               <div className="text-xs font-bold uppercase tracking-widest">Ordre National des Pharmaciens</div>
+               <div className="text-xs font-bold uppercase tracking-widest">Paiement 100% Sécurisé</div>
+               <div className="text-xs font-bold uppercase tracking-widest">Agréé ARS</div>
+            </div>
           </div>
         </section>
       </main>
@@ -43,3 +49,5 @@ export default function Home() {
     </div>
   );
 }
+
+import { Badge } from '@/components/ui/badge';
