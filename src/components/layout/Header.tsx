@@ -16,9 +16,71 @@ import {
   DropdownMenuSubContent,
   DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const navigationData = {
+    sante: {
+      label: "Santé",
+      links: [
+        { label: "Compléments alimentaires", href: "/categorie/sante/complements" },
+        { label: "Forme & Vitalité", href: "/categorie/sante/forme" },
+        { label: "Sommeil & Stress", href: "/categorie/sante/sommeil" },
+        { label: "Digestion", href: "/categorie/sante/digestion" },
+        { label: "Articulations & Muscles", href: "/categorie/sante/articulations" },
+        { label: "Immunité", href: "/categorie/sante/immunite" },
+      ],
+      allHref: "/categorie/sante"
+    },
+    beaute: {
+      label: "Beauté",
+      subCategories: [
+        {
+          label: "Soins du visage",
+          links: [
+            { label: "Anti-âge", href: "/categorie/beaute/visage/anti-age" },
+            { label: "Hydratation", href: "/categorie/beaute/visage/hydratation" },
+            { label: "Anti-imperfections", href: "/categorie/beaute/visage/anti-imperfections" },
+            { label: "Nettoyants & Démaquillants", href: "/categorie/beaute/visage/nettoyants-demaquillants", highlight: true },
+          ],
+          allHref: "/categorie/beaute/visage"
+        }
+      ],
+      links: [
+        { label: "Soins du corps", href: "/categorie/beaute/corps" },
+        { label: "Cheveux", href: "/categorie/beaute/cheveux" },
+        { label: "Solaires", href: "/categorie/beaute/solaires" },
+      ],
+      allHref: "/categorie/beaute"
+    },
+    hygiene: {
+      label: "Hygiène",
+      links: [
+        { label: "Douche & Bain", href: "/categorie/hygiene/douche" },
+        { label: "Dentaire", href: "/categorie/hygiene/dentaire" },
+        { label: "Hygiène intime", href: "/categorie/hygiene/intime" },
+        { label: "Déodorants", href: "/categorie/hygiene/deodorants" },
+      ],
+      allHref: "/categorie/hygiene"
+    },
+    bebe: {
+      label: "Bébé",
+      links: [
+        { label: "Lait infantile", href: "/categorie/bebe/lait" },
+        { label: "Soins bébé", href: "/categorie/bebe/soins" },
+        { label: "Soins maman", href: "/categorie/bebe/maman" },
+        { label: "Hygiène bébé", href: "/categorie/bebe/hygiene" },
+      ],
+      allHref: "/categorie/bebe"
+    }
+  };
 
   return (
     <>
@@ -92,7 +154,7 @@ export function Header() {
           </div>
         </div>
 
-        {/* 4. Menu de Navigation Horizontal */}
+        {/* 4. Menu de Navigation Horizontal (Desktop) */}
         <nav className="hidden lg:block border-t bg-white">
           <div className="container mx-auto px-4">
             <ul className="flex items-center justify-center space-x-8 py-3 text-sm font-bold uppercase tracking-wide">
@@ -100,18 +162,19 @@ export function Header() {
               <li>
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex items-center hover:text-primary transition-colors outline-none group py-1">
-                    Santé
+                    {navigationData.sante.label}
                     <ChevronDown className="ml-1 h-3 w-3 group-data-[state=open]:rotate-180 transition-transform" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-64 p-2 shadow-xl border-t-2 border-t-primary">
-                    <DropdownMenuItem asChild><Link href="/categorie/sante/complements">Compléments alimentaires</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link href="/categorie/sante/forme">Forme & Vitalité</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link href="/categorie/sante/sommeil">Sommeil & Stress</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link href="/categorie/sante/digestion">Digestion</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link href="/categorie/sante/articulations">Articulations & Muscles</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link href="/categorie/sante/immunite">Immunité</Link></DropdownMenuItem>
+                    {navigationData.sante.links.map((link) => (
+                      <DropdownMenuItem key={link.href} asChild>
+                        <Link href={link.href}>{link.label}</Link>
+                      </DropdownMenuItem>
+                    ))}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild className="font-black text-primary"><Link href="/categorie/sante">Tous les produits Santé</Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild className="font-black text-primary">
+                      <Link href={navigationData.sante.allHref}>Tous les produits Santé</Link>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </li>
@@ -120,30 +183,39 @@ export function Header() {
               <li>
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex items-center hover:text-primary transition-colors outline-none group py-1">
-                    Beauté
+                    {navigationData.beaute.label}
                     <ChevronDown className="ml-1 h-3 w-3 group-data-[state=open]:rotate-180 transition-transform" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-64 p-2 shadow-xl border-t-2 border-t-primary">
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger className="flex items-center justify-between">
-                        Soins du visage
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuPortal>
-                        <DropdownMenuSubContent className="w-64 p-2">
-                          <DropdownMenuItem asChild><Link href="/categorie/beaute/visage/anti-age">Anti-âge</Link></DropdownMenuItem>
-                          <DropdownMenuItem asChild><Link href="/categorie/beaute/visage/hydratation">Hydratation</Link></DropdownMenuItem>
-                          <DropdownMenuItem asChild><Link href="/categorie/beaute/visage/anti-imperfections">Anti-imperfections</Link></DropdownMenuItem>
-                          <DropdownMenuItem asChild className="text-secondary font-bold"><Link href="/categorie/beaute/visage/nettoyants-demaquillants">Nettoyants & Démaquillants</Link></DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem asChild className="font-bold"><Link href="/categorie/beaute/visage">Tous les soins visage</Link></DropdownMenuItem>
-                        </DropdownMenuSubContent>
-                      </DropdownMenuPortal>
-                    </DropdownMenuSub>
-                    <DropdownMenuItem asChild><Link href="/categorie/beaute/corps">Soins du corps</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link href="/categorie/beaute/cheveux">Cheveux</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link href="/categorie/beaute/solaires">Solaires</Link></DropdownMenuItem>
+                    {navigationData.beaute.subCategories.map((sub) => (
+                      <DropdownMenuSub key={sub.label}>
+                        <DropdownMenuSubTrigger className="flex items-center justify-between">
+                          {sub.label}
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuPortal>
+                          <DropdownMenuSubContent className="w-64 p-2">
+                            {sub.links.map((link) => (
+                              <DropdownMenuItem key={link.href} asChild className={link.highlight ? "text-secondary font-bold" : ""}>
+                                <Link href={link.href}>{link.label}</Link>
+                              </DropdownMenuItem>
+                            ))}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild className="font-bold">
+                              <Link href={sub.allHref}>Tous les soins visage</Link>
+                            </DropdownMenuItem>
+                          </DropdownMenuSubContent>
+                        </DropdownMenuPortal>
+                      </DropdownMenuSub>
+                    ))}
+                    {navigationData.beaute.links.map((link) => (
+                      <DropdownMenuItem key={link.href} asChild>
+                        <Link href={link.href}>{link.label}</Link>
+                      </DropdownMenuItem>
+                    ))}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild className="font-black text-primary"><Link href="/categorie/beaute">Tous les produits Beauté</Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild className="font-black text-primary">
+                      <Link href={navigationData.beaute.allHref}>Tous les produits Beauté</Link>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </li>
@@ -152,16 +224,19 @@ export function Header() {
               <li>
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex items-center hover:text-primary transition-colors outline-none group py-1">
-                    Hygiène
+                    {navigationData.hygiene.label}
                     <ChevronDown className="ml-1 h-3 w-3 group-data-[state=open]:rotate-180 transition-transform" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-64 p-2 shadow-xl border-t-2 border-t-primary">
-                    <DropdownMenuItem asChild><Link href="/categorie/hygiene/douche">Douche & Bain</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link href="/categorie/hygiene/dentaire">Dentaire</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link href="/categorie/hygiene/intime">Hygiène intime</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link href="/categorie/hygiene/deodorants">Déodorants</Link></DropdownMenuItem>
+                    {navigationData.hygiene.links.map((link) => (
+                      <DropdownMenuItem key={link.href} asChild>
+                        <Link href={link.href}>{link.label}</Link>
+                      </DropdownMenuItem>
+                    ))}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild className="font-black text-primary"><Link href="/categorie/hygiene">Tous les produits Hygiène</Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild className="font-black text-primary">
+                      <Link href={navigationData.hygiene.allHref}>Tous les produits Hygiène</Link>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </li>
@@ -170,16 +245,19 @@ export function Header() {
               <li>
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex items-center hover:text-primary transition-colors outline-none group py-1">
-                    Bébé
+                    {navigationData.bebe.label}
                     <ChevronDown className="ml-1 h-3 w-3 group-data-[state=open]:rotate-180 transition-transform" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-64 p-2 shadow-xl border-t-2 border-t-primary">
-                    <DropdownMenuItem asChild><Link href="/categorie/bebe/lait">Lait infantile</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link href="/categorie/bebe/soins">Soins bébé</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link href="/categorie/bebe/maman">Soins maman</Link></DropdownMenuItem>
-                    <DropdownMenuItem asChild><Link href="/categorie/bebe/hygiene">Hygiène bébé</Link></DropdownMenuItem>
+                    {navigationData.bebe.links.map((link) => (
+                      <DropdownMenuItem key={link.href} asChild>
+                        <Link href={link.href}>{link.label}</Link>
+                      </DropdownMenuItem>
+                    ))}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild className="font-black text-primary"><Link href="/categorie/bebe">Tous les produits Bébé</Link></DropdownMenuItem>
+                    <DropdownMenuItem asChild className="font-black text-primary">
+                      <Link href={navigationData.bebe.allHref}>Tous les produits Bébé</Link>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </li>
@@ -196,20 +274,152 @@ export function Header() {
         {isMenuOpen && (
           <div className="lg:hidden bg-white border-t absolute w-full shadow-lg z-50 h-[calc(100vh-64px)] overflow-y-auto">
             <div className="p-4 space-y-6">
+              {/* Barre de Recherche Mobile */}
               <div className="relative w-full">
-                <Input placeholder="Rechercher..." className="rounded-full pr-10" />
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Rechercher..." className="rounded-full pr-10 h-12 border-2 border-accent" />
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               </div>
-              <ul className="space-y-4 font-bold text-lg uppercase">
-                <li><Link href="/categorie/sante" className="block py-2 border-b">Santé</Link></li>
-                <li><Link href="/categorie/beaute" className="block py-2 border-b">Beauté</Link></li>
-                <li><Link href="/categorie/hygiene" className="block py-2 border-b">Hygiène</Link></li>
-                <li><Link href="/categorie/bebe" className="block py-2 border-b">Bébé</Link></li>
-                <li><Link href="/marques" className="block py-2 border-b">Marques</Link></li>
-                <li><Link href="/promotions" className="block py-2 border-b text-destructive">Promotions</Link></li>
-                <li><Link href="/blog" className="block py-2 border-b">Blog</Link></li>
-                <li><Link href="/contact" className="block py-2">Contact</Link></li>
+
+              {/* Accordéon de Navigation Mobile */}
+              <Accordion type="single" collapsible className="w-full">
+                {/* SANTE */}
+                <AccordionItem value="sante" className="border-b">
+                  <AccordionTrigger className="text-lg font-black uppercase tracking-tight py-4">
+                    {navigationData.sante.label}
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-4">
+                    <ul className="space-y-3 pl-4">
+                      {navigationData.sante.links.map((link) => (
+                        <li key={link.href}>
+                          <Link href={link.href} className="text-slate-600 font-bold block" onClick={() => setIsMenuOpen(false)}>
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
+                      <li className="pt-2">
+                        <Link href={navigationData.sante.allHref} className="text-primary font-black block" onClick={() => setIsMenuOpen(false)}>
+                          Tous les produits Santé
+                        </Link>
+                      </li>
+                    </ul>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* BEAUTE */}
+                <AccordionItem value="beaute" className="border-b">
+                  <AccordionTrigger className="text-lg font-black uppercase tracking-tight py-4">
+                    {navigationData.beaute.label}
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-4">
+                    <div className="space-y-6 pl-4">
+                      {navigationData.beaute.subCategories.map((sub) => (
+                        <div key={sub.label}>
+                          <p className="text-sm font-black text-secondary uppercase tracking-widest mb-3">{sub.label}</p>
+                          <ul className="space-y-3 pl-2">
+                            {sub.links.map((link) => (
+                              <li key={link.href}>
+                                <Link 
+                                  href={link.href} 
+                                  className={`block ${link.highlight ? "text-secondary font-black" : "text-slate-600 font-bold"}`}
+                                  onClick={() => setIsMenuOpen(false)}
+                                >
+                                  {link.label}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                      <div>
+                        <ul className="space-y-3">
+                          {navigationData.beaute.links.map((link) => (
+                            <li key={link.href}>
+                              <Link href={link.href} className="text-slate-600 font-bold block" onClick={() => setIsMenuOpen(false)}>
+                                {link.label}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <li className="pt-2 list-none">
+                        <Link href={navigationData.beaute.allHref} className="text-primary font-black block" onClick={() => setIsMenuOpen(false)}>
+                          Tous les produits Beauté
+                        </Link>
+                      </li>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* HYGIENE */}
+                <AccordionItem value="hygiene" className="border-b">
+                  <AccordionTrigger className="text-lg font-black uppercase tracking-tight py-4">
+                    {navigationData.hygiene.label}
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-4">
+                    <ul className="space-y-3 pl-4">
+                      {navigationData.hygiene.links.map((link) => (
+                        <li key={link.href}>
+                          <Link href={link.href} className="text-slate-600 font-bold block" onClick={() => setIsMenuOpen(false)}>
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
+                      <li className="pt-2">
+                        <Link href={navigationData.hygiene.allHref} className="text-primary font-black block" onClick={() => setIsMenuOpen(false)}>
+                          Tous les produits Hygiène
+                        </Link>
+                      </li>
+                    </ul>
+                  </AccordionContent>
+                </AccordionItem>
+
+                {/* BEBE */}
+                <AccordionItem value="bebe" className="border-b">
+                  <AccordionTrigger className="text-lg font-black uppercase tracking-tight py-4">
+                    {navigationData.bebe.label}
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-4">
+                    <ul className="space-y-3 pl-4">
+                      {navigationData.bebe.links.map((link) => (
+                        <li key={link.href}>
+                          <Link href={link.href} className="text-slate-600 font-bold block" onClick={() => setIsMenuOpen(false)}>
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
+                      <li className="pt-2">
+                        <Link href={navigationData.bebe.allHref} className="text-primary font-black block" onClick={() => setIsMenuOpen(false)}>
+                          Tous les produits Bébé
+                        </Link>
+                      </li>
+                    </ul>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+
+              {/* Liens Directs Mobiles */}
+              <ul className="space-y-6 pt-4">
+                <li><Link href="/marques" className="block text-lg font-black uppercase tracking-tight" onClick={() => setIsMenuOpen(false)}>Marques</Link></li>
+                <li><Link href="/promotions" className="block text-lg font-black uppercase tracking-tight text-destructive" onClick={() => setIsMenuOpen(false)}>Promotions</Link></li>
+                <li><Link href="/blog" className="block text-lg font-black uppercase tracking-tight" onClick={() => setIsMenuOpen(false)}>Blog</Link></li>
+                <li><Link href="/contact" className="block text-lg font-black uppercase tracking-tight" onClick={() => setIsMenuOpen(false)}>Contact</Link></li>
               </ul>
+
+              {/* Services Mobiles */}
+              <div className="grid grid-cols-1 gap-3 pt-6 border-t">
+                <Button asChild variant="outline" className="rounded-full border-primary text-primary font-black uppercase text-xs h-12 shadow-sm">
+                  <Link href="/click-collect" onClick={() => setIsMenuOpen(false)}>
+                    <Clock className="w-4 h-4 mr-2" />
+                    Click & Collect
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="rounded-full border-secondary text-secondary font-black uppercase text-xs h-12 shadow-sm">
+                  <Link href="/scan-ordonnance" onClick={() => setIsMenuOpen(false)}>
+                    <FileText className="w-4 h-4 mr-2" />
+                    Scan Ordonnance
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         )}
