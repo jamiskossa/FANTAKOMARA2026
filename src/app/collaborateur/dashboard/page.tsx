@@ -26,7 +26,9 @@ import {
   Search,
   AlertCircle,
   FileSearch,
-  Play
+  Play,
+  Mail,
+  Trash2
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { OrderPreparationModal } from '@/components/admin/OrderPreparationModal';
@@ -72,6 +74,13 @@ export default function CollaboratorDashboard() {
   }, [db, profile]);
   const { data: staffMessages } = useCollection(staffChatQuery);
 
+  // Messages de contact clients
+  const contactMessagesQuery = useMemoFirebase(() => {
+    if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) return null;
+    return query(collection(db, 'contactMessages'), orderBy('submissionDate', 'desc'), limit(50));
+  }, [db, profile]);
+  const { data: contactMessages } = useCollection(contactMessagesQuery);
+
   const handleSendStaffMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!staffMessage.trim() || !user) return;
@@ -83,6 +92,16 @@ export default function CollaboratorDashboard() {
       createdAt: serverTimestamp()
     });
     setStaffMessage('');
+  };
+
+  const markMessageAsProcessed = (id: string) => {
+    updateDocumentNonBlocking(doc(db, 'contactMessages', id), { isReplied: true });
+    toast({ title: "Message traité", description: "Le statut a été mis à jour." });
+  };
+
+  const handleWhatsApp = (phone?: string) => {
+    if (!phone) return toast({ title: "Erreur", description: "Pas de numéro", variant: "destructive" });
+    window.open(`https://wa.me/${phone.replace(/\s/g, '')}`, '_blank');
   };
 
   const getStatusColor = (status: string) => {
@@ -137,20 +156,18 @@ export default function CollaboratorDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          {/* File de Préparation (Main Content) */}
+          {/* Main Area */}
           <div className="lg:col-span-2 space-y-6">
             <Tabs defaultValue="orders" className="w-full">
               <div className="flex items-center justify-between mb-4">
                 <TabsList className="bg-white p-1 rounded-full shadow-soft border border-slate-100 h-10">
                   <TabsTrigger value="orders" className="rounded-full px-6 font-black uppercase text-[9px]">File Active</TabsTrigger>
+                  <TabsTrigger value="client-messages" className="rounded-full px-6 font-black uppercase text-[9px]">Messages Clients</TabsTrigger>
                   <TabsTrigger value="stock" className="rounded-full px-6 font-black uppercase text-[9px]">Alerte Stock</TabsTrigger>
                 </TabsList>
-                <div className="relative w-48">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-400" />
-                  <Input placeholder="Réf. Commande..." className="h-8 pl-8 text-[10px] rounded-full bg-white border-slate-100" />
-                </div>
               </div>
 
+              {/* FILE ACTIVE COMMANDES */}
               <TabsContent value="orders">
                 <Card className="border-none shadow-soft rounded-[24px] overflow-hidden bg-white">
                   <Table>
@@ -172,7 +189,7 @@ export default function CollaboratorDashboard() {
                           <TableCell className="pl-6 py-4">
                             <div className="flex flex-col">
                               <span className="font-black text-xs text-slate-900">{order.clientId.substring(0, 8)}</span>
-                              <span className="text-[9px] font-mono text-slate-400 uppercase">#{order.id.substring(0, 6)} • {new Date(order.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                              <span className="text-[9px] font-mono text-slate-400 uppercase">#{order.id.substring(0, 6)}</span>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -181,10 +198,7 @@ export default function CollaboratorDashboard() {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-2">
-                              {order.prescriptionUrl && <AlertCircle className="w-3.5 h-3.5 text-secondary" />}
-                              <span className="text-[10px] font-bold text-slate-500 uppercase">{order.deliveryOption === 'click-and-collect' ? 'Collect' : 'Livraison'}</span>
-                            </div>
+                            <span className="text-[10px] font-bold text-slate-500 uppercase">{order.deliveryOption === 'click-and-collect' ? 'Collect' : 'Livraison'}</span>
                           </TableCell>
                           <TableCell className="text-right pr-6">
                             <Button 
@@ -192,11 +206,54 @@ export default function CollaboratorDashboard() {
                               className="rounded-full bg-slate-900 hover:bg-secondary font-black text-[9px] uppercase tracking-widest h-8 px-4"
                               onClick={() => setSelectedOrder(order)}
                             >
-                              {order.status === 'pending' ? <><Play className="w-3 h-3 mr-1.5" /> Préparer</> : <><FileSearch className="w-3 h-3 mr-1.5" /> Reprendre</>}
+                              <Play className="w-3 h-3 mr-1.5" /> Préparer
                             </Button>
                           </TableCell>
                         </TableRow>
                       ))}
+                    </TableBody>
+                  </Table>
+                </Card>
+              </TabsContent>
+
+              {/* MESSAGES CLIENTS (Formulaire contact) */}
+              <TabsContent value="client-messages">
+                <Card className="border-none shadow-soft rounded-[24px] overflow-hidden bg-white">
+                  <Table>
+                    <TableHeader className="bg-slate-50/50">
+                      <TableRow>
+                        <TableHead className="font-black uppercase text-[9px] pl-6">Client / Sujet</TableHead>
+                        <TableHead className="font-black uppercase text-[9px]">Message</TableHead>
+                        <TableHead className="font-black uppercase text-[9px] text-right pr-6">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {contactMessages?.map((msg) => (
+                        <TableRow key={msg.id} className={`hover:bg-slate-50/50 ${!msg.isReplied ? 'bg-primary/5' : ''}`}>
+                          <TableCell className="pl-6 py-4">
+                            <div className="flex flex-col">
+                              <span className="font-black text-xs text-slate-900">{msg.senderName}</span>
+                              <Badge variant="outline" className="text-[7px] uppercase w-fit mt-1">{msg.subject}</Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <p className="text-[11px] text-slate-600 line-clamp-2 max-w-sm">{msg.messageContent}</p>
+                          </TableCell>
+                          <TableCell className="text-right pr-6 space-x-1">
+                            {!msg.isReplied && (
+                              <Button size="icon" variant="ghost" className="h-7 w-7 text-primary" onClick={() => markMessageAsProcessed(msg.id)}>
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
+                            <Button size="icon" variant="ghost" className="h-7 w-7 text-secondary" onClick={() => handleWhatsApp(msg.senderPhone)}>
+                              <MessageCircle className="h-3.5 w-3.5" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {(!contactMessages || contactMessages.length === 0) && (
+                        <TableRow><TableCell colSpan={3} className="text-center py-10 text-slate-400 text-[10px]">Aucun message client.</TableCell></TableRow>
+                      )}
                     </TableBody>
                   </Table>
                 </Card>
@@ -211,7 +268,7 @@ export default function CollaboratorDashboard() {
             </Tabs>
           </div>
 
-          {/* Sidebar Staff Communication */}
+          {/* Sidebar Chat Staff */}
           <div className="space-y-6">
             <Card className="border-none shadow-soft rounded-[24px] overflow-hidden bg-white flex flex-col h-[600px]">
               <CardHeader className="bg-slate-900 p-5 text-white">
@@ -221,7 +278,7 @@ export default function CollaboratorDashboard() {
                   </div>
                   <div>
                     <CardTitle className="text-xs font-black uppercase tracking-widest">Chat Interne Équipe</CardTitle>
-                    <p className="text-[8px] font-bold opacity-60 uppercase">Coordination préparation</p>
+                    <p className="text-[8px] font-bold opacity-60 uppercase">Coordination</p>
                   </div>
                 </div>
               </CardHeader>
@@ -259,10 +316,10 @@ export default function CollaboratorDashboard() {
             <Card className="border-none shadow-soft rounded-[24px] p-6 bg-primary/5 border-l-4 border-l-primary">
               <div className="flex items-center gap-3 mb-4">
                 <CheckCircle2 className="w-5 h-5 text-primary" />
-                <h4 className="text-[10px] font-black uppercase text-slate-900 tracking-widest">Rappel Bonnes Pratiques</h4>
+                <h4 className="text-[10px] font-black uppercase text-slate-900 tracking-widest">Rappel picking</h4>
               </div>
               <ul className="space-y-3">
-                {['Double vérification des quantités', 'Vérification date péremption', 'Intégrité des emballages'].map((text, i) => (
+                {['Vérifier quantités', 'Vérifier péremption', 'Intégrité emballage'].map((text, i) => (
                   <li key={i} className="text-[10px] font-bold text-slate-500 uppercase flex gap-2">
                     <span className="text-primary">•</span> {text}
                   </li>

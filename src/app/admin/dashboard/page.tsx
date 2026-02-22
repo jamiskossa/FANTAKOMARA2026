@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { useFirestore, useCollection, useMemoFirebase, useUser, useDoc, deleteDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser, useDoc, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { collection, query, orderBy, limit, doc } from 'firebase/firestore';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -28,7 +28,7 @@ import {
   Printer,
   Settings,
   ShieldCheck,
-  ChevronRight
+  CheckCircle2
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
@@ -64,7 +64,7 @@ export default function AdminDashboard() {
 
   const reservationsQuery = useMemoFirebase(() => {
     if (!profile || profile.role !== 'admin') return null;
-    return query(collection(db, 'reservations'), orderBy('createdAt', 'desc'), limit(20));
+    return query(collection(db, 'reservations'), orderBy('createdAt', 'desc'), limit(50));
   }, [db, profile]);
   const { data: reservations } = useCollection(reservationsQuery);
 
@@ -80,11 +80,22 @@ export default function AdminDashboard() {
   }, [db, profile]);
   const { data: suppliers } = useCollection(suppliersQuery);
 
+  const contactMessagesQuery = useMemoFirebase(() => {
+    if (!profile || profile.role !== 'admin') return null;
+    return query(collection(db, 'contactMessages'), orderBy('submissionDate', 'desc'), limit(50));
+  }, [db, profile]);
+  const { data: contactMessages } = useCollection(contactMessagesQuery);
+
   const handleDelete = (collectionName: string, id: string) => {
     if (confirm("Confirmer la suppression ?")) {
       deleteDocumentNonBlocking(doc(db, collectionName, id));
       toast({ title: "Supprimé", description: "L'élément a été retiré." });
     }
+  };
+
+  const markAsRead = (id: string) => {
+    updateDocumentNonBlocking(doc(db, 'contactMessages', id), { isReplied: true });
+    toast({ title: "Message traité", description: "Le statut a été mis à jour." });
   };
 
   const handleWhatsApp = (phone?: string) => {
@@ -125,18 +136,15 @@ export default function AdminDashboard() {
             <Button variant="outline" size="sm" className="rounded-full font-black uppercase text-[10px] h-9 px-4">
               <Printer className="w-3.5 h-3.5 mr-2" /> PDF Global
             </Button>
-            <Button size="sm" className="rounded-full bg-slate-900 font-black uppercase text-[10px] h-9 px-4">
-              <Plus className="w-3.5 h-3.5 mr-2" /> Nouveau
-            </Button>
           </div>
         </div>
 
-        {/* Quick Stats Compact */}
+        {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           {[
             { label: "Ventes (est.)", val: "2 450€", icon: TrendingUp, color: "text-slate-900" },
             { label: "Réservations", val: reservations?.length || 0, icon: Package, color: "text-primary" },
-            { label: "Stock Alerte", val: "12", icon: ShieldCheck, color: "text-destructive" },
+            { label: "Messages", val: contactMessages?.filter(m => !m.isReplied).length || 0, icon: Mail, color: "text-destructive" },
             { label: "Patients", val: clients?.filter(c => c.role === 'client').length || 0, icon: Users, color: "text-secondary" }
           ].map((stat, i) => (
             <Card key={i} className="border-none shadow-soft bg-white">
@@ -156,11 +164,65 @@ export default function AdminDashboard() {
         <Tabs defaultValue="reservations" className="space-y-4">
           <TabsList className="bg-white p-1 rounded-full shadow-soft border border-slate-100 flex w-fit overflow-x-auto">
             <TabsTrigger value="reservations" className="rounded-full font-black uppercase text-[9px] px-4">Flux Résas</TabsTrigger>
+            <TabsTrigger value="messages" className="rounded-full font-black uppercase text-[9px] px-4">Messages Clients</TabsTrigger>
             <TabsTrigger value="products" className="rounded-full font-black uppercase text-[9px] px-4">Stock</TabsTrigger>
             <TabsTrigger value="users" className="rounded-full font-black uppercase text-[9px] px-4">Patients</TabsTrigger>
             <TabsTrigger value="suppliers" className="rounded-full font-black uppercase text-[9px] px-4">Annuaire</TabsTrigger>
             <TabsTrigger value="docs" className="rounded-full font-black uppercase text-[9px] px-4">Documents</TabsTrigger>
           </TabsList>
+
+          {/* MESSAGES CONTACT */}
+          <TabsContent value="messages">
+            <Card className="border-none shadow-soft rounded-2xl overflow-hidden">
+              <Table>
+                <TableHeader className="bg-slate-50">
+                  <TableRow>
+                    <TableHead className="uppercase text-[9px] font-black pl-6">Client / Date</TableHead>
+                    <TableHead className="uppercase text-[9px] font-black">Sujet / Message</TableHead>
+                    <TableHead className="uppercase text-[9px] font-black text-right pr-6">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {contactMessages?.map((m) => (
+                    <TableRow key={m.id} className={`hover:bg-slate-50/50 ${!m.isReplied ? 'bg-primary/5' : ''}`}>
+                      <TableCell className="pl-6 py-3">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-xs">{m.senderName}</span>
+                          <span className="text-[9px] text-slate-400">{m.senderEmail}</span>
+                          <span className="text-[8px] text-slate-300 uppercase mt-1">{m.submissionDate?.seconds ? new Date(m.submissionDate.seconds * 1000).toLocaleString() : 'Date inconnue'}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <div className="flex flex-col gap-1 max-w-md">
+                          <Badge variant="outline" className="w-fit text-[8px] uppercase">{m.subject}</Badge>
+                          <p className="text-[11px] text-slate-600 line-clamp-2">{m.messageContent}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right pr-6 py-3 space-x-1">
+                        {!m.isReplied && (
+                          <Button size="icon" variant="ghost" className="h-7 w-7 text-primary" onClick={() => markAsRead(m.id)}>
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-secondary" onClick={() => handleWhatsApp(m.senderPhone)}>
+                          <MessageCircle className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-400" onClick={() => handleMail(m.senderEmail)}>
+                          <Mail className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDelete('contactMessages', m.id)}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {(!contactMessages || contactMessages.length === 0) && (
+                    <TableRow><TableCell colSpan={3} className="text-center py-10 text-slate-400 text-xs">Aucun message de contact.</TableCell></TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </Card>
+          </TabsContent>
 
           {/* RESERVATIONS */}
           <TabsContent value="reservations">
