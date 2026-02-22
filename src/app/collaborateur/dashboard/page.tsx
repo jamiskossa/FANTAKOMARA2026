@@ -28,10 +28,13 @@ import {
   FileSearch,
   Play,
   Mail,
-  Trash2
+  Trash2,
+  ShieldAlert,
+  ArrowLeft
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { OrderPreparationModal } from '@/components/admin/OrderPreparationModal';
+import Link from 'next/link';
 
 export default function CollaboratorDashboard() {
   const { user, isUserLoading } = useUser();
@@ -46,14 +49,6 @@ export default function CollaboratorDashboard() {
   }, [user, db]);
 
   const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
-
-  useEffect(() => {
-    if (!isUserLoading && !user) {
-      router.push('/login');
-    } else if (!isUserLoading && profile && profile.role !== 'collaborator' && profile.role !== 'admin') {
-      router.push('/compte');
-    }
-  }, [user, isUserLoading, profile, router]);
 
   // File active : À préparer ou en cours
   const activeOrdersQuery = useMemoFirebase(() => {
@@ -122,7 +117,35 @@ export default function CollaboratorDashboard() {
     );
   }
 
-  if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) return null;
+  // Vérification de rôle explicite au rendu
+  if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) {
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50">
+        <Header />
+        <main className="flex-grow flex items-center justify-center p-4">
+          <Card className="max-w-md w-full border-none shadow-2xl rounded-[32px] overflow-hidden bg-white p-10 text-center">
+            <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-6 text-destructive">
+              <ShieldAlert className="w-10 h-10" />
+            </div>
+            <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-4">Accès Refusé</h1>
+            <p className="text-slate-500 font-medium mb-8 leading-relaxed">
+              Votre compte actuel ({profile?.role || 'sans rôle'}) n'a pas les autorisations nécessaires pour accéder à l'espace préparateur. 
+              Contactez l'administrateur pour mettre à jour vos droits.
+            </p>
+            <div className="space-y-3">
+              <Button asChild className="w-full rounded-full bg-primary font-black uppercase tracking-widest h-12">
+                <Link href="/compte">Vérifier mon profil</Link>
+              </Button>
+              <Button variant="ghost" asChild className="w-full rounded-full text-slate-400 font-black uppercase text-[10px]">
+                <Link href="/"><ArrowLeft className="w-3 h-3 mr-2" /> Retour à l'accueil</Link>
+              </Button>
+            </div>
+          </Card>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">

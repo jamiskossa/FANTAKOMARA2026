@@ -4,12 +4,13 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, User, ShoppingCart, Menu, X, ChevronDown } from 'lucide-react';
+import { Search, User, ShoppingCart, Menu, X, ChevronDown, LayoutDashboard, ClipboardList, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCart } from '@/components/providers/CartProvider';
-import { useUser, useFirestore, useDoc } from '@/firebase';
+import { useUser, useFirestore, useDoc, useAuth } from '@/firebase';
 import { doc } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,6 +34,7 @@ export function Header() {
   const [mounted, setMounted] = useState(false);
   const { itemCount } = useCart();
   const { user } = useUser();
+  const auth = useAuth();
   const db = useFirestore();
 
   const userProfileRef = React.useMemo(() => {
@@ -42,6 +44,8 @@ export function Header() {
 
   const { data: profile } = useDoc(userProfileRef);
   const role = profile?.role || 'guest';
+  const isStaff = role === 'admin' || role === 'collaborator';
+  const isAdmin = role === 'admin';
   const canShop = role === 'client' || role === 'guest';
 
   useEffect(() => {
@@ -55,6 +59,10 @@ export function Header() {
       document.body.style.overflow = 'unset';
     }
   }, [isMenuOpen]);
+
+  const handleSignOut = () => {
+    signOut(auth);
+  };
 
   const navigationData = {
     sante: {
@@ -130,7 +138,7 @@ export function Header() {
                     fill 
                     className="object-contain"
                     priority
-                    sizes="(max-width: 768px) 32px, 48px"
+                    sizes="48px"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.src = "https://picsum.photos/seed/ph-logo/200/200";
@@ -157,12 +165,68 @@ export function Header() {
             </div>
 
             <div className="flex items-center space-x-0.5 lg:space-x-2">
-              <Button variant="ghost" size="sm" className="flex flex-col h-auto py-1 px-2 items-center text-slate-600 hover:text-primary transition-colors group" asChild>
-                <Link href="/compte">
-                  <User className="h-4 w-4 sm:h-5 sm:w-5 mb-0.5 group-hover:scale-110" />
-                  <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-widest leading-none">Compte</span>
-                </Link>
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="flex flex-col h-auto py-1 px-2 items-center text-slate-600 hover:text-primary transition-colors group">
+                    <User className="h-4 w-4 sm:h-5 sm:w-5 mb-0.5 group-hover:scale-110" />
+                    <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-widest leading-none">Compte</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 shadow-2xl border-slate-100">
+                  {user ? (
+                    <>
+                      <div className="px-2 py-3 mb-1 bg-slate-50 rounded-xl">
+                        <p className="text-[10px] font-black uppercase text-primary leading-none mb-1">Session Active</p>
+                        <p className="text-xs font-bold text-slate-900 truncate">{user.email}</p>
+                        {profile?.role && (
+                          <span className="inline-block mt-2 px-2 py-0.5 bg-primary/10 text-primary text-[8px] font-black uppercase rounded-full tracking-widest">
+                            {profile.role}
+                          </span>
+                        )}
+                      </div>
+                      <DropdownMenuItem asChild className="rounded-lg py-2 font-bold cursor-pointer">
+                        <Link href="/compte">Mon profil patient</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="rounded-lg py-2 font-bold cursor-pointer">
+                        <Link href="/client/dashboard">Mes réservations</Link>
+                      </DropdownMenuItem>
+                      
+                      {isStaff && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <p className="px-2 py-2 text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">Outils Officine</p>
+                          <DropdownMenuItem asChild className="rounded-lg py-2 font-black text-secondary cursor-pointer">
+                            <Link href="/collaborateur/dashboard">
+                              <ClipboardList className="w-4 h-4 mr-2" /> Espace Préparateur
+                            </Link>
+                          </DropdownMenuItem>
+                          {isAdmin && (
+                            <DropdownMenuItem asChild className="rounded-lg py-2 font-black text-primary cursor-pointer">
+                              <Link href="/admin/dashboard">
+                                <LayoutDashboard className="w-4 h-4 mr-2" /> Pilotage Admin
+                              </Link>
+                            </DropdownMenuItem>
+                          )}
+                        </>
+                      )}
+                      
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleSignOut} className="rounded-lg py-2 font-bold text-destructive cursor-pointer">
+                        <LogOut className="w-4 h-4 mr-2" /> Déconnexion
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuItem asChild className="rounded-lg py-2 font-black text-primary cursor-pointer">
+                        <Link href="/login">Se connecter</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="rounded-lg py-2 font-bold cursor-pointer">
+                        <Link href="/register">Créer un compte</Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
               
               {canShop && (
                 <Button variant="ghost" size="sm" className="flex flex-col h-auto py-1 px-2 items-center text-slate-600 hover:text-primary relative transition-colors group" asChild>
