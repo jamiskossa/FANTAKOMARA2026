@@ -160,7 +160,7 @@ export function Header() {
               <Button variant="ghost" size="sm" className="flex flex-col h-auto py-1 px-2 items-center text-slate-600 hover:text-primary transition-colors group" asChild>
                 <Link href="/compte">
                   <User className="h-4 w-4 sm:h-5 sm:w-5 mb-0.5 group-hover:scale-110" />
-                  <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-widest">Compte</span>
+                  <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-widest leading-none">Compte</span>
                 </Link>
               </Button>
               
@@ -175,7 +175,7 @@ export function Header() {
                         </span>
                       )}
                     </div>
-                    <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-widest">Panier</span>
+                    <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-widest leading-none">Panier</span>
                   </Link>
                 </Button>
               )}

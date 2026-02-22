@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -25,7 +26,7 @@ export function QuickActions() {
             >
               <Link href={action.href}>
                 <action.icon className="w-3.5 h-3.5 sm:w-5 sm:h-5 lg:w-6 lg:h-6 shrink-0 group-hover:scale-110 transition-transform" />
-                <span className="font-black uppercase tracking-tighter text-[7px] sm:text-[10px] lg:text-xs text-center">
+                <span className="font-black uppercase tracking-tighter text-[7px] sm:text-[10px] lg:text-xs text-center leading-none">
                   {action.label}
                 </span>
               </Link>
