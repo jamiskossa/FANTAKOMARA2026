@@ -1,33 +1,32 @@
 
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { Upload, ShieldCheck, CheckCircle2, Loader2, FileText } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, FileText, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
+import { OrdonnanceUploader } from '@/components/ordonnance/OrdonnanceUploader';
 import { extractPrescriptionInformation } from '@/ai/flows/prescription-information-extractor';
+import { parseMedications, validateOCRQuality } from '@/lib/medication-parser';
 
 export default function ScanOrdonnance() {
   const { toast } = useToast();
   const { user } = useUser();
   const db = useFirestore();
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [step, setStep] = useState<'upload' | 'success'>('upload');
   const [fileName, setFileName] = useState<string | null>(null);
+  const [medicationCount, setMedicationCount] = useState(0);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const handleFileSelected = async (file: File, preview: string) => {
     if (!user) {
       toast({
         title: "Connexion requise",
@@ -42,55 +41,73 @@ export default function ScanOrdonnance() {
     setIsAnalyzing(true);
 
     try {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const base64String = event.target?.result as string;
+      // Extraire données via IA
+      const extractedData = await extractPrescriptionInformation({
+        prescriptionImage: preview
+      });
 
-        try {
-          const extractedData = await extractPrescriptionInformation({
-            prescriptionImage: base64String
-          });
-
-          await addDocumentNonBlocking(collection(db, 'reservations'), {
-            clientId: user.uid,
-            status: 'pending',
-            type: 'prescription',
-            prescriptionUrl: 'image_analyzed_securely',
-            medications: extractedData.medications,
-            items: extractedData.medications.map(m => ({
-              name: m.name,
-              quantity: 1,
-              dosage: m.dosage,
-              instructions: m.instructions
-            })),
-            createdAt: new Date().toISOString(),
-            deliveryOption: 'click-and-collect'
-          });
-
-          setIsAnalyzing(false);
-          setStep('success');
-          toast({
-            title: "Ordonnance analysée",
-            description: `${extractedData.medications.length} médicaments identifiés.`,
-          });
-        } catch (error) {
-          console.error("Extraction error:", error);
-          // Fallback if AI fails: create empty prescription reservation
-          setIsAnalyzing(false);
-          await addDocumentNonBlocking(collection(db, 'reservations'), {
-            clientId: user.uid,
-            status: 'pending',
-            type: 'prescription',
-            createdAt: new Date().toISOString(),
-            deliveryOption: 'click-and-collect'
-          });
-          setStep('success');
+      // Parser les médicaments avec fuzzy matching
+      let medications = extractedData.medications || [];
+      
+      // Si l'IA n'a pas trouvé de médicaments, essayer le parser fallback
+      if (!medications || medications.length === 0) {
+        const ocrText = extractedData.rawText || '';
+        const validation = validateOCRQuality(ocrText);
+        
+        if (validation.isValid) {
+          medications = parseMedications(ocrText);
         }
-      };
-      reader.readAsDataURL(file);
-    } catch (e) {
+      }
+
+      // Sauvegarder la réservation
+      await addDocumentNonBlocking(collection(db, 'reservations'), {
+        clientId: user.uid,
+        status: 'pending',
+        type: 'prescription',
+        prescriptionUrl: 'image_analyzed_securely',
+        medications: medications,
+        items: medications.map((m: any) => ({
+          name: m.name,
+          quantity: m.quantity || 1,
+          dosage: m.dosage,
+          instructions: m.instructions,
+          confidence: m.confidence
+        })),
+        createdAt: new Date().toISOString(),
+        deliveryOption: 'click-and-collect',
+        fileName: file.name
+      });
+
+      setMedicationCount(medications.length);
       setIsAnalyzing(false);
-      console.error(e);
+      setStep('success');
+
+      toast({
+        title: "Ordonnance analysée ✓",
+        description: `${medications.length} médicament${medications.length > 1 ? 's' : ''} identifié${medications.length > 1 ? 's' : ''}.`,
+      });
+    } catch (error) {
+      console.error("Extraction error:", error);
+
+      // Fallback: créer réservation sans médicaments détectés
+      await addDocumentNonBlocking(collection(db, 'reservations'), {
+        clientId: user.uid,
+        status: 'pending',
+        type: 'prescription',
+        createdAt: new Date().toISOString(),
+        deliveryOption: 'click-and-collect',
+        fileName: file.name,
+        needsManualReview: true
+      });
+
+      toast({
+        title: "Ordonnance envoyée",
+        description: "Un pharmacien vérifiera votre ordonnance manuellement.",
+        variant: "default"
+      });
+
+      setIsAnalyzing(false);
+      setStep('success');
     }
   };
 
@@ -104,8 +121,11 @@ export default function ScanOrdonnance() {
               <CheckCircle2 className="w-10 h-10" />
             </div>
             <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter mb-4">Ordonnance transmise !</h1>
+            <p className="text-slate-500 font-medium text-lg mb-2 leading-relaxed">
+              L'IA a pré-rempli votre dossier avec {medicationCount} médicament{medicationCount > 1 ? 's' : ''}.
+            </p>
             <p className="text-slate-500 font-medium text-lg mb-10 leading-relaxed">
-              L'IA a pré-rempli votre dossier. Un pharmacien valide actuellement la préparation. Vous serez notifié du retrait sous 2h.
+              Un pharmacien valide actuellement la préparation. Vous serez notifié du retrait sous 2h.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button onClick={() => router.push('/client/dashboard')} className="rounded-full bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest h-12 px-8 text-xs">
@@ -140,49 +160,11 @@ export default function ScanOrdonnance() {
 
         <section className="py-12">
           <div className="container mx-auto px-4 max-w-3xl">
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              className="hidden" 
-              accept="image/*,.pdf" 
-              onChange={handleFileChange} 
+            <OrdonnanceUploader 
+              onFileSelected={handleFileSelected}
+              isAnalyzing={isAnalyzing}
+              fileName={fileName}
             />
-            
-            <Card 
-              className={`border-4 border-dashed p-8 sm:p-12 text-center rounded-[32px] sm:rounded-[48px] bg-white shadow-soft transition-all cursor-pointer ${
-                isAnalyzing ? 'border-primary bg-primary/5' : 'border-slate-200 hover:border-primary/30'
-              }`}
-              onClick={() => !isAnalyzing && fileInputRef.current?.click()}
-            >
-              <CardContent className="p-0 space-y-6 sm:space-y-8">
-                {isAnalyzing ? (
-                  <div className="flex flex-col items-center gap-6 animate-pulse">
-                    <Loader2 className="w-16 h-16 sm:w-20 sm:h-20 text-primary animate-spin" />
-                    <div className="space-y-2">
-                      <h3 className="text-xl sm:text-3xl font-black text-primary uppercase tracking-tight">Analyse IA en cours...</h3>
-                      <p className="text-slate-400 font-bold uppercase text-[8px] sm:text-[10px] tracking-widest">Lecture des médicaments et dosages</p>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="w-16 h-16 sm:w-24 sm:h-24 bg-slate-50 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto text-slate-300">
-                      <Upload className="w-8 h-8 sm:w-12 sm:h-12" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight mb-2">
-                        {fileName ? fileName : "Déposez votre ordonnance"}
-                      </h3>
-                      <p className="text-slate-400 font-bold uppercase text-[8px] sm:text-[10px] tracking-widest">Formats : PHOTO, PDF • Max 5Mo</p>
-                    </div>
-                    <Button 
-                      className="rounded-full px-8 sm:px-12 h-12 sm:h-14 bg-secondary hover:bg-secondary/90 shadow-xl shadow-secondary/20 text-white font-black uppercase tracking-widest text-[9px] sm:text-xs"
-                    >
-                      Sélectionner mon document
-                    </Button>
-                  </>
-                )}
-              </CardContent>
-            </Card>
 
             <div className="mt-12 sm:mt-20 grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10">
               <div className="flex items-start gap-4 sm:gap-6 p-6 sm:p-8 bg-white rounded-[24px] sm:rounded-[32px] shadow-soft border border-slate-100">
