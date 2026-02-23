@@ -1,9 +1,22 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, User, ShoppingCart, Menu, X, LayoutDashboard, ClipboardList, LogOut, Phone } from 'lucide-react';
+import { 
+  Search, 
+  User, 
+  ShoppingCart, 
+  Menu, 
+  X, 
+  ChevronDown, 
+  Clock, 
+  FileText,
+  LayoutDashboard,
+  ClipboardList,
+  LogOut
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCart } from '@/components/providers/CartProvider';
@@ -17,6 +30,12 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -53,105 +72,149 @@ export function Header() {
     signOut(auth);
   };
 
-  const navLinks = [
-    { label: 'Santé', href: '/categorie/sante' },
-    { label: 'Beauté', href: '/categorie/beaute' },
-    { label: 'Hygiène', href: '/categorie/hygiene' },
-    { label: 'Bébé', href: '/categorie/bebe' },
-    { label: 'Marques', href: '/marques' },
-    { label: 'Promos', href: '/promotions', highlight: true },
-    { label: 'Contact', href: '/contact' },
-  ];
+  const closeMenu = () => setIsMenuOpen(false);
+
+  const navigation = {
+    sante: {
+      label: 'Santé',
+      href: '/categorie/sante',
+      items: [
+        { label: 'Compléments alimentaires', href: '/categorie/sante/complements' },
+        { label: 'Forme & Vitalité', href: '/categorie/sante/forme' },
+        { label: 'Sommeil & Stress', href: '/categorie/sante/sommeil' },
+        { label: 'Digestion', href: '/categorie/sante/digestion' },
+        { label: 'Articulations & Muscles', href: '/categorie/sante/articulations' },
+        { label: 'Immunité', href: '/categorie/sante/immunite' },
+        { label: 'Tous les produits Santé', href: '/categorie/sante' },
+      ]
+    },
+    beaute: {
+      label: 'Beauté',
+      href: '/categorie/beaute',
+      items: [
+        { 
+          label: 'Soins du visage', 
+          href: '/categorie/beaute/visage',
+          subItems: [
+            { label: 'Anti-âge', href: '/categorie/beaute/visage/anti-age' },
+            { label: 'Hydratation', href: '/categorie/beaute/visage/hydratation' },
+            { label: 'Anti-imperfections', href: '/categorie/beaute/visage/imperfections' },
+            { label: 'Tous les soins visage', href: '/categorie/beaute/visage' },
+          ]
+        },
+        { label: 'Soins du corps', href: '/categorie/beaute/corps' },
+        { label: 'Cheveux', href: '/categorie/beaute/cheveux' },
+        { label: 'Solaires', href: '/categorie/beaute/solaires' },
+        { label: 'Tous les produits Beauté', href: '/categorie/beaute' },
+      ]
+    },
+    hygiene: {
+      label: 'Hygiène',
+      href: '/categorie/hygiene',
+      items: [
+        { label: 'Douche & Bain', href: '/categorie/hygiene/douche' },
+        { label: 'Dentaire', href: '/categorie/hygiene/dentaire' },
+        { label: 'Hygiène intime', href: '/categorie/hygiene/intime' },
+        { label: 'Déodorants', href: '/categorie/hygiene/deodorants' },
+        { label: 'Tous les produits Hygiène', href: '/categorie/hygiene' },
+      ]
+    },
+    bebe: {
+      label: 'Bébé',
+      href: '/categorie/bebe',
+      items: [
+        { label: 'Lait infantile', href: '/categorie/bebe/lait' },
+        { label: 'Soins bébé', href: '/categorie/bebe/soins' },
+        { label: 'Soins maman', href: '/categorie/bebe/maman' },
+        { label: 'Hygiène bébé', href: '/categorie/bebe/hygiene' },
+        { label: 'Tous les produits Bébé', href: '/categorie/bebe' },
+      ]
+    }
+  };
 
   return (
     <>
-      {/* Top Bar */}
-      <div className="bg-secondary text-white py-1 text-center text-[8px] sm:text-[10px] font-black tracking-widest px-4 uppercase h-6 flex items-center justify-center shrink-0 z-[110]">
-        <p>Retrait gratuit en 2h • Livraison offerte dès 49€</p>
+      {/* 1. Top Bar Promotionnelle */}
+      <div className="bg-[#001F3F] text-white py-2 text-center text-[9px] sm:text-[11px] font-bold tracking-wide px-4 z-[110]">
+        <p>HAPPY DAYS ! -10% , -15%, -20% dès 99€, 149€ et 199€ avec les codes HAPPY10, HAPPY15 et HAPPY20 !</p>
       </div>
 
-      <header className="sticky top-0 z-[100] bg-white/95 backdrop-blur-md border-b shadow-sm h-14 sm:h-20 flex flex-col justify-center shrink-0">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between gap-2 sm:gap-4 h-full">
+      <header className="sticky top-0 z-[100] bg-white border-b shadow-sm">
+        {/* 2. Main Header Bar */}
+        <div className="container mx-auto px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-4 lg:gap-8">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 shrink-0 group">
-              <div className="relative w-8 h-8 lg:w-12 lg:h-12 rounded-xl overflow-hidden border-2 border-slate-100 p-0.5 bg-white shadow-soft transition-all group-hover:border-primary/20 shrink-0">
+            <Link href="/" className="flex items-center gap-2 shrink-0 group" onClick={closeMenu}>
+              <div className="relative w-10 h-10 lg:w-14 lg:h-14">
                 <Image 
                   src="https://picsum.photos/seed/ph-logo/200/200" 
                   alt="Logo PNI" 
                   fill 
                   className="object-contain"
                   priority
-                  sizes="(max-width: 768px) 32px, 48px"
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] lg:text-[16px] font-black text-slate-900 leading-none tracking-tighter uppercase">Pharmacie Nouvelle</span>
-                <span className="text-[7px] lg:text-[12px] font-bold text-primary uppercase tracking-[0.1em]">d'Ivry</span>
+                <span className="text-sm lg:text-lg font-black text-slate-900 leading-none tracking-tighter uppercase">Pharmacie Nouvelle</span>
+                <span className="text-[9px] lg:text-[13px] font-bold text-primary uppercase tracking-[0.1em]">d'Ivry</span>
               </div>
             </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden xl:flex items-center space-x-6 text-[10px] font-black uppercase tracking-widest">
-              {navLinks.map((link) => (
-                <Link 
-                  key={link.href} 
-                  href={link.href} 
-                  className={`transition-colors ${link.highlight ? 'text-destructive hover:text-destructive/80' : 'text-slate-600 hover:text-primary'}`}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-
-            {/* Search (Desktop) - Hidden on small screens to avoid crowding */}
-            <div className="hidden lg:flex flex-1 max-w-[200px] xl:max-w-xs mx-2">
+            {/* Barre de recherche centrale (Desktop) */}
+            <div className="hidden lg:flex flex-1 max-w-2xl">
               <div className="relative w-full group">
                 <Input 
-                  placeholder="Rechercher..." 
-                  className="rounded-full pr-10 h-10 border-slate-200 focus-visible:ring-primary bg-slate-50/50 text-xs font-bold"
+                  placeholder="Rechercher un produit, une marque..." 
+                  className="rounded-full pr-12 h-11 border-slate-200 focus-visible:ring-primary bg-slate-50/50 text-sm font-medium"
                 />
-                <Button size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 text-slate-400">
-                  <Search className="h-4 w-4" />
+                <Button size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-9 w-9 text-slate-400">
+                  <Search className="h-5 w-5" />
                 </Button>
               </div>
             </div>
 
-            {/* Actions Icons */}
-            <div className="flex items-center space-x-1 sm:space-x-2">
-              {/* Account Dropdown */}
+            {/* Actions Icons (Compte, Panier, Services) */}
+            <div className="flex items-center space-x-1 sm:space-x-3">
+              {/* Click & Collect Link (Desktop) */}
+              <Link href="/click-collect" className="hidden xl:flex flex-col items-center group">
+                <Clock className="h-5 w-5 text-slate-600 group-hover:text-primary transition-colors" />
+                <span className="text-[9px] font-bold uppercase tracking-tight text-slate-500 mt-1">Click & Collect</span>
+              </Link>
+
+              {/* Scan Ordonnance Link (Desktop) */}
+              <Link href="/scan-ordonnance" className="hidden xl:flex flex-col items-center group">
+                <FileText className="h-5 w-5 text-slate-600 group-hover:text-primary transition-colors" />
+                <span className="text-[9px] font-bold uppercase tracking-tight text-slate-500 mt-1">Ordonnance</span>
+              </Link>
+
+              {/* Account */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="flex flex-col h-auto py-1 px-2 items-center text-slate-600 hover:text-primary transition-colors group">
-                    <User className="h-5 w-5 mb-0.5" />
-                    <span className="text-[7px] sm:text-[9px] font-black uppercase tracking-widest leading-none">Compte</span>
+                  <Button variant="ghost" className="flex flex-col h-auto py-1 px-2 items-center text-slate-600 hover:text-primary transition-colors group">
+                    <User className="h-6 w-6 mb-0.5" />
+                    <span className="text-[9px] font-bold uppercase tracking-tight leading-none hidden sm:block">Compte</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64 rounded-2xl p-2 shadow-2xl border-slate-100">
+                <DropdownMenuContent align="end" className="w-64 rounded-xl p-2 shadow-xl border-slate-100">
                   {user ? (
                     <>
-                      <div className="px-3 py-4 mb-1 bg-slate-50 rounded-xl">
-                        <p className="text-[9px] font-black uppercase text-primary leading-none mb-1.5">Session Active</p>
+                      <div className="px-3 py-3 mb-1 bg-slate-50 rounded-lg">
+                        <p className="text-[10px] font-black uppercase text-primary leading-none mb-1">Session Active</p>
                         <p className="text-xs font-bold text-slate-900 truncate">{user.email}</p>
-                        <span className="inline-block mt-2 px-3 py-1 bg-primary/10 text-primary text-[8px] font-black uppercase rounded-full tracking-widest">
-                          Rôle : {role}
-                        </span>
                       </div>
-                      <DropdownMenuItem asChild className="rounded-lg py-2.5 font-bold cursor-pointer text-xs">
+                      <DropdownMenuItem asChild className="rounded-lg py-2 font-bold cursor-pointer text-xs">
                         <Link href="/compte">Mon profil patient</Link>
                       </DropdownMenuItem>
-                      
                       {isStaff && (
                         <>
                           <DropdownMenuSeparator />
-                          <p className="px-3 py-2 text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">Outils Officine</p>
-                          <DropdownMenuItem asChild className="rounded-lg py-2.5 font-black text-secondary cursor-pointer text-xs">
+                          <DropdownMenuItem asChild className="rounded-lg py-2 font-black text-secondary cursor-pointer text-xs">
                             <Link href="/collaborateur/dashboard">
                               <ClipboardList className="w-4 h-4 mr-2" /> Espace Préparateur
                             </Link>
                           </DropdownMenuItem>
                           {isAdmin && (
-                            <DropdownMenuItem asChild className="rounded-lg py-2.5 font-black text-primary cursor-pointer text-xs">
+                            <DropdownMenuItem asChild className="rounded-lg py-2 font-black text-primary cursor-pointer text-xs">
                               <Link href="/admin/dashboard">
                                 <LayoutDashboard className="w-4 h-4 mr-2" /> Pilotage Admin
                               </Link>
@@ -159,24 +222,17 @@ export function Header() {
                           )}
                         </>
                       )}
-                      
-                      {!isStaff && (
-                        <DropdownMenuItem asChild className="rounded-lg py-2.5 font-bold cursor-pointer text-xs">
-                          <Link href="/client/dashboard">Mes réservations</Link>
-                        </DropdownMenuItem>
-                      )}
-                      
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleSignOut} className="rounded-lg py-2.5 font-bold text-destructive cursor-pointer text-xs">
+                      <DropdownMenuItem onClick={handleSignOut} className="rounded-lg py-2 font-bold text-destructive cursor-pointer text-xs">
                         <LogOut className="w-4 h-4 mr-2" /> Déconnexion
                       </DropdownMenuItem>
                     </>
                   ) : (
                     <>
-                      <DropdownMenuItem asChild className="rounded-lg py-2.5 font-black text-primary cursor-pointer text-xs">
+                      <DropdownMenuItem asChild className="rounded-lg py-2 font-black text-primary cursor-pointer text-xs">
                         <Link href="/login">Se connecter</Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="rounded-lg py-2.5 font-bold cursor-pointer text-xs">
+                      <DropdownMenuItem asChild className="rounded-lg py-2 font-black text-slate-600 cursor-pointer text-xs">
                         <Link href="/register">Créer un compte</Link>
                       </DropdownMenuItem>
                     </>
@@ -184,65 +240,148 @@ export function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
               
-              {/* Shopping Cart (Clients Only) */}
+              {/* Panier */}
               {canShop && (
-                <Button variant="ghost" size="sm" className="flex flex-col h-auto py-1 px-2 items-center text-slate-600 hover:text-primary relative transition-colors group" asChild>
-                  <Link href="/panier">
-                    <div className="relative">
-                      <ShoppingCart className="h-5 w-5 mb-0.5" />
-                      {itemCount > 0 && (
-                        <span className="absolute -top-1.5 -right-1.5 bg-destructive text-white text-[8px] rounded-full h-4 w-4 flex items-center justify-center font-black shadow-sm">
-                          {itemCount}
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-[7px] sm:text-[9px] font-black uppercase tracking-widest leading-none">Panier</span>
-                  </Link>
-                </Button>
+                <Link href="/panier" className="flex flex-col items-center text-slate-600 hover:text-primary relative transition-colors group px-2" onClick={closeMenu}>
+                  <div className="relative">
+                    <ShoppingCart className="h-6 w-6" />
+                    {itemCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 bg-destructive text-white text-[10px] rounded-full h-4.5 w-4.5 flex items-center justify-center font-black shadow-sm">
+                        {itemCount}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[9px] font-bold uppercase tracking-tight leading-none mt-1 hidden sm:block">Panier</span>
+                </Link>
               )}
 
               {/* Mobile Menu Button */}
-              <Button variant="ghost" size="icon" className="xl:hidden rounded-full hover:bg-slate-50 h-10 w-10 shrink-0" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <Button variant="ghost" size="icon" className="lg:hidden rounded-full hover:bg-slate-50 h-10 w-10 shrink-0" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                 {isMenuOpen ? <X className="h-6 w-6 text-slate-900" /> : <Menu className="h-6 w-6 text-slate-900" />}
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Mobile Navigation Drawer */}
+        {/* 3. Navigation Bar (Desktop) */}
+        <nav className="hidden lg:block border-t bg-white">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-center space-x-8 h-12">
+              {Object.entries(navigation).map(([key, cat]) => (
+                <DropdownMenu key={key}>
+                  <DropdownMenuTrigger className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-700 hover:text-primary transition-colors outline-none h-full border-b-2 border-transparent hover:border-primary">
+                    {cat.label} <ChevronDown className="h-3 w-3" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-64 p-2 rounded-xl shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                    {cat.items.map((item, i) => (
+                      <React.Fragment key={i}>
+                        {('subItems' in item) ? (
+                          <div className="px-2 py-2">
+                            <p className="text-[10px] font-black text-primary uppercase mb-2">{item.label}</p>
+                            <div className="space-y-1.5 pl-2">
+                              {item.subItems?.map((sub, si) => (
+                                <DropdownMenuItem key={si} asChild className="p-0 hover:bg-transparent">
+                                  <Link href={sub.href} className="text-[11px] font-bold text-slate-600 hover:text-primary transition-colors block py-1">
+                                    {sub.label}
+                                  </Link>
+                                </DropdownMenuItem>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <DropdownMenuItem asChild className="rounded-lg py-2.5 font-bold text-slate-700 cursor-pointer text-xs">
+                            <Link href={item.href}>{item.label}</Link>
+                          </DropdownMenuItem>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ))}
+              
+              <Link href="/marques" className="text-[11px] font-black uppercase tracking-widest text-slate-700 hover:text-primary transition-colors">Marques</Link>
+              <Link href="/promotions" className="text-[11px] font-black uppercase tracking-widest text-destructive hover:text-destructive/80 transition-colors">Promotions</Link>
+              <Link href="/blog" className="text-[11px] font-black uppercase tracking-widest text-slate-700 hover:text-primary transition-colors">Blog</Link>
+              <Link href="/contact" className="text-[11px] font-black uppercase tracking-widest text-slate-700 hover:text-primary transition-colors">Contact</Link>
+            </div>
+          </div>
+        </nav>
+
+        {/* 4. Mobile Navigation Drawer */}
         {mounted && isMenuOpen && (
-          <div className="xl:hidden fixed inset-0 top-14 sm:top-20 bg-white z-[99] h-[calc(100vh-56px)] overflow-y-auto animate-in slide-in-from-right duration-300">
-            <div className="p-8 flex flex-col h-full">
-              <div className="mb-10">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Menu principal</p>
-                <ul className="space-y-6">
-                  {navLinks.map((link) => (
-                    <li key={link.href}>
-                      <Link 
-                        href={link.href} 
-                        className={`block text-xl font-black uppercase tracking-tighter ${link.highlight ? 'text-destructive' : 'text-slate-900'}`}
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+          <div className="lg:hidden fixed inset-0 top-[100px] sm:top-[120px] bg-white z-[99] h-[calc(100vh-100px)] overflow-y-auto animate-in slide-in-from-right duration-300">
+            <div className="p-6 space-y-8 pb-20">
+              {/* Barre de recherche mobile */}
+              <div className="relative group mb-6">
+                <Input 
+                  placeholder="Rechercher..." 
+                  className="rounded-full pr-10 h-10 border-slate-200 bg-slate-50 text-sm"
+                />
+                <Button size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 text-slate-400">
+                  <Search className="h-4 w-4" />
+                </Button>
               </div>
 
-              <div className="mt-auto pt-8 border-t border-slate-100">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Besoin d'aide ?</p>
-                <div className="flex flex-col gap-4">
-                  <a href="tel:0146711234" className="flex items-center gap-4 text-slate-900 font-black uppercase text-sm">
-                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                      <Phone className="w-5 h-5" />
-                    </div>
-                    01 46 71 12 34
-                  </a>
-                  <Button asChild className="rounded-full bg-slate-900 font-black uppercase tracking-widest text-[10px] h-12">
-                    <Link href="/contact" onClick={() => setIsMenuOpen(false)}>Envoyer un message</Link>
-                  </Button>
-                </div>
+              {/* Menu Accordion */}
+              <Accordion type="single" collapsible className="w-full space-y-2">
+                {Object.entries(navigation).map(([key, cat]) => (
+                  <AccordionItem key={key} value={key} className="border-none">
+                    <AccordionTrigger className="text-sm font-black uppercase tracking-tighter text-slate-900 py-3 hover:no-underline">
+                      {cat.label}
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-4 pl-4 space-y-3">
+                      {cat.items.map((item, i) => (
+                        <div key={i} className="space-y-2">
+                          <Link 
+                            href={item.href} 
+                            onClick={closeMenu}
+                            className={`block text-[12px] font-bold ${'subItems' in item ? 'text-primary' : 'text-slate-600'}`}
+                          >
+                            {item.label}
+                          </Link>
+                          {('subItems' in item) && (
+                            <div className="pl-4 space-y-2 border-l border-slate-100 mt-2">
+                              {item.subItems?.map((sub, si) => (
+                                <Link 
+                                  key={si} 
+                                  href={sub.href} 
+                                  onClick={closeMenu}
+                                  className="block text-[11px] font-medium text-slate-500 hover:text-primary"
+                                >
+                                  {sub.label}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+
+              {/* Liens Directs Mobiles */}
+              <div className="flex flex-col gap-4 pt-4 border-t border-slate-100">
+                <Link href="/marques" onClick={closeMenu} className="text-sm font-black uppercase tracking-tighter text-slate-900">Marques</Link>
+                <Link href="/promotions" onClick={closeMenu} className="text-sm font-black uppercase tracking-tighter text-destructive">Promotions</Link>
+                <Link href="/blog" onClick={closeMenu} className="text-sm font-black uppercase tracking-tighter text-slate-900">Blog</Link>
+                <Link href="/contact" onClick={closeMenu} className="text-sm font-black uppercase tracking-tighter text-slate-900">Contact</Link>
+              </div>
+
+              {/* Services Rapides Mobiles */}
+              <div className="grid grid-cols-2 gap-3 pt-8">
+                <Button asChild variant="outline" className="rounded-xl h-16 flex flex-col gap-1 border-slate-100 bg-slate-50 shadow-none">
+                  <Link href="/click-collect" onClick={closeMenu}>
+                    <Clock className="h-5 w-5 text-primary" />
+                    <span className="text-[10px] font-black uppercase">Retrait 2h</span>
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="rounded-xl h-16 flex flex-col gap-1 border-slate-100 bg-slate-50 shadow-none">
+                  <Link href="/scan-ordonnance" onClick={closeMenu}>
+                    <FileText className="h-5 w-5 text-secondary" />
+                    <span className="text-[10px] font-black uppercase">Ordonnance</span>
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>
