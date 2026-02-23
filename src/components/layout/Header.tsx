@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -147,7 +146,7 @@ export function Header() {
             <Link href="/" className="flex items-center gap-2 shrink-0 group" onClick={closeMenu}>
               <div className="relative w-10 h-10 lg:w-14 lg:h-14">
                 <Image 
-                  src="https://picsum.photos/seed/ph-logo/200/200" 
+                  src="/images/logo.png" 
                   alt="Logo PNI" 
                   fill 
                   className="object-contain"
@@ -281,7 +280,7 @@ export function Header() {
                             <div className="space-y-1.5 pl-2">
                               {item.subItems?.map((sub, si) => (
                                 <DropdownMenuItem key={si} asChild className="p-0 hover:bg-transparent">
-                                  <Link href={sub.href} className="text-[11px] font-bold text-slate-600 hover:text-primary transition-colors block py-1">
+                                  <Link href={sub.href} onClick={closeMenu} className="text-[11px] font-bold text-slate-600 hover:text-primary transition-colors block py-1">
                                     {sub.label}
                                   </Link>
                                 </DropdownMenuItem>
@@ -290,7 +289,7 @@ export function Header() {
                           </div>
                         ) : (
                           <DropdownMenuItem asChild className="rounded-lg py-2.5 font-bold text-slate-700 cursor-pointer text-xs">
-                            <Link href={item.href}>{item.label}</Link>
+                            <Link href={item.href} onClick={closeMenu}>{item.label}</Link>
                           </DropdownMenuItem>
                         )}
                       </React.Fragment>
@@ -326,7 +325,7 @@ export function Header() {
               <Accordion type="single" collapsible className="w-full space-y-2">
                 {Object.entries(navigation).map(([key, cat]) => (
                   <AccordionItem key={key} value={key} className="border-none">
-                    <AccordionTrigger className="text-sm font-black uppercase tracking-tighter text-slate-900 py-3 hover:no-underline">
+                    <AccordionTrigger className="text-[12px] font-black uppercase tracking-tighter text-slate-900 py-3 hover:no-underline">
                       {cat.label}
                     </AccordionTrigger>
                     <AccordionContent className="pb-4 pl-4 space-y-3">
@@ -335,7 +334,7 @@ export function Header() {
                           <Link 
                             href={item.href} 
                             onClick={closeMenu}
-                            className={`block text-[12px] font-bold ${'subItems' in item ? 'text-primary' : 'text-slate-600'}`}
+                            className={`block text-[11px] font-bold ${'subItems' in item ? 'text-primary' : 'text-slate-600'}`}
                           >
                             {item.label}
                           </Link>
@@ -346,7 +345,7 @@ export function Header() {
                                   key={si} 
                                   href={sub.href} 
                                   onClick={closeMenu}
-                                  className="block text-[11px] font-medium text-slate-500 hover:text-primary"
+                                  className="block text-[10px] font-medium text-slate-500 hover:text-primary"
                                 >
                                   {sub.label}
                                 </Link>
@@ -362,10 +361,10 @@ export function Header() {
 
               {/* Liens Directs Mobiles */}
               <div className="flex flex-col gap-4 pt-4 border-t border-slate-100">
-                <Link href="/marques" onClick={closeMenu} className="text-sm font-black uppercase tracking-tighter text-slate-900">Marques</Link>
-                <Link href="/promotions" onClick={closeMenu} className="text-sm font-black uppercase tracking-tighter text-destructive">Promotions</Link>
-                <Link href="/blog" onClick={closeMenu} className="text-sm font-black uppercase tracking-tighter text-slate-900">Blog</Link>
-                <Link href="/contact" onClick={closeMenu} className="text-sm font-black uppercase tracking-tighter text-slate-900">Contact</Link>
+                <Link href="/marques" onClick={closeMenu} className="text-[12px] font-black uppercase tracking-tighter text-slate-900">Marques</Link>
+                <Link href="/promotions" onClick={closeMenu} className="text-[12px] font-black uppercase tracking-tighter text-destructive">Promotions</Link>
+                <Link href="/blog" onClick={closeMenu} className="text-[12px] font-black uppercase tracking-tighter text-slate-900">Blog</Link>
+                <Link href="/contact" onClick={closeMenu} className="text-[12px] font-black uppercase tracking-tighter text-slate-900">Contact</Link>
               </div>
 
               {/* Services Rapides Mobiles */}
