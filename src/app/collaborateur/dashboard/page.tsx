@@ -23,7 +23,12 @@ import {
   Send,
   Camera,
   Sparkles,
-  TrendingUp
+  TrendingUp,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  Package,
+  Filter
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { OrderPreparationModal } from '@/components/admin/OrderPreparationModal';
@@ -37,6 +42,7 @@ export default function CollaboratorDashboard() {
   const [staffMessage, setStaffMessage] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const [isSuggesting, setIsSuggesting] = useState<string | null>(null);
+  const [filterStock, setFilterStock] = useState('all');
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user) return null;
@@ -162,20 +168,80 @@ export default function CollaboratorDashboard() {
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tighter flex items-center gap-3">
-              <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center text-white">
-                <ClipboardList className="h-5 w-5" />
-              </div>
-              Espace Préparateur
-            </h1>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Officine Nouvelle d'Ivry</p>
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tighter flex items-center gap-3">
+                <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center text-white">
+                  <ClipboardList className="h-5 w-5" />
+                </div>
+                Espace Préparateur
+              </h1>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Officine Nouvelle d'Ivry</p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="rounded-full h-9 px-4 font-black uppercase text-[9px] border-slate-200">
+                <Camera className="w-3.5 h-3.5 mr-2" /> Visio Patient
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" className="rounded-full h-9 px-4 font-black uppercase text-[9px] border-slate-200">
-              <Camera className="w-3.5 h-3.5 mr-2" /> Visio Patient
-            </Button>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Card className="border-none shadow-soft bg-white rounded-2xl">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">À Préparer</p>
+                    <p className="text-2xl font-black text-destructive mt-1">{activeOrders?.filter((o: any) => o.status === 'pending').length || 0}</p>
+                  </div>
+                  <div className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center text-destructive shrink-0">
+                    <AlertCircle className="w-4 h-4" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-none shadow-soft bg-white rounded-2xl">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">En Cours</p>
+                    <p className="text-2xl font-black text-primary mt-1">{activeOrders?.filter((o: any) => o.status === 'processing').length || 0}</p>
+                  </div>
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                    <Clock className="w-4 h-4" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-none shadow-soft bg-white rounded-2xl">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Ruptures</p>
+                    <p className="text-2xl font-black text-destructive mt-1">{products?.filter((p: any) => (p.stockFinal || 0) < 5).length || 0}</p>
+                  </div>
+                  <div className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center text-destructive shrink-0">
+                    <Package className="w-4 h-4" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-none shadow-soft bg-white rounded-2xl">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Produits OK</p>
+                    <p className="text-2xl font-black text-green-600 mt-1">{products?.filter((p: any) => (p.stockFinal || 0) >= 5).length || 0}</p>
+                  </div>
+                  <div className="w-8 h-8 rounded-lg bg-green-600/10 flex items-center justify-center text-green-600 shrink-0">
+                    <CheckCircle2 className="w-4 h-4" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
@@ -237,59 +303,75 @@ export default function CollaboratorDashboard() {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="stock">
+              <TabsContent value="stock" className="space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <Filter className="w-4 h-4 text-slate-400" />
+                  <div className="flex gap-2">
+                    {[
+                      { value: 'all', label: 'Tous' },
+                      { value: 'critical', label: 'Critique' },
+                      { value: 'low', label: 'Faible' },
+                      { value: 'good', label: 'OK' }
+                    ].map(f => (
+                      <Button
+                        key={f.value}
+                        onClick={() => setFilterStock(f.value)}
+                        variant={filterStock === f.value ? 'default' : 'outline'}
+                        className="h-8 px-3 rounded-full text-[9px] font-black uppercase"
+                      >
+                        {f.label}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
                 <Card className="border-none shadow-soft rounded-[24px] overflow-hidden bg-white">
-                  <Table>
-                    <TableHeader className="bg-slate-50/50">
-                      <TableRow>
-                        <TableHead className="font-black uppercase text-[9px] pl-6">Produit / Marque</TableHead>
-                        <TableHead className="font-black uppercase text-[9px]">Stock</TableHead>
-                        <TableHead className="font-black uppercase text-[9px]">Statut</TableHead>
-                        <TableHead className="font-black uppercase text-[9px] text-right pr-6">IA Assist</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {products && products.length > 0 ? products.map((p) => (
-                        <TableRow key={p.id} className="hover:bg-slate-50/50">
-                          <TableCell className="pl-6 py-4">
-                            <div className="flex flex-col">
-                              <span className="font-black text-xs">{p.name}</span>
-                              <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">{p.brand}</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
+                    {products && products.length > 0 ? products
+                      .filter((p: any) => {
+                        if (filterStock === 'critical') return (p.stockFinal || 0) < 3;
+                        if (filterStock === 'low') return (p.stockFinal || 0) >= 3 && (p.stockFinal || 0) < 5;
+                        if (filterStock === 'good') return (p.stockFinal || 0) >= 5;
+                        return true;
+                      })
+                      .map((p: any) => (
+                        <Card key={p.id} className={`border-l-4 rounded-xl overflow-hidden ${(p.stockFinal || 0) < 5 ? 'border-l-destructive bg-destructive/5' : 'border-l-primary bg-primary/5'}`}>
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex-1">
+                                <h4 className="font-black text-xs text-slate-900 uppercase">{p.name}</h4>
+                                <p className="text-[8px] text-slate-400 font-medium mt-1">{p.brand}</p>
+                              </div>
+                              <Button 
+                                size="icon"
+                                variant="ghost" 
+                                className="h-7 w-7 rounded-full text-primary hover:bg-primary/10"
+                                onClick={() => handleAISuggestRestock(p)}
+                                disabled={isSuggesting === p.id}
+                              >
+                                {isSuggesting === p.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                              </Button>
                             </div>
-                          </TableCell>
-                          <TableCell className="font-black text-xs">
-                            <span className={p.stockFinal < 5 ? 'text-destructive' : 'text-slate-900'}>
-                              {p.stockFinal || 0} u.
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            {p.stockFinal < 5 ? (
-                              <Badge variant="destructive" className="text-[7px] uppercase px-2 py-0.5">Rupture imminente</Badge>
-                            ) : (
-                              <Badge className="bg-primary/10 text-primary border-none text-[7px] uppercase px-2 py-0.5">Ok</Badge>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-right pr-6">
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              className="h-8 w-8 rounded-full text-primary hover:bg-primary/5"
-                              onClick={() => handleAISuggestRestock(p)}
-                              disabled={isSuggesting === p.id}
-                            >
-                              {isSuggesting === p.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      )) : (
-                        <TableRow>
-                          <TableCell colSpan={4} className="text-center py-20 text-slate-400 font-bold uppercase text-[10px]">
-                            Inventaire vide ou en cours de chargement
-                          </TableCell>
-                        </TableRow>
+                            <div className="flex items-end justify-between">
+                              <div>
+                                <p className="text-[9px] text-slate-400 font-black uppercase mb-1">Stock</p>
+                                <p className={`text-xl font-black ${(p.stockFinal || 0) < 5 ? 'text-destructive' : 'text-green-600'}`}>
+                                  {p.stockFinal || 0}
+                                </p>
+                              </div>
+                              <Badge className={`text-[7px] uppercase px-2 py-0.5 rounded-full font-black ${(p.stockFinal || 0) < 5 ? 'bg-destructive text-white' : 'bg-green-600 text-white'}`}>
+                                {(p.stockFinal || 0) < 3 ? 'Critique' : (p.stockFinal || 0) < 5 ? 'Faible' : 'OK'}
+                              </Badge>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                      : (
+                        <div className="col-span-2 text-center py-20 text-slate-400 font-bold uppercase text-[10px]">
+                          Inventaire vide ou en cours de chargement
+                        </div>
                       )}
-                    </TableBody>
-                  </Table>
+                  </div>
                 </Card>
               </TabsContent>
             </Tabs>
