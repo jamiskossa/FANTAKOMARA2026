@@ -56,7 +56,11 @@ service cloud.firestore {
     // Support Clients (Chat)
     match /supportMessages/{msgId} {
       allow create: if isAuthenticated();
-      allow read: if isStaff() || (isAuthenticated() && (resource == null || resource.data.clientId == request.auth.uid));
+      allow get: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
+      allow list: if isStaff();
+      allow list: if isAuthenticated() && request.query.limit <= 100;
+      allow read: if isStaff();
+      allow read: if isAuthenticated() && resource.data.clientId == request.auth.uid;
       allow update: if isStaff();
     }
 
