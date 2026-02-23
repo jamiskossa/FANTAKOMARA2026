@@ -73,6 +73,7 @@ service cloud.firestore {
     match /contactMessages/{msgId} {
       allow create: if true;
       allow read: if isStaff();
+      allow update: if isStaff();
       allow delete: if isAdmin();
     }
 
