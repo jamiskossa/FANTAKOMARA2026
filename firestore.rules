@@ -40,8 +40,10 @@ service cloud.firestore {
     // Réservations
     match /reservations/{reservationId} {
       allow create: if isAuthenticated();
-      // Read englobe get et list. 
-      // Pour le list, Firestore vérifie si la condition est vraie pour TOUS les docs demandés.
+      // On sépare explicitement get et list pour faciliter l'optimisation des requêtes
+      allow get: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
+      allow list: if isStaff() || (isAuthenticated() && request.query.limit <= 100 && (resource == null || resource.data.clientId == request.auth.uid));
+      // Fallback read plus simple pour les cas standards
       allow read: if isStaff();
       allow read: if isAuthenticated() && resource.data.clientId == request.auth.uid;
       
@@ -54,8 +56,7 @@ service cloud.firestore {
     // Support Clients (Chat)
     match /supportMessages/{msgId} {
       allow create: if isAuthenticated();
-      allow read: if isStaff();
-      allow read: if isAuthenticated() && resource.data.clientId == request.auth.uid;
+      allow read: if isStaff() || (isAuthenticated() && (resource == null || resource.data.clientId == request.auth.uid));
       allow update: if isStaff();
     }
 

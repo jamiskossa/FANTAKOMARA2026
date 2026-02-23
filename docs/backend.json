@@ -74,6 +74,21 @@
         "text": { "type": "string" },
         "createdAt": { "type": "string" }
       }
+    },
+    "ContactMessage": {
+      "title": "ContactMessage",
+      "type": "object",
+      "description": "Message de contact public.",
+      "properties": {
+        "id": { "type": "string" },
+        "senderName": { "type": "string" },
+        "senderEmail": { "type": "string" },
+        "senderPhone": { "type": "string" },
+        "subject": { "type": "string" },
+        "messageContent": { "type": "string" },
+        "submissionDate": { "type": "string", "format": "date-time" },
+        "isReplied": { "type": "boolean" }
+      }
     }
   },
   "auth": {
@@ -85,7 +100,8 @@
       { "path": "/products/{productId}", "definition": { "entityName": "Product" } },
       { "path": "/reservations/{reservationId}", "definition": { "entityName": "Reservation" } },
       { "path": "/staffMessages/{msgId}", "definition": { "entityName": "StaffMessage" } },
-      { "path": "/supportMessages/{msgId}", "definition": { "entityName": "SupportMessage" } }
+      { "path": "/supportMessages/{msgId}", "definition": { "entityName": "SupportMessage" } },
+      { "path": "/contactMessages/{msgId}", "definition": { "entityName": "ContactMessage" } }
     ]
   }
 }

@@ -23,13 +23,10 @@ import {
   MessageCircle,
   FileText,
   BookOpen,
-  Search,
   Printer,
-  Settings,
   CheckCircle2
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { Input } from '@/components/ui/input';
 import { DocumentPreview } from '@/components/admin/DocumentPreview';
 
 export default function AdminDashboard() {
@@ -48,12 +45,12 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (!isUserLoading && !user) {
       router.push('/login');
-    } else if (!isUserLoading && profile && profile.role !== 'admin') {
+    } else if (!isUserLoading && !isProfileLoading && profile && profile.role !== 'admin') {
       router.push('/compte');
     }
-  }, [user, isUserLoading, profile, router]);
+  }, [user, isUserLoading, isProfileLoading, profile, router]);
 
-  // Dynamic Queries only when authorized
+  // Dynamic Queries only when authorized and profile is fully loaded
   const reservationsQuery = useMemoFirebase(() => {
     if (!profile || profile.role !== 'admin') return null;
     return query(collection(db, 'reservations'), orderBy('createdAt', 'desc'), limit(50));
@@ -92,7 +89,10 @@ export default function AdminDashboard() {
   if (isUserLoading || isProfileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Accès Sécurisé...</p>
+        </div>
       </div>
     );
   }
@@ -156,7 +156,7 @@ export default function AdminDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {reservations?.map((r) => (
+                  {reservations && reservations.length > 0 ? reservations.map((r) => (
                     <TableRow key={r.id} className="hover:bg-slate-50/50">
                       <TableCell className="pl-6 py-2">
                         <div className="flex flex-col">
@@ -171,7 +171,13 @@ export default function AdminDashboard() {
                         <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDelete('reservations', r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )) : (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-10 text-slate-400 font-bold uppercase text-[10px]">
+                        Aucune réservation en attente
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </Card>
@@ -188,7 +194,7 @@ export default function AdminDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {contactMessages?.map((m) => (
+                  {contactMessages && contactMessages.length > 0 ? contactMessages.map((m) => (
                     <TableRow key={m.id} className={`hover:bg-slate-50/50 ${!m.isReplied ? 'bg-primary/5' : ''}`}>
                       <TableCell className="pl-6 py-3">
                         <div className="flex flex-col">
@@ -215,7 +221,13 @@ export default function AdminDashboard() {
                         </Button>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )) : (
+                    <TableRow>
+                      <TableCell colSpan={3} className="text-center py-10 text-slate-400 font-bold uppercase text-[10px]">
+                        Aucun message client
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </Card>
@@ -232,7 +244,7 @@ export default function AdminDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {clients?.map((c) => (
+                  {clients && clients.length > 0 ? clients.map((c) => (
                     <TableRow key={c.id} className="hover:bg-slate-50/50">
                       <TableCell className="pl-6 py-2 font-bold text-xs">{c.firstName} {c.lastName}</TableCell>
                       <TableCell className="py-2"><Badge variant="outline" className="text-[8px] uppercase">{c.role}</Badge></TableCell>
@@ -241,7 +253,13 @@ export default function AdminDashboard() {
                         <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDelete('userProfiles', c.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )) : (
+                    <TableRow>
+                      <TableCell colSpan={3} className="text-center py-10 text-slate-400 font-bold uppercase text-[10px]">
+                        Aucun patient enregistré
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </Card>

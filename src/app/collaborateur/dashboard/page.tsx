@@ -45,6 +45,12 @@ export default function CollaboratorDashboard() {
 
   const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
 
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
+
   // File active : À préparer ou en cours
   const activeOrdersQuery = useMemoFirebase(() => {
     if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) return null;
@@ -120,7 +126,10 @@ export default function CollaboratorDashboard() {
   if (isUserLoading || isProfileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Vérification des accès...</p>
+        </div>
       </div>
     );
   }
@@ -190,9 +199,7 @@ export default function CollaboratorDashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {activeOrders?.length === 0 ? (
-                        <TableRow><TableCell colSpan={4} className="text-center py-20 text-slate-400 font-bold uppercase text-[10px]">Aucune commande en attente</TableCell></TableRow>
-                      ) : activeOrders?.map((order) => (
+                      {activeOrders && activeOrders.length > 0 ? activeOrders.map((order) => (
                         <TableRow key={order.id} className="hover:bg-slate-50/50 transition-colors">
                           <TableCell className="pl-6 py-4">
                             <div className="flex flex-col">
@@ -218,7 +225,13 @@ export default function CollaboratorDashboard() {
                             </Button>
                           </TableCell>
                         </TableRow>
-                      ))}
+                      )) : (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center py-20 text-slate-400 font-bold uppercase text-[10px]">
+                            Aucune commande en attente
+                          </TableCell>
+                        </TableRow>
+                      )}
                     </TableBody>
                   </Table>
                 </Card>
@@ -236,9 +249,7 @@ export default function CollaboratorDashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {products?.length === 0 ? (
-                        <TableRow><TableCell colSpan={4} className="text-center py-20 text-slate-400 font-bold uppercase text-[10px]">Inventaire vide</TableCell></TableRow>
-                      ) : products?.map((p) => (
+                      {products && products.length > 0 ? products.map((p) => (
                         <TableRow key={p.id} className="hover:bg-slate-50/50">
                           <TableCell className="pl-6 py-4">
                             <div className="flex flex-col">
@@ -270,7 +281,13 @@ export default function CollaboratorDashboard() {
                             </Button>
                           </TableCell>
                         </TableRow>
-                      ))}
+                      )) : (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center py-20 text-slate-400 font-bold uppercase text-[10px]">
+                            Inventaire vide ou en cours de chargement
+                          </TableCell>
+                        </TableRow>
+                      )}
                     </TableBody>
                   </Table>
                 </Card>
@@ -293,7 +310,7 @@ export default function CollaboratorDashboard() {
               <CardContent className="flex-grow p-0 flex flex-col overflow-hidden">
                 <ScrollArea className="flex-grow p-4 bg-slate-50/50">
                   <div className="space-y-4">
-                    {staffMessages?.map((msg) => (
+                    {staffMessages && staffMessages.length > 0 ? staffMessages.map((msg) => (
                       <div key={msg.id} className={`flex flex-col ${msg.senderId === user?.uid ? 'items-end' : 'items-start'}`}>
                         <span className="text-[8px] font-black text-slate-400 uppercase mb-1 px-2">{msg.senderName}</span>
                         <div className={`max-w-[90%] p-3 rounded-2xl text-[11px] font-medium leading-relaxed shadow-sm ${
@@ -304,7 +321,9 @@ export default function CollaboratorDashboard() {
                           {msg.text}
                         </div>
                       </div>
-                    ))}
+                    )) : (
+                      <p className="text-center py-10 text-[10px] font-black uppercase text-slate-300">Début de la conversation</p>
+                    )}
                   </div>
                 </ScrollArea>
                 <form onSubmit={handleSendStaffMessage} className="p-4 bg-white border-t border-slate-100 flex gap-2">

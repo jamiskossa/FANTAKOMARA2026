@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -147,7 +148,7 @@ export function Header() {
               <div className="relative w-10 h-10 lg:w-14 lg:h-14">
                 <Image 
                   src="/images/logo.png" 
-                  alt="Logo PNI" 
+                  alt="Logo Pharmacie Nouvelle d'Ivry" 
                   fill 
                   className="object-contain"
                   priority
