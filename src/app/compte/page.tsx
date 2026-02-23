@@ -33,6 +33,14 @@ export default function AccountRouterPage() {
     }
   }, [user, isUserLoading, router]);
 
+  useEffect(() => {
+    if (!isProfileLoading && profile) {
+      if (profile.role === 'collaborator' || profile.role === 'admin') {
+        router.push(`/${profile.role === 'admin' ? 'admin' : 'collaborateur'}/dashboard`);
+      }
+    }
+  }, [profile, isProfileLoading, router]);
+
   const handleSignOut = () => {
     signOut(auth);
     router.push('/');
