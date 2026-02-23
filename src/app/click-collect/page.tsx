@@ -1,12 +1,14 @@
 "use client";
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Clock, ShieldCheck, ShoppingBag, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function ClickCollect() {
+  const router = useRouter();
   const steps = [
     { icon: ShoppingBag, title: "Commandez en ligne", desc: "Faites votre shopping parmi 1000+ références." },
     { icon: Clock, title: "Prêt en 2h", desc: "Nos pharmaciens préparent votre panier avec soin." },
@@ -21,7 +23,13 @@ export default function ClickCollect() {
           <div className="container mx-auto px-4 text-center max-w-3xl">
             <h1 className="text-4xl lg:text-6xl font-bold mb-6 text-slate-900">Click & Collect 2h</h1>
             <p className="text-xl text-slate-600 mb-10">Commandez vos produits de parapharmacie en ligne et retirez-les gratuitement dans notre officine à Ivry-sur-Seine.</p>
-            <Button size="lg" className="rounded-full px-10 h-14 bg-primary text-lg font-bold">Commencer mon shopping</Button>
+            <Button 
+              size="lg" 
+              className="rounded-full px-10 h-14 bg-primary text-lg font-bold hover:opacity-90 transition-opacity"
+              onClick={() => router.push('/categorie/beaute')}
+            >
+              Commencer mon shopping
+            </Button>
           </div>
         </section>
 
