@@ -49,7 +49,7 @@ service cloud.firestore {
     // Support Clients (Chat)
     match /supportMessages/{msgId} {
       allow create: if isAuthenticated();
-      allow read: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
+      allow read: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isStaff());
       allow update: if isStaff();
     }
 
