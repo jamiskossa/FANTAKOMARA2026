@@ -10,6 +10,9 @@ import { BrandBanner } from '@/components/home/BrandBanner';
 import { ServiceBanner } from '@/components/layout/ServiceBanner';
 import { Footer } from '@/components/layout/Footer';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { AlertTriangle } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -19,6 +22,26 @@ export default function Home() {
       <main className="flex-grow">
         <Hero />
         
+        {/* Rappel Lait Infantile Section */}
+        <div className="container mx-auto px-4 -mt-12 mb-12 relative z-30">
+          <div className="bg-white/80 border-2 border-destructive/20 backdrop-blur-md p-6 rounded-[32px] shadow-2xl shadow-destructive/10 flex flex-col md:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex items-center gap-6">
+              <div className="w-14 h-14 rounded-2xl bg-destructive text-white flex items-center justify-center animate-pulse shadow-lg shadow-destructive/30">
+                <AlertTriangle className="w-8 h-8" />
+              </div>
+              <div>
+                <h3 className="text-lg font-black uppercase text-destructive tracking-tighter">Rappel Lait Infantile</h3>
+                <p className="text-sm font-bold text-slate-600">Information de sécurité majeure : vérifiez les lots concernés.</p>
+              </div>
+            </div>
+            <Button asChild variant="destructive" className="w-full md:w-auto rounded-2xl h-14 px-10 font-black uppercase tracking-widest text-xs shadow-xl hover:shadow-destructive/40 transition-all hover:scale-105 active:scale-95">
+              <Link href="/rappel-lait">
+                Consulter les alertes
+              </Link>
+            </Button>
+          </div>
+        </div>
+
         <QuickActions />
         
         <ProductGrid 

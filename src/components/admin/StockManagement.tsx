@@ -21,7 +21,8 @@ import {
   ArrowDownRight,
   PlusCircle,
   Truck,
-  Sparkles
+  Sparkles,
+  Loader2
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 

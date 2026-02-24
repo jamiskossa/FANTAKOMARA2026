@@ -6,12 +6,14 @@ import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { useFirestore, useCollection, useMemoFirebase, useUser, useDoc, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
-import { collection, query, orderBy, limit, doc } from 'firebase/firestore';
+import { collection, query, orderBy, limit, doc, addDoc } from 'firebase/firestore';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
 import { 
   Loader2, 
   TrendingUp, 
@@ -32,7 +34,9 @@ import {
   Share2,
   UserPlus,
   BarChart3,
-  Box
+  Box,
+  Send,
+  Search
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { DocumentPreview } from '@/components/admin/DocumentPreview';
@@ -45,6 +49,8 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [activeDoc, setActiveDoc] = useState<{type: string, data: any} | null>(null);
   const [showReplied, setShowReplied] = useState(false);
+  const [selectedChatUser, setSelectedChatUser] = useState<string | null>(null);
+  const [adminReply, setAdminReply] = useState('');
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user) return null;
@@ -79,6 +85,40 @@ export default function AdminDashboard() {
     return query(collection(db, 'contactMessages'), orderBy('submissionDate', 'desc'), limit(50));
   }, [db, profile]);
   const { data: contactMessages } = useCollection(contactMessagesQuery);
+
+  const supportChatQuery = useMemoFirebase(() => {
+    if (!profile || profile.role !== 'admin') return null;
+    return query(collection(db, 'supportMessages'), orderBy('createdAt', 'desc'), limit(100));
+  }, [db, profile]);
+  const { data: allSupportMessages } = useCollection(supportChatQuery);
+
+  const groupedChats = React.useMemo(() => {
+    if (!allSupportMessages) return {};
+    const groups: any = {};
+    allSupportMessages.forEach((msg: any) => {
+      const cid = msg.clientId;
+      if (!groups[cid]) groups[cid] = [];
+      groups[cid].push(msg);
+    });
+    return groups;
+  }, [allSupportMessages]);
+
+  const handleSendAdminReply = async (clientId: string) => {
+    if (!adminReply.trim() || !user) return;
+    try {
+      await addDoc(collection(db, 'supportMessages'), {
+        clientId,
+        senderId: user.uid,
+        senderName: "Pharmacie (Admin)",
+        text: adminReply,
+        createdAt: new Date().toISOString()
+      });
+      setAdminReply('');
+      toast({ title: "Réponse envoyée" });
+    } catch (e) {
+      toast({ title: "Erreur", description: "Impossible d'envoyer le message.", variant: "destructive" });
+    }
+  };
 
   const handleDelete = (collectionName: string, id: string) => {
     if (confirm("Confirmer la suppression ?")) {
@@ -196,6 +236,7 @@ export default function AdminDashboard() {
           <TabsList className="bg-white p-1 rounded-full shadow-soft border border-slate-100 flex w-fit overflow-x-auto">
             <TabsTrigger value="reservations" className="rounded-full font-black uppercase text-[9px] px-4">Flux Résas</TabsTrigger>
             <TabsTrigger value="stock" className="rounded-full font-black uppercase text-[9px] px-4">Inventaire</TabsTrigger>
+            <TabsTrigger value="chat" className="rounded-full font-black uppercase text-[9px] px-4">Chat Direct</TabsTrigger>
             <TabsTrigger value="messages" className="rounded-full font-black uppercase text-[9px] px-4">Messages Clients</TabsTrigger>
             <TabsTrigger value="users" className="rounded-full font-black uppercase text-[9px] px-4">Patients</TabsTrigger>
             <TabsTrigger value="staff" className="rounded-full font-black uppercase text-[9px] px-4">Collaborateurs</TabsTrigger>
@@ -235,6 +276,7 @@ export default function AdminDashboard() {
                       <TableCell className="text-right pr-6 py-2 space-x-1">
                         <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-400 hover:text-primary" onClick={() => setActiveDoc({type: 'invoice', data: r})}><Printer className="h-3.5 w-3.5" /></Button>
                         <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-400 hover:text-secondary" onClick={() => setActiveDoc({type: 'invoice', data: r})}><Download className="h-3.5 w-3.5" /></Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-400 hover:text-green-600" onClick={() => handleWhatsApp(clients?.find(c => c.id === r.clientId)?.phone)}><MessageCircle className="h-3.5 w-3.5" /></Button>
                         <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-400 hover:text-slate-900" onClick={() => handleShare(r)}><Share2 className="h-3.5 w-3.5" /></Button>
                         <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDelete('reservations', r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                       </TableCell>
@@ -253,6 +295,107 @@ export default function AdminDashboard() {
 
           <TabsContent value="stock">
             <StockManagement />
+          </TabsContent>
+
+          <TabsContent value="chat">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[600px]">
+              {/* Chat Sidebar */}
+              <Card className="border-none shadow-soft rounded-2xl overflow-hidden bg-white">
+                <div className="p-4 border-b">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                    <Input placeholder="Rechercher un patient..." className="pl-10 h-9 rounded-full bg-slate-50 border-none text-xs" />
+                  </div>
+                </div>
+                <ScrollArea className="h-[calc(600px-70px)]">
+                  <div className="p-2 space-y-1">
+                    {Object.keys(groupedChats).length === 0 ? (
+                      <div className="p-8 text-center text-slate-400 text-[10px] font-black uppercase">Aucun chat actif</div>
+                    ) : Object.keys(groupedChats).map((cid) => {
+                      const chatUser = clients?.find(c => c.id === cid);
+                      const lastMsg = groupedChats[cid][0]; // Desc order
+                      return (
+                        <button 
+                          key={cid}
+                          onClick={() => setSelectedChatUser(cid)}
+                          className={`w-full p-4 rounded-xl flex items-center gap-3 transition-all ${selectedChatUser === cid ? 'bg-primary text-white shadow-lg' : 'hover:bg-slate-50'}`}
+                        >
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black ${selectedChatUser === cid ? 'bg-white text-primary' : 'bg-primary/10 text-primary'}`}>
+                            {chatUser?.firstName?.[0] || 'P'}
+                          </div>
+                          <div className="flex-1 text-left overflow-hidden">
+                            <p className="text-xs font-black uppercase truncate">{chatUser?.firstName} {chatUser?.lastName}</p>
+                            <p className={`text-[10px] truncate ${selectedChatUser === cid ? 'text-white/70' : 'text-slate-400'}`}>
+                              {lastMsg?.text}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </ScrollArea>
+              </Card>
+
+              {/* Chat Window */}
+              <Card className="md:col-span-2 border-none shadow-soft rounded-2xl overflow-hidden bg-white flex flex-col">
+                {selectedChatUser ? (
+                  <>
+                    <div className="p-4 border-b bg-slate-50/50 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-black text-xs">
+                          {clients?.find(c => c.id === selectedChatUser)?.firstName?.[0] || 'P'}
+                        </div>
+                        <h3 className="text-xs font-black uppercase tracking-tight">
+                          {clients?.find(c => c.id === selectedChatUser)?.firstName} {clients?.find(c => c.id === selectedChatUser)?.lastName}
+                        </h3>
+                      </div>
+                    </div>
+                    <ScrollArea className="flex-grow p-6">
+                      <div className="space-y-4">
+                        {[...groupedChats[selectedChatUser]].reverse().map((msg: any, i: number) => (
+                          <div key={i} className={`flex ${msg.senderId === user?.uid ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`max-w-[80%] p-4 rounded-2xl ${
+                              msg.senderId === user?.uid 
+                              ? 'bg-primary text-white rounded-tr-none' 
+                              : 'bg-slate-100 text-slate-700 rounded-tl-none'
+                            }`}>
+                              <p className="text-xs font-medium leading-relaxed">{msg.text}</p>
+                              <p className={`text-[8px] mt-2 font-bold uppercase opacity-50 ${msg.senderId === user?.uid ? 'text-right' : 'text-left'}`}>
+                                {new Date(msg.createdAt).toLocaleTimeString()}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                    <div className="p-4 border-t bg-white">
+                      <form 
+                        className="flex gap-2"
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          handleSendAdminReply(selectedChatUser);
+                        }}
+                      >
+                        <Input 
+                          placeholder="Écrire une réponse..." 
+                          className="rounded-full h-12 bg-slate-50 border-none px-6 text-sm"
+                          value={adminReply}
+                          onChange={(e) => setAdminReply(e.target.value)}
+                        />
+                        <Button type="submit" size="icon" className="w-12 h-12 rounded-full bg-secondary hover:bg-secondary/90 shadow-lg shrink-0">
+                          <Send className="w-5 h-5" />
+                        </Button>
+                      </form>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex-grow flex flex-col items-center justify-center text-slate-300 gap-4">
+                    <MessageCircle className="w-16 h-16 opacity-20" />
+                    <p className="text-xs font-black uppercase tracking-widest">Sélectionnez une discussion</p>
+                  </div>
+                )}
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="staff">

@@ -33,7 +33,9 @@ import {
   BarChart3,
   Box,
   Truck,
-  LogOut
+  LogOut,
+  Search,
+  MessageCircle
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { OrderPreparationModal } from '@/components/admin/OrderPreparationModal';
@@ -53,6 +55,8 @@ export default function CollaboratorDashboard() {
   const [filterStock, setFilterStock] = useState('all');
   const [activeDoc, setActiveDoc] = useState<{type: string, data: any} | null>(null);
   const [showReplied, setShowReplied] = useState(false);
+  const [selectedChatUser, setSelectedChatUser] = useState<string | null>(null);
+  const [collabReply, setCollabReply] = useState('');
   const [sessionStartTime] = useState(new Date());
 
   const userProfileRef = useMemoFirebase(() => {
@@ -145,6 +149,48 @@ export default function CollaboratorDashboard() {
   }, [db, profile]);
   const { data: staffMessages } = useCollection(staffChatQuery);
 
+  // Profils Patients (pour infos de contact)
+  const clientsQuery = useMemoFirebase(() => {
+    if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) return null;
+    return query(collection(db, 'userProfiles'), limit(100));
+  }, [db, profile]);
+  const { data: clients } = useCollection(clientsQuery);
+
+  // Chat Support Patients
+  const supportChatQuery = useMemoFirebase(() => {
+    if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) return null;
+    return query(collection(db, 'supportMessages'), orderBy('createdAt', 'desc'), limit(100));
+  }, [db, profile]);
+  const { data: allSupportMessages } = useCollection(supportChatQuery);
+
+  const groupedChats = React.useMemo(() => {
+    if (!allSupportMessages) return {};
+    const groups: any = {};
+    allSupportMessages.forEach((msg: any) => {
+      const cid = msg.clientId;
+      if (!groups[cid]) groups[cid] = [];
+      groups[cid].push(msg);
+    });
+    return groups;
+  }, [allSupportMessages]);
+
+  const handleSendCollabReply = async (clientId: string) => {
+    if (!collabReply.trim() || !user) return;
+    try {
+      await addDoc(collection(db, 'supportMessages'), {
+        clientId,
+        senderId: user.uid,
+        senderName: `Pharmacie (${profile?.firstName})`,
+        text: collabReply,
+        createdAt: new Date().toISOString()
+      });
+      setCollabReply('');
+      toast({ title: "Réponse envoyée" });
+    } catch (e) {
+      toast({ title: "Erreur", description: "Impossible d'envoyer le message.", variant: "destructive" });
+    }
+  };
+
   const handleSendStaffMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!staffMessage.trim() || !user) return;
@@ -211,20 +257,13 @@ export default function CollaboratorDashboard() {
             <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-6 text-destructive">
               <ShieldAlert className="w-10 h-10" />
             </div>
-            <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-4">Accès Restreint</h1>
-            <p className="text-slate-500 font-medium mb-4 leading-relaxed">
-              Cet espace est réservé au personnel de l'officine. 
+            <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-4">Espace Personnel</h1>
+            <p className="text-slate-500 font-medium mb-8 leading-relaxed">
+              Cet espace est strictement réservé au personnel de l'officine. 
+              Les accès collaborateurs sont créés exclusivement par l'administrateur.
             </p>
-            <div className="bg-slate-50 p-6 rounded-2xl mb-8 border border-slate-100">
-              <p className="text-slate-600 text-sm font-medium">
-                Si vous êtes un collaborateur de la pharmacie, votre rôle actuel est <span className="font-black text-primary">"{profile?.role || 'client'}"</span>. 
-              </p>
-              <p className="text-slate-500 text-[10px] mt-4 font-bold uppercase leading-tight">
-                Vous devez contacter l'administrateur pour qu'il modifie votre rôle dans Firestore afin d'accéder aux outils de préparation et de gestion des stocks.
-              </p>
-            </div>
-            <Button asChild className="w-full rounded-full bg-primary font-black uppercase tracking-widest h-12 shadow-xl shadow-primary/20">
-              <Link href="/client/dashboard">Accéder à mon Dashboard Client</Link>
+            <Button asChild className="w-full rounded-full bg-primary font-black uppercase tracking-widest h-14 shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+              <Link href="/client/dashboard">Accéder à mon Dashboard Patient</Link>
             </Button>
           </Card>
         </main>
@@ -299,6 +338,7 @@ export default function CollaboratorDashboard() {
               <TabsList className="bg-white p-1 rounded-full shadow-soft border border-slate-100 h-10 mb-4 overflow-x-auto w-full sm:w-fit">
                 <TabsTrigger value="orders" className="rounded-full px-6 font-black uppercase text-[9px]">File Active</TabsTrigger>
                 <TabsTrigger value="stock" className="rounded-full px-6 font-black uppercase text-[9px]">Inventaire</TabsTrigger>
+                <TabsTrigger value="chat-patients" className="rounded-full px-6 font-black uppercase text-[9px]">Chat Support</TabsTrigger>
                 <TabsTrigger value="messages" className="rounded-full px-6 font-black uppercase text-[9px]">Messages Patients</TabsTrigger>
                 <TabsTrigger value="docs" className="rounded-full px-6 font-black uppercase text-[9px]">Documents</TabsTrigger>
               </TabsList>
@@ -331,7 +371,10 @@ export default function CollaboratorDashboard() {
                           <TableCell>
                             <span className="text-[10px] font-bold text-slate-500 uppercase">{order.type === 'prescription' ? 'Ordonnance' : 'Panier'}</span>
                           </TableCell>
-                          <TableCell className="text-right pr-6">
+                          <TableCell className="text-right pr-6 space-x-2">
+                            <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600 hover:bg-green-50 rounded-full" onClick={() => handleWhatsApp(clients?.find(c => c.id === order.clientId)?.phone)}>
+                              <MessageCircle className="w-4 h-4" />
+                            </Button>
                             <Button 
                               size="sm" 
                               className="rounded-full bg-slate-900 hover:bg-secondary font-black text-[9px] uppercase tracking-widest h-8 px-4"
@@ -355,6 +398,99 @@ export default function CollaboratorDashboard() {
 
               <TabsContent value="stock" className="space-y-4">
                 <StockManagement />
+              </TabsContent>
+
+              <TabsContent value="chat-patients">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[600px]">
+                  {/* Chat Sidebar */}
+                  <Card className="border-none shadow-soft rounded-2xl overflow-hidden bg-white">
+                    <div className="p-4 border-b">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                        <Input placeholder="Rechercher..." className="pl-10 h-9 rounded-full bg-slate-50 border-none text-xs" />
+                      </div>
+                    </div>
+                    <ScrollArea className="h-[calc(600px-70px)]">
+                      <div className="p-2 space-y-1">
+                        {Object.keys(groupedChats).length === 0 ? (
+                          <div className="p-8 text-center text-slate-400 text-[10px] font-black uppercase">Aucun chat actif</div>
+                        ) : Object.keys(groupedChats).map((cid) => {
+                          const lastMsg = groupedChats[cid][0];
+                          return (
+                            <button 
+                              key={cid}
+                              onClick={() => setSelectedChatUser(cid)}
+                              className={`w-full p-4 rounded-xl flex items-center gap-3 transition-all ${selectedChatUser === cid ? 'bg-primary text-white shadow-lg' : 'hover:bg-slate-50'}`}
+                            >
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black ${selectedChatUser === cid ? 'bg-white text-primary' : 'bg-primary/10 text-primary'}`}>
+                                P
+                              </div>
+                              <div className="flex-1 text-left overflow-hidden">
+                                <p className="text-xs font-black uppercase truncate">Patient #{cid.substring(0, 6)}</p>
+                                <p className={`text-[10px] truncate ${selectedChatUser === cid ? 'text-white/70' : 'text-slate-400'}`}>
+                                  {lastMsg?.text}
+                                </p>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </ScrollArea>
+                  </Card>
+
+                  {/* Chat Window */}
+                  <Card className="md:col-span-2 border-none shadow-soft rounded-2xl overflow-hidden bg-white flex flex-col">
+                    {selectedChatUser ? (
+                      <>
+                        <div className="p-4 border-b bg-slate-50/50 flex items-center justify-between">
+                          <h3 className="text-xs font-black uppercase tracking-tight">Patient #{selectedChatUser.substring(0, 8)}</h3>
+                        </div>
+                        <ScrollArea className="flex-grow p-6">
+                          <div className="space-y-4">
+                            {[...groupedChats[selectedChatUser]].reverse().map((msg: any, i: number) => (
+                              <div key={i} className={`flex ${msg.senderId === user?.uid ? 'justify-end' : 'justify-start'}`}>
+                                <div className={`max-w-[80%] p-4 rounded-2xl ${
+                                  msg.senderId === user?.uid 
+                                  ? 'bg-primary text-white rounded-tr-none' 
+                                  : 'bg-slate-100 text-slate-700 rounded-tl-none'
+                                }`}>
+                                  <p className="text-xs font-medium leading-relaxed">{msg.text}</p>
+                                  <p className={`text-[8px] mt-2 font-bold uppercase opacity-50 ${msg.senderId === user?.uid ? 'text-right' : 'text-left'}`}>
+                                    {new Date(msg.createdAt).toLocaleTimeString()}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </ScrollArea>
+                        <div className="p-4 border-t bg-white">
+                          <form 
+                            className="flex gap-2"
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              handleSendCollabReply(selectedChatUser);
+                            }}
+                          >
+                            <Input 
+                              placeholder="Écrire une réponse..." 
+                              className="rounded-full h-12 bg-slate-50 border-none px-6 text-sm"
+                              value={collabReply}
+                              onChange={(e) => setCollabReply(e.target.value)}
+                            />
+                            <Button type="submit" size="icon" className="w-12 h-12 rounded-full bg-secondary hover:bg-secondary/90 shadow-lg shrink-0">
+                              <Send className="w-5 h-5" />
+                            </Button>
+                          </form>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex-grow flex flex-col items-center justify-center text-slate-300 gap-4">
+                        <MessageCircle className="w-16 h-16 opacity-20" />
+                        <p className="text-xs font-black uppercase tracking-widest">Sélectionnez une discussion</p>
+                      </div>
+                    )}
+                  </Card>
+                </div>
               </TabsContent>
 
               <TabsContent value="messages" className="space-y-4">

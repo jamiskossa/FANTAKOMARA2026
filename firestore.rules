@@ -39,16 +39,8 @@ service cloud.firestore {
     // Réservations
     match /reservations/{reservationId} {
       allow create: if isAuthenticated();
-      // On sépare explicitement get et list pour faciliter l'optimisation des requêtes
-      allow get: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
-      allow list: if isStaff() || (isAuthenticated() && request.query.limit <= 100 && (resource == null || resource.data.clientId == request.auth.uid));
-      // Fallback read plus simple pour les cas standards
-      allow read: if isStaff();
-      allow read: if isAuthenticated() && resource.data.clientId == request.auth.uid;
-      
-      allow update: if isStaff();
-      allow update: if isAuthenticated() && resource.data.clientId == request.auth.uid && resource.data.status == "pending";
-      
+      allow read: if isStaff() || (isAuthenticated() && (resource == null || resource.data.clientId == request.auth.uid));
+      allow update: if isStaff() || (isAuthenticated() && resource.data.clientId == request.auth.uid && resource.data.status == "pending");
       allow delete: if isAdmin();
     }
 
@@ -74,6 +66,25 @@ service cloud.firestore {
     // Mail (Trigger Email Extension)
     match /mail/{mailId} {
       allow create: if true;
+      allow read: if isAdmin();
+    }
+
+    // Newsletter
+    match /newsletter/{id} {
+      allow create: if true;
+      allow read: if isStaff();
+    }
+
+    // Avis Pharmacie
+    match /pharmacyReviews/{id} {
+      allow create: if isAuthenticated();
+      allow read: if true;
+      allow delete: if isAdmin();
+    }
+
+    // Sessions Collaborateurs
+    match /collaboratorSessions/{id} {
+      allow create: if isStaff();
       allow read: if isAdmin();
     }
   }
