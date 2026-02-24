@@ -1,29 +1,65 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .delay-100 {
+    animation-delay: 100ms;
+  }
+  .delay-200 {
+    animation-delay: 200ms;
+  }
+}
+
 @layer base {
   :root {
+    /* Palette 2026 – Bio / Pharmacie moderne – plus impactante sans perdre la douceur */
+    --pharma-green: 74 222 140;   /* #4ade8c   Menthe plus vive & saturée – principal impactant */
+    --pharma-green-dark: 34 197 120;   /* #22c578   Plus profond, excellent pour hovers/accents */
+    --pharma-green-darker: 22 163 100;   /* #16a364   Contraste texte fort */
+    --pharma-green-light: 144 238 200;  /* #90eec8   Lumineux mais pas trop pastel */
+    --pharma-green-lighter: 236 253 245; /* #ecfdf5   Fond ultra-clair conservé */
+    --pharma-mint: 98 242 195;   /* #62f2c3   Mint frais & énergisant */
+    --pharma-mint-light: 189 250 230;  /* #bdfae6   Très lumineux pour fonds */
+    --pharma-sage: 148 200 170;  /* #94c8aa   Sage plus profond & premium */
+    --pharma-sage-dark: 100 150 120;  /* #649678   Sage foncé pour profondeur */
+    --pharma-emerald: 16 185 140;   /* #10b98c   Émeraude vif mais doux – luxe bio */
+    --pharma-emerald-dark: 5 150 110;    /* #05966e    Version sombre impactante */
+    --pharma-lime: 163 230 60;   /* #a3e63c   Lime plus présent & joyeux (accents/CTA) */
+    --pharma-lime-light: 217 249 157;  /* #d9f99d   Touche claire */
+    --pharma-forest: 34 102 60;    /* #22663c    Forest plus utilisé pour contraste */
+    --pharma-teal: 45 212 191;   /* #2dd4bf    Teal moderne & dynamique */
+    --pharma-light: 248 253 250;  /* #f8fdfa   Conservé */
+    --pharma-gray: 75 85 99;     /* #4b5563    Gris plus moderne/neutre */
+    --pharma-dark: 17 24 39;     /* #111827    Texte très sombre pour meilleur contraste */
+
+    /* Shadcn system compatibility */
     --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 122 39% 49%; /* #4caf50 - Vert Santé */
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: var(--pharma-green);
     --primary-foreground: 210 40% 98%;
-    --secondary: 174 100% 29%; /* #009688 - Bleu Teal */
+    --secondary: var(--pharma-emerald);
     --secondary-foreground: 210 40% 98%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 174 100% 97%; /* Très clair teal */
-    --accent-foreground: 174 100% 29%;
-    --destructive: 0 84.2% 60.2%; /* #ef5350 - Rouge Doux */
+    --accent: var(--pharma-mint-light);
+    --accent-foreground: var(--pharma-emerald-dark);
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 122 39% 49%;
+    --ring: var(--pharma-green);
     --radius: 0.75rem;
   }
 }
@@ -33,33 +69,44 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body antialiased;
+    @apply bg-background text-foreground antialiased;
   }
 }
 
-@media print {
-  body * {
-    visibility: hidden;
+@keyframes glowPulse {
+  0% {
+    box-shadow: 0 0 14px rgba(74, 222, 140, 0.45),
+                0 0 28px rgba(34, 197, 120, 0.30),
+                0 0 40px rgba(163, 230, 60, 0.20);
   }
-  #print-root, #print-root * {
-    visibility: visible;
+  100% {
+    box-shadow: 0 0 30px rgba(16, 185, 140, 0.55),
+                0 0 45px rgba(163, 230, 60, 0.45),
+                0 0 60px rgba(74, 222, 140, 0.30);
   }
-  #print-root {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-  }
+}
+
+@keyframes shine {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 .bg-fluid-gradient {
-  background: linear-gradient(135deg, #e0f7fa 0%, #ffffff 100%);
+  background: linear-gradient(135deg, rgb(var(--pharma-green-lighter)) 0%, #ffffff 100%);
 }
 
 .text-promo {
-  @apply text-[#ef5350];
+  @apply text-destructive;
 }
 
 .shadow-soft {
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+}
+
+.pharma-gradient {
+  background: linear-gradient(135deg, rgb(var(--pharma-green)) 0%, rgb(var(--pharma-emerald)) 100%);
+}
+
+.pharma-card-hover {
+  @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
 }

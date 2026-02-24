@@ -3,12 +3,43 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Facebook, Instagram, Send, CreditCard } from 'lucide-react';
+import { Facebook, Instagram, Send, CreditCard, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useFirestore } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { toast } from '@/hooks/use-toast';
 
 export function Footer() {
   const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const db = useFirestore();
+
+  const handleNewsletter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+
+    setIsLoading(true);
+    try {
+      await addDoc(collection(db, 'newsletter'), {
+        email,
+        subscribedAt: serverTimestamp()
+      });
+      toast({
+        title: "Inscription réussie",
+        description: "Bienvenue dans notre newsletter ! Votre code promo arrive par mail.",
+      });
+      setEmail('');
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de s'inscrire pour le moment.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <footer className="bg-muted text-foreground pt-16 pb-8">
@@ -19,7 +50,7 @@ export function Footer() {
           <p className="text-muted-foreground mb-8 text-lg">
             Recevez <span className="text-secondary font-bold">-10%*</span> sur votre prochain achat dès 40€ d'achat.
           </p>
-          <form className="flex flex-col sm:flex-row gap-4 max-lg mx-auto" onSubmit={(e) => e.preventDefault()}>
+          <form className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto" onSubmit={handleNewsletter}>
             <Input 
               type="email" 
               placeholder="Votre adresse email" 
@@ -27,9 +58,10 @@ export function Footer() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isLoading}
             />
-            <Button className="rounded-full h-12 px-8 bg-primary hover:bg-primary/90 text-white font-bold">
-              S'inscrire
+            <Button className="rounded-full h-12 px-8 bg-primary hover:bg-primary/90 text-white font-bold" disabled={isLoading}>
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : "S'inscrire"}
               <Send className="ml-2 h-4 w-4" />
             </Button>
           </form>

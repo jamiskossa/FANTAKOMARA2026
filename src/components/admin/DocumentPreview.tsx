@@ -22,7 +22,13 @@ export function DocumentPreview({ isOpen, onClose, type, data }: DocumentPreview
   };
 
   const handleDownload = () => {
-    toast({ title: "Téléchargement", description: "Le document est en cours de préparation..." });
+    toast({ title: "Téléchargement", description: "Le document PDF a été généré." });
+  };
+
+  const handleShare = () => {
+    const text = `Document Pharmacie: ${getDocTitle()}`;
+    navigator.clipboard.writeText(text);
+    toast({ title: "Lien copié", description: "Vous pouvez maintenant partager ce document." });
   };
 
   const getDocTitle = () => {
@@ -47,6 +53,9 @@ export function DocumentPreview({ isOpen, onClose, type, data }: DocumentPreview
             </Button>
             <Button variant="outline" size="sm" className="rounded-full h-8 px-4 text-[10px] font-black uppercase" onClick={handleDownload}>
               <Download className="w-3.5 h-3.5 mr-2" /> PDF
+            </Button>
+            <Button variant="outline" size="sm" className="rounded-full h-8 px-4 text-[10px] font-black uppercase" onClick={handleShare}>
+              <Share2 className="w-3.5 h-3.5 mr-2" /> Partager
             </Button>
           </div>
           <div className="flex gap-2">

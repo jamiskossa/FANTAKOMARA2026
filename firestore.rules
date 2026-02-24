@@ -40,15 +40,11 @@ service cloud.firestore {
     // Réservations
     match /reservations/{reservationId} {
       allow create: if isAuthenticated();
-      // On sépare explicitement get et list pour faciliter l'optimisation des requêtes
+      allow list: if isStaff() || isAuthenticated();
       allow get: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
-      allow list: if isStaff() || (isAuthenticated() && request.query.limit <= 100 && (resource == null || resource.data.clientId == request.auth.uid));
-      // Fallback read plus simple pour les cas standards
-      allow read: if isStaff();
-      allow read: if isAuthenticated() && resource.data.clientId == request.auth.uid;
+      allow read: if isStaff() || (isAuthenticated() && resource.data.clientId == request.auth.uid);
       
-      allow update: if isStaff();
-      allow update: if isAuthenticated() && resource.data.clientId == request.auth.uid && resource.data.status == "pending";
+      allow update: if isStaff() || (isAuthenticated() && resource.data.clientId == request.auth.uid && resource.data.status == "pending");
       
       allow delete: if isAdmin();
     }
@@ -56,11 +52,9 @@ service cloud.firestore {
     // Support Clients (Chat)
     match /supportMessages/{msgId} {
       allow create: if isAuthenticated();
+      allow list: if isStaff() || isAuthenticated();
       allow get: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
-      allow list: if isStaff();
-      allow list: if isAuthenticated() && request.query.limit <= 100;
-      allow read: if isStaff();
-      allow read: if isAuthenticated() && resource.data.clientId == request.auth.uid;
+      allow read: if isStaff() || (isAuthenticated() && resource.data.clientId == request.auth.uid);
       allow update: if isStaff();
     }
 

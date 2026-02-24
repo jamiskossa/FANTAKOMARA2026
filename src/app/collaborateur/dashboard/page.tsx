@@ -28,10 +28,15 @@ import {
   CheckCircle2,
   Clock,
   Package,
-  Filter
+  Filter,
+  BarChart3,
+  Box,
+  Truck
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { OrderPreparationModal } from '@/components/admin/OrderPreparationModal';
+import { StockManagement } from '@/components/admin/StockManagement';
+import { DocumentPreview } from '@/components/admin/DocumentPreview';
 import Link from 'next/link';
 import { suggestRestock } from '@/ai/flows/restock-suggestion-flow';
 
@@ -43,6 +48,8 @@ export default function CollaboratorDashboard() {
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const [isSuggesting, setIsSuggesting] = useState<string | null>(null);
   const [filterStock, setFilterStock] = useState('all');
+  const [activeDoc, setActiveDoc] = useState<{type: string, data: any} | null>(null);
+  const [showReplied, setShowReplied] = useState(false);
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user) return null;
@@ -57,6 +64,13 @@ export default function CollaboratorDashboard() {
     }
   }, [user, isUserLoading, router]);
 
+  // Messages de contact (accessibles au staff)
+  const contactMessagesQuery = useMemoFirebase(() => {
+    if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) return null;
+    return query(collection(db, 'contactMessages'), orderBy('submissionDate', 'desc'), limit(50));
+  }, [db, profile]);
+  const { data: contactMessages } = useCollection(contactMessagesQuery);
+
   // File active : À préparer ou en cours
   const activeOrdersQuery = useMemoFirebase(() => {
     if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) return null;
@@ -68,6 +82,11 @@ export default function CollaboratorDashboard() {
     );
   }, [db, profile]);
   const { data: activeOrders } = useCollection(activeOrdersQuery);
+
+  const handleWhatsApp = (phone?: string) => {
+    if (!phone) return toast({ title: "Erreur", description: "Pas de numéro", variant: "destructive" });
+    window.open(`https://wa.me/${phone.replace(/\s/g, '')}`, '_blank');
+  };
 
   // Inventaire Produits
   const productsQuery = useMemoFirebase(() => {
@@ -250,7 +269,9 @@ export default function CollaboratorDashboard() {
             <Tabs defaultValue="orders" className="w-full">
               <TabsList className="bg-white p-1 rounded-full shadow-soft border border-slate-100 h-10 mb-4 overflow-x-auto w-full sm:w-fit">
                 <TabsTrigger value="orders" className="rounded-full px-6 font-black uppercase text-[9px]">File Active</TabsTrigger>
-                <TabsTrigger value="stock" className="rounded-full px-6 font-black uppercase text-[9px]">Gestion Stock</TabsTrigger>
+                <TabsTrigger value="stock" className="rounded-full px-6 font-black uppercase text-[9px]">Inventaire</TabsTrigger>
+                <TabsTrigger value="messages" className="rounded-full px-6 font-black uppercase text-[9px]">Messages Patients</TabsTrigger>
+                <TabsTrigger value="docs" className="rounded-full px-6 font-black uppercase text-[9px]">Documents</TabsTrigger>
               </TabsList>
 
               <TabsContent value="orders">
@@ -304,75 +325,65 @@ export default function CollaboratorDashboard() {
               </TabsContent>
 
               <TabsContent value="stock" className="space-y-4">
+                <StockManagement />
+              </TabsContent>
+
+              <TabsContent value="messages" className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <Filter className="w-4 h-4 text-slate-400" />
-                  <div className="flex gap-2">
-                    {[
-                      { value: 'all', label: 'Tous' },
-                      { value: 'critical', label: 'Critique' },
-                      { value: 'low', label: 'Faible' },
-                      { value: 'good', label: 'OK' }
-                    ].map(f => (
-                      <Button
-                        key={f.value}
-                        onClick={() => setFilterStock(f.value)}
-                        variant={filterStock === f.value ? 'default' : 'outline'}
-                        className="h-8 px-3 rounded-full text-[9px] font-black uppercase"
-                      >
-                        {f.label}
-                      </Button>
-                    ))}
-                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-3 rounded-full text-[9px] font-black uppercase"
+                    onClick={() => setShowReplied(!showReplied)}
+                  >
+                    {showReplied ? <Eye className="w-3.5 h-3.5 mr-2" /> : <EyeOff className="w-3.5 h-3.5 mr-2" />}
+                    {showReplied ? 'Masquer' : 'Afficher'} traités
+                  </Button>
                 </div>
 
-                <Card className="border-none shadow-soft rounded-[24px] overflow-hidden bg-white">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
-                    {products && products.length > 0 ? products
-                      .filter((p: any) => {
-                        if (filterStock === 'critical') return (p.stockFinal || 0) < 3;
-                        if (filterStock === 'low') return (p.stockFinal || 0) >= 3 && (p.stockFinal || 0) < 5;
-                        if (filterStock === 'good') return (p.stockFinal || 0) >= 5;
-                        return true;
-                      })
-                      .map((p: any) => (
-                        <Card key={p.id} className={`border-l-4 rounded-xl overflow-hidden ${(p.stockFinal || 0) < 5 ? 'border-l-destructive bg-destructive/5' : 'border-l-primary bg-primary/5'}`}>
-                          <CardContent className="p-4">
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex-1">
-                                <h4 className="font-black text-xs text-slate-900 uppercase">{p.name}</h4>
-                                <p className="text-[8px] text-slate-400 font-medium mt-1">{p.brand}</p>
+                <Card className="border-none shadow-soft rounded-2xl overflow-hidden bg-white">
+                  <div className="divide-y divide-slate-100">
+                    {contactMessages && contactMessages.length > 0 ? contactMessages
+                      .filter(m => showReplied || !m.isReplied)
+                      .map((m) => (
+                        <div key={m.id} className={`p-4 hover:bg-slate-50/50 transition-colors border-l-4 ${!m.isReplied ? 'border-l-destructive bg-destructive/5' : 'border-l-green-600 bg-green-600/5'}`}>
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className="font-black text-xs text-slate-900 uppercase">{m.senderName}</h4>
+                                {!m.isReplied && <Badge className="bg-destructive text-white text-[7px] uppercase px-2 py-0.5">Urgent</Badge>}
                               </div>
-                              <Button 
-                                size="icon"
-                                variant="ghost" 
-                                className="h-7 w-7 rounded-full text-primary hover:bg-primary/10"
-                                onClick={() => handleAISuggestRestock(p)}
-                                disabled={isSuggesting === p.id}
-                              >
-                                {isSuggesting === p.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
-                              </Button>
+                              <p className="text-[10px] text-slate-700 line-clamp-2 mb-2">{m.messageContent}</p>
+                              <p className="text-[8px] text-slate-400 font-bold uppercase">{m.senderPhone}</p>
                             </div>
-                            <div className="flex items-end justify-between">
-                              <div>
-                                <p className="text-[9px] text-slate-400 font-black uppercase mb-1">Stock</p>
-                                <p className={`text-xl font-black ${(p.stockFinal || 0) < 5 ? 'text-destructive' : 'text-green-600'}`}>
-                                  {p.stockFinal || 0}
-                                </p>
-                              </div>
-                              <Badge className={`text-[7px] uppercase px-2 py-0.5 rounded-full font-black ${(p.stockFinal || 0) < 5 ? 'bg-destructive text-white' : 'bg-green-600 text-white'}`}>
-                                {(p.stockFinal || 0) < 3 ? 'Critique' : (p.stockFinal || 0) < 5 ? 'Faible' : 'OK'}
-                              </Badge>
+                            <div className="flex gap-2">
+                              <Button size="icon" variant="ghost" className="h-8 w-8 text-secondary" onClick={() => handleWhatsApp(m.senderPhone)} title="WhatsApp"><MessageSquare className="h-4 w-4" /></Button>
+                              <Button size="icon" variant="ghost" className="h-8 w-8 text-primary" onClick={() => setActiveDoc({type: 'letter', data: m})} title="Aperçu"><Printer className="h-4 w-4" /></Button>
                             </div>
-                          </CardContent>
-                        </Card>
-                      ))
-                      : (
-                        <div className="col-span-2 text-center py-20 text-slate-400 font-bold uppercase text-[10px]">
-                          Inventaire vide ou en cours de chargement
+                          </div>
                         </div>
-                      )}
+                      )) : (
+                      <div className="text-center py-20 text-slate-400 font-bold uppercase text-[10px]">Aucun message patient</div>
+                    )}
                   </div>
                 </Card>
+              </TabsContent>
+
+              <TabsContent value="docs">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card className="border-none shadow-soft hover:shadow-md transition-all cursor-pointer rounded-2xl bg-white p-6" onClick={() => setActiveDoc({type: 'report', data: {}})}>
+                    <BarChart3 className="w-8 h-8 text-primary mb-4" />
+                    <h3 className="font-black uppercase text-xs mb-1">Inventaire du jour</h3>
+                    <p className="text-[10px] text-slate-500 mb-4">Générer le rapport complet des stocks pour audit.</p>
+                    <Button variant="outline" className="w-full h-9 rounded-xl text-[10px] font-black uppercase">Générer PDF</Button>
+                  </Card>
+                  <Card className="border-none shadow-soft hover:shadow-md transition-all cursor-pointer rounded-2xl bg-white p-6" onClick={() => setActiveDoc({type: 'report', data: {}})}>
+                    <Box className="w-8 h-8 text-secondary mb-4" />
+                    <h3 className="font-black uppercase text-xs mb-1">Bordereau Prépa</h3>
+                    <p className="text-[10px] text-slate-500 mb-4">Liste des produits à préparer pour les tournées.</p>
+                    <Button variant="outline" className="w-full h-9 rounded-xl text-[10px] font-black uppercase">Imprimer Liste</Button>
+                  </Card>
+                </div>
               </TabsContent>
             </Tabs>
           </div>
@@ -437,6 +448,12 @@ export default function CollaboratorDashboard() {
         isOpen={!!selectedOrder} 
         onClose={() => setSelectedOrder(null)} 
         order={selectedOrder} 
+      />
+      <DocumentPreview 
+        isOpen={!!activeDoc} 
+        onClose={() => setActiveDoc(null)} 
+        type={activeDoc?.type || ''} 
+        data={activeDoc?.data} 
       />
       <Footer />
     </div>

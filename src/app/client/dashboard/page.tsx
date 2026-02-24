@@ -25,9 +25,14 @@ import {
   CheckCircle2,
   AlertCircle,
   Truck,
-  Info
+  Info,
+  Star,
+  BarChart3,
+  TrendingUp,
+  History
 } from 'lucide-react';
 import Link from 'next/link';
+import { ReviewSection } from '@/components/client/ReviewSection';
 
 export default function ClientDashboard() {
   const { user, isUserLoading } = useUser();
@@ -154,15 +159,21 @@ export default function ClientDashboard() {
           </div>
 
           <Tabs defaultValue="reservations" className="space-y-8">
-            <TabsList className="bg-white p-1 rounded-full shadow-soft border border-slate-100 flex w-full max-w-2xl mx-auto overflow-x-auto">
-              <TabsTrigger value="reservations" className="flex-1 rounded-full font-black uppercase text-[9px] sm:text-[10px] data-[state=active]:bg-primary data-[state=active]:text-white">
-                <Package className="w-3.5 h-3.5 mr-2" /> Réservations
+            <TabsList className="bg-white p-1 rounded-full shadow-soft border border-slate-100 flex w-full max-w-3xl mx-auto overflow-x-auto">
+              <TabsTrigger value="reservations" className="flex-1 rounded-full font-black uppercase text-[8px] sm:text-[9px] data-[state=active]:bg-primary data-[state=active]:text-white h-10">
+                <Package className="w-3.5 h-3.5 mr-1.5" /> Suivi
               </TabsTrigger>
-              <TabsTrigger value="chat" className="flex-1 rounded-full font-black uppercase text-[9px] sm:text-[10px] data-[state=active]:bg-primary data-[state=active]:text-white">
-                <MessageSquare className="w-3.5 h-3.5 mr-2" /> Messagerie
+              <TabsTrigger value="chat" className="flex-1 rounded-full font-black uppercase text-[8px] sm:text-[9px] data-[state=active]:bg-primary data-[state=active]:text-white h-10">
+                <MessageSquare className="w-3.5 h-3.5 mr-1.5" /> Chat
               </TabsTrigger>
-              <TabsTrigger value="instructions" className="flex-1 rounded-full font-black uppercase text-[9px] sm:text-[10px] data-[state=active]:bg-primary data-[state=active]:text-white">
-                <HeartPulse className="w-3.5 h-3.5 mr-2" /> Instructions
+              <TabsTrigger value="stats" className="flex-1 rounded-full font-black uppercase text-[8px] sm:text-[9px] data-[state=active]:bg-primary data-[state=active]:text-white h-10">
+                <BarChart3 className="w-3.5 h-3.5 mr-1.5" /> Mon Bilan
+              </TabsTrigger>
+              <TabsTrigger value="review" className="flex-1 rounded-full font-black uppercase text-[8px] sm:text-[9px] data-[state=active]:bg-primary data-[state=active]:text-white h-10">
+                <Star className="w-3.5 h-3.5 mr-1.5" /> Donner mon avis
+              </TabsTrigger>
+              <TabsTrigger value="instructions" className="flex-1 rounded-full font-black uppercase text-[8px] sm:text-[9px] data-[state=active]:bg-primary data-[state=active]:text-white h-10">
+                <HeartPulse className="w-3.5 h-3.5 mr-1.5" /> Guide
               </TabsTrigger>
             </TabsList>
 
@@ -242,6 +253,32 @@ export default function ClientDashboard() {
                   ))}
                 </div>
               )}
+            </TabsContent>
+
+            <TabsContent value="stats" className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Card className="border-none shadow-soft rounded-2xl bg-white p-6">
+                  <TrendingUp className="w-6 h-6 text-primary mb-3" />
+                  <p className="text-[10px] font-black uppercase text-slate-400">Total Réservations</p>
+                  <p className="text-3xl font-black text-slate-900">{reservations?.length || 0}</p>
+                </Card>
+                <Card className="border-none shadow-soft rounded-2xl bg-white p-6">
+                  <History className="w-6 h-6 text-secondary mb-3" />
+                  <p className="text-[10px] font-black uppercase text-slate-400">Dernière visite</p>
+                  <p className="text-xl font-black text-slate-900">
+                    {reservations?.[0] ? new Date(reservations[0].createdAt).toLocaleDateString() : 'Aucune'}
+                  </p>
+                </Card>
+                <Card className="border-none shadow-soft rounded-2xl pharma-gradient p-6 text-white sm:col-span-2 lg:col-span-1">
+                  <Star className="w-6 h-6 text-white/50 mb-3" />
+                  <p className="text-[10px] font-black uppercase text-white/70">Avantages Fidélité</p>
+                  <p className="text-xl font-black">Membre Premium</p>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="review">
+              <ReviewSection />
             </TabsContent>
 
             <TabsContent value="chat">

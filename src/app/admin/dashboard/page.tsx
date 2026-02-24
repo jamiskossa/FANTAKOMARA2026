@@ -27,10 +27,17 @@ import {
   CheckCircle2,
   AlertCircle,
   Eye,
-  EyeOff
+  EyeOff,
+  Download,
+  Share2,
+  UserPlus,
+  BarChart3,
+  Box
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { DocumentPreview } from '@/components/admin/DocumentPreview';
+import { CollaboratorManagement } from '@/components/admin/CollaboratorManagement';
+import { StockManagement } from '@/components/admin/StockManagement';
 
 export default function AdminDashboard() {
   const { user, isUserLoading } = useUser();
@@ -88,6 +95,12 @@ export default function AdminDashboard() {
   const handleWhatsApp = (phone?: string) => {
     if (!phone) return toast({ title: "Erreur", description: "Pas de numéro", variant: "destructive" });
     window.open(`https://wa.me/${phone.replace(/\s/g, '')}`, '_blank');
+  };
+
+  const handleShare = (data: any) => {
+    const text = `Commande de ${data.clientId || 'Client'} - Montant: ${data.totalPrice || 0}€`;
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copié", description: "Détails copiés dans le presse-papier." });
   };
 
   if (isUserLoading || isProfileLoading) {
@@ -182,8 +195,10 @@ export default function AdminDashboard() {
         <Tabs defaultValue="reservations" className="space-y-4">
           <TabsList className="bg-white p-1 rounded-full shadow-soft border border-slate-100 flex w-fit overflow-x-auto">
             <TabsTrigger value="reservations" className="rounded-full font-black uppercase text-[9px] px-4">Flux Résas</TabsTrigger>
+            <TabsTrigger value="stock" className="rounded-full font-black uppercase text-[9px] px-4">Inventaire</TabsTrigger>
             <TabsTrigger value="messages" className="rounded-full font-black uppercase text-[9px] px-4">Messages Clients</TabsTrigger>
             <TabsTrigger value="users" className="rounded-full font-black uppercase text-[9px] px-4">Patients</TabsTrigger>
+            <TabsTrigger value="staff" className="rounded-full font-black uppercase text-[9px] px-4">Collaborateurs</TabsTrigger>
             <TabsTrigger value="docs" className="rounded-full font-black uppercase text-[9px] px-4">Documents</TabsTrigger>
           </TabsList>
 
@@ -207,10 +222,20 @@ export default function AdminDashboard() {
                           <span className="text-[9px] text-slate-400 font-mono">#{r.id.substring(0, 6).toUpperCase()}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="py-2"><Badge className="bg-secondary text-[8px] uppercase px-2 py-0.5">{r.status}</Badge></TableCell>
+                      <TableCell className="py-2">
+                        <Badge className={`${
+                          r.status === 'pending' ? 'bg-yellow-500' : 
+                          r.status === 'processing' ? 'bg-blue-500' : 
+                          r.status === 'ready' ? 'bg-primary' : 'bg-green-600'
+                        } text-[8px] uppercase px-2 py-0.5`}>
+                          {r.status}
+                        </Badge>
+                      </TableCell>
                       <TableCell className="py-2 font-black text-xs">{r.totalPrice?.toFixed(2)}€</TableCell>
                       <TableCell className="text-right pr-6 py-2 space-x-1">
-                        <Button size="icon" variant="ghost" className="h-7 w-7 text-primary" onClick={() => setActiveDoc({type: 'invoice', data: r})}><FileText className="h-3.5 w-3.5" /></Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-400 hover:text-primary" onClick={() => setActiveDoc({type: 'invoice', data: r})}><Printer className="h-3.5 w-3.5" /></Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-400 hover:text-secondary" onClick={() => setActiveDoc({type: 'invoice', data: r})}><Download className="h-3.5 w-3.5" /></Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-400 hover:text-slate-900" onClick={() => handleShare(r)}><Share2 className="h-3.5 w-3.5" /></Button>
                         <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDelete('reservations', r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                       </TableCell>
                     </TableRow>
@@ -224,6 +249,14 @@ export default function AdminDashboard() {
                 </TableBody>
               </Table>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="stock">
+            <StockManagement />
+          </TabsContent>
+
+          <TabsContent value="staff">
+            <CollaboratorManagement />
           </TabsContent>
 
           <TabsContent value="messages" className="space-y-4">
@@ -280,11 +313,29 @@ export default function AdminDashboard() {
                           <Button 
                             size="icon" 
                             variant="ghost" 
-                            className="h-8 w-8 text-secondary hover:bg-secondary/10 rounded-full"
+                            className="h-8 w-8 text-slate-400 hover:text-secondary hover:bg-secondary/10 rounded-full"
                             onClick={() => handleWhatsApp(m.senderPhone)}
-                            title="Répondre via WhatsApp"
+                            title="WhatsApp"
                           >
                             <MessageCircle className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="icon" 
+                            variant="ghost" 
+                            className="h-8 w-8 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-full"
+                            onClick={() => window.open(`mailto:${m.senderEmail}?subject=Contact Pharmacie`)}
+                            title="Email"
+                          >
+                            <Mail className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="icon" 
+                            variant="ghost" 
+                            className="h-8 w-8 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-full"
+                            onClick={() => setActiveDoc({type: 'letter', data: m})}
+                            title="Imprimer"
+                          >
+                            <Printer className="h-4 w-4" />
                           </Button>
                           <Button 
                             size="icon" 
