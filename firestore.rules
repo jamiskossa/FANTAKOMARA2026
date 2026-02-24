@@ -10,12 +10,14 @@ service cloud.firestore {
 
     function isStaff() {
       return isAuthenticated() && 
+             exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
              (get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == "admin" || 
               get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == "collaborator");
     }
 
     function isAdmin() {
       return isAuthenticated() && 
+             exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
              get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == "admin";
     }
 
@@ -38,15 +40,15 @@ service cloud.firestore {
     // Réservations
     match /reservations/{reservationId} {
       allow create: if isAuthenticated();
-      allow read: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
-      allow update: if isStaff() || (isAuthenticated() && resource.data.clientId == request.auth.uid && resource.data.status == "pending");
+      allow read: if isAuthenticated() && (isStaff() || (resource != null && resource.data.clientId == request.auth.uid));
+      allow update: if isStaff() || (isAuthenticated() && resource != null && resource.data.clientId == request.auth.uid && resource.data.status == "pending");
       allow delete: if isAdmin();
     }
 
     // Support Clients (Chat)
     match /supportMessages/{msgId} {
       allow create: if isAuthenticated();
-      allow read: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
+      allow read: if isAuthenticated() && (isStaff() || (resource != null && resource.data.clientId == request.auth.uid));
       allow update: if isStaff();
     }
 
