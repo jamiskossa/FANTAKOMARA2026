@@ -10,11 +10,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from '@/hooks/use-toast';
 import { UserPlus, Mail, Phone, User, Briefcase, Hash, MapPin, Loader2, MessageCircle } from 'lucide-react';
 import { useFirestore } from '@/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { firebaseConfig } from '@/firebase/config';
 
 export function CollaboratorManagement() {
   const db = useFirestore();
   const [isLoading, setIsLoading] = useState(false);
+  // ... (rest of the component)
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -37,19 +41,30 @@ export function CollaboratorManagement() {
     setIsLoading(true);
 
     try {
-      const userId = `collab_${Date.now()}`;
-      await setDoc(doc(db, 'userProfiles', userId), {
+      // 1. Initialize secondary auth to create user without logging out admin
+      const secondaryApp = getApps().find(app => app.name === 'Secondary') || initializeApp(firebaseConfig, 'Secondary');
+      const secondaryAuth = getAuth(secondaryApp);
+
+      // 2. Create Auth user
+      const userCredential = await createUserWithEmailAndPassword(secondaryAuth, formData.email, formData.password);
+      const uid = userCredential.user.uid;
+
+      // 3. Log out secondary auth immediately
+      await signOut(secondaryAuth);
+
+      // 4. Create Firestore profile with the real UID
+      await setDoc(doc(db, 'userProfiles', uid), {
         ...formData,
-        id: userId,
-        createdAt: new Date().toISOString(),
+        id: uid,
+        createdAt: serverTimestamp(),
       });
 
       toast({
         title: "Collaborateur créé",
-        description: `L'accès pour ${formData.firstName} a été configuré.`,
+        description: `L'accès pour ${formData.firstName} a été configuré avec succès.`,
       });
 
-      // Notify via WhatsApp
+      // 5. Notify via WhatsApp
       if (formData.phone) {
         sendWhatsAppNotification(formData.phone, formData.firstName, formData.email, formData.password);
       }
@@ -65,10 +80,11 @@ export function CollaboratorManagement() {
         contractType: 'CDI',
         role: 'collaborator'
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error(error);
       toast({
         title: "Erreur",
-        description: "Impossible de créer le collaborateur.",
+        description: error.message || "Impossible de créer le collaborateur.",
         variant: "destructive"
       });
     } finally {

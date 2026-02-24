@@ -212,11 +212,18 @@ export default function CollaboratorDashboard() {
               <ShieldAlert className="w-10 h-10" />
             </div>
             <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-4">Accès Restreint</h1>
-            <p className="text-slate-500 font-medium mb-8 leading-relaxed">
+            <p className="text-slate-500 font-medium mb-4 leading-relaxed">
               Cet espace est réservé au personnel de l'officine. 
-              Si vous êtes client, vous pouvez accéder à votre espace de suivi via le bouton ci-dessous.
             </p>
-            <Button asChild className="w-full rounded-full bg-primary font-black uppercase tracking-widest h-12">
+            <div className="bg-slate-50 p-6 rounded-2xl mb-8 border border-slate-100">
+              <p className="text-slate-600 text-sm font-medium">
+                Si vous êtes un collaborateur de la pharmacie, votre rôle actuel est <span className="font-black text-primary">"{profile?.role || 'client'}"</span>. 
+              </p>
+              <p className="text-slate-500 text-[10px] mt-4 font-bold uppercase leading-tight">
+                Vous devez contacter l'administrateur pour qu'il modifie votre rôle dans Firestore afin d'accéder aux outils de préparation et de gestion des stocks.
+              </p>
+            </div>
+            <Button asChild className="w-full rounded-full bg-primary font-black uppercase tracking-widest h-12 shadow-xl shadow-primary/20">
               <Link href="/client/dashboard">Accéder à mon Dashboard Client</Link>
             </Button>
           </Card>

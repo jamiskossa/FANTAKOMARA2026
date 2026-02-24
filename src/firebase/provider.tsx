@@ -160,7 +160,23 @@ export function useMemoFirebase<T>(factory: () => T, deps: DependencyList): T | 
   const memoized = useMemo(factory, deps);
   
   if(typeof memoized !== 'object' || memoized === null) return memoized;
-  (memoized as MemoFirebase<T>).__memo = true;
+  
+  try {
+    if (!('__memo' in memoized)) {
+      Object.defineProperty(memoized, '__memo', {
+        value: true,
+        enumerable: false,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      (memoized as any).__memo = true;
+    }
+  } catch (e) {
+    // Fallback for non-extensible objects: we just hope for the best
+    // or we could wrap it, but that changes the identity which might break onSnapshot
+    (memoized as any).__memo = true;
+  }
   
   return memoized;
 }

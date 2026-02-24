@@ -39,18 +39,38 @@ export default function Home() {
             <p className="text-lg lg:text-xl text-slate-600 leading-relaxed font-medium">
               Depuis plus de 10 ans, la Pharmacie Nouvelle d'Ivry vous accompagne au quotidien avec des conseils personnalisés et une sélection rigoureuse des meilleures marques de parapharmacie. Profitez de nos services digitaux : Click & Collect en 2h et Scan d'Ordonnance sécurisé pour gagner du temps.
             </p>
-            <div className="mt-16 flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-80">
-               <a href="https://www.ordre.pharmacien.fr/" target="_blank" rel="noopener noreferrer" className="grayscale hover:grayscale-0 transition-all hover:scale-110 flex flex-col items-center gap-2">
-                 <div className="h-12 w-auto flex items-center justify-center font-black text-slate-400 text-[10px] border-2 border-slate-100 rounded-lg px-3 uppercase tracking-tighter">Ordre National</div>
+            <div className="mt-16 flex flex-wrap justify-center items-center gap-8 md:gap-12">
+               <a href="https://www.ordre.pharmacien.fr/" target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center gap-3 transition-all hover:scale-105">
+                 <div className="h-16 w-32 bg-slate-50 border-2 border-slate-100 rounded-2xl flex items-center justify-center p-3 grayscale group-hover:grayscale-0 group-hover:border-primary/20 transition-all shadow-sm group-hover:shadow-xl">
+                   <div className="text-center">
+                     <p className="text-[8px] font-black uppercase leading-tight text-slate-400 group-hover:text-primary">Ordre National</p>
+                     <p className="text-[10px] font-black uppercase leading-tight text-slate-600">Pharmaciens</p>
+                   </div>
+                 </div>
                </a>
-               <a href="https://ansm.sante.fr/" target="_blank" rel="noopener noreferrer" className="grayscale hover:grayscale-0 transition-all hover:scale-110 flex flex-col items-center gap-2">
-                 <div className="h-10 w-auto flex items-center justify-center font-black text-slate-400 text-sm border-2 border-slate-100 rounded-lg px-3 uppercase tracking-tighter">ANSM</div>
+               <a href="https://ansm.sante.fr/" target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center gap-3 transition-all hover:scale-105">
+                 <div className="h-16 w-32 bg-slate-50 border-2 border-slate-100 rounded-2xl flex items-center justify-center p-3 grayscale group-hover:grayscale-0 group-hover:border-primary/20 transition-all shadow-sm group-hover:shadow-xl">
+                   <div className="text-center">
+                     <p className="text-[10px] font-black uppercase text-slate-400 group-hover:text-primary">ANSM</p>
+                     <p className="text-[7px] font-bold text-slate-500 uppercase">Sécurité du médicament</p>
+                   </div>
+                 </div>
                </a>
-               <a href="https://www.ars.sante.fr/" target="_blank" rel="noopener noreferrer" className="grayscale hover:grayscale-0 transition-all hover:scale-110 flex flex-col items-center gap-2">
-                 <div className="h-10 w-auto flex items-center justify-center font-black text-slate-400 text-sm border-2 border-slate-100 rounded-lg px-3 uppercase tracking-tighter">Agréé ARS</div>
+               <a href="https://www.ars.sante.fr/" target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center gap-3 transition-all hover:scale-105">
+                 <div className="h-16 w-32 bg-slate-50 border-2 border-slate-100 rounded-2xl flex items-center justify-center p-3 grayscale group-hover:grayscale-0 group-hover:border-primary/20 transition-all shadow-sm group-hover:shadow-xl">
+                   <div className="text-center">
+                     <p className="text-[10px] font-black uppercase text-slate-400 group-hover:text-primary">Agréé ARS</p>
+                     <p className="text-[7px] font-bold text-slate-500 uppercase">Île-de-France</p>
+                   </div>
+                 </div>
                </a>
-               <a href="https://sante.gouv.fr/" target="_blank" rel="noopener noreferrer" className="grayscale hover:grayscale-0 transition-all hover:scale-110 flex flex-col items-center gap-2">
-                 <div className="h-14 w-auto flex items-center justify-center font-black text-slate-400 text-[10px] border-2 border-slate-100 rounded-lg px-3 uppercase tracking-tighter text-center leading-none">Ministère de<br/>la Santé</div>
+               <a href="https://sante.gouv.fr/" target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center gap-3 transition-all hover:scale-105">
+                 <div className="h-16 w-32 bg-slate-50 border-2 border-slate-100 rounded-2xl flex items-center justify-center p-3 grayscale group-hover:grayscale-0 group-hover:border-primary/20 transition-all shadow-sm group-hover:shadow-xl">
+                   <div className="text-center">
+                     <p className="text-[8px] font-black uppercase leading-tight text-slate-400 group-hover:text-primary">Ministère de la</p>
+                     <p className="text-[10px] font-black uppercase leading-tight text-slate-600">Santé</p>
+                   </div>
+                 </div>
                </a>
             </div>
           </div>
