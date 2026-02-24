@@ -195,7 +195,7 @@ export default function AdminDashboard() {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Ventes (est.)</p>
-                  <p className="text-2xl font-black text-slate-900 mt-1">2 450€</p>
+                  <p className="text-2xl font-black text-slate-900 mt-1">{totalSales.toLocaleString('fr-FR')}€</p>
                 </div>
                 <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-900 shrink-0">
                   <TrendingUp className="w-4 h-4" />

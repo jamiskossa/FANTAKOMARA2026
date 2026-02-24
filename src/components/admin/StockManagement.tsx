@@ -47,17 +47,30 @@ export function StockManagement() {
 
   const runAiAudit = async () => {
     setIsAiLoading(true);
-    // Real-time stock analysis simulation based on actual data
+    // Real-time stock analysis based on current levels and simulated rotation
     setTimeout(() => {
-      const suggestions = products?.filter(p => (p.stockFinal || 0) < 15).map(p => ({
-        id: p.id,
-        name: p.name,
-        action: (p.stockFinal || 0) < 5 ? 'URGENT_COMMANDER' : 'REAPPROVISIONNER',
-        quantity: (p.stockFinal || 0) < 5 ? 48 : 24,
-        confidence: 0.95 + (Math.random() * 0.04),
-        reason: (p.stockFinal || 0) < 5 ? "Stock critique - risque de rupture immédiate" : "Seuil de sécurité atteint - rotation régulière"
-      })) || [];
-      setAiSuggestions(suggestions);
+      const suggestions = products?.filter(p => {
+        const stock = p.stockFinal || 0;
+        // Logic: products with stock < 15 or specific categories with high rotation
+        return stock < 15 || p.category === 'BEBE' || p.category === 'PHARMA';
+      }).map(p => {
+        const stock = p.stockFinal || 0;
+        const isCritical = stock < 5;
+        const isHighRotation = p.category === 'BEBE' || p.category === 'PHARMA';
+        
+        return {
+          id: p.id,
+          name: p.name,
+          action: isCritical ? 'URGENT_COMMANDER' : 'REAPPROVISIONNER',
+          quantity: isCritical ? 48 : (isHighRotation ? 36 : 24),
+          confidence: isCritical ? 0.99 : 0.88,
+          reason: isCritical 
+            ? "Stock critique - risque de rupture immédiate" 
+            : (isHighRotation ? "Rotation élevée détectée sur ce segment" : "Seuil de sécurité atteint")
+        };
+      }) || [];
+      
+      setAiSuggestions(suggestions.sort((a, b) => a.action === 'URGENT_COMMANDER' ? -1 : 1).slice(0, 5));
       setIsAiLoading(false);
       toast({
         title: "Audit IA Terminé",

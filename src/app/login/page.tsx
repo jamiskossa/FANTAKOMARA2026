@@ -44,7 +44,7 @@ export default function LoginPage() {
     if (user && profile) {
       if (profile.role === 'admin') {
         router.push('/admin/dashboard');
-      } else if (profile.role === 'collaborator') {
+      } else if (profile.role === 'collaborator' || profile.role === 'collaborateur') {
         router.push('/collaborateur/dashboard');
       } else {
         router.push('/client/dashboard');

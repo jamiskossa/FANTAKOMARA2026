@@ -68,7 +68,7 @@ export default function CollaboratorDashboard() {
 
   // Log connection when the dashboard is opened
   useEffect(() => {
-    if (user && profile && profile.role === 'collaborator') {
+    if (user && profile && (profile.role === 'collaborator' || profile.role === 'collaborateur')) {
       const logSessionStart = async () => {
         try {
           await addDoc(collection(db, 'collaboratorSessions'), {
@@ -113,14 +113,14 @@ export default function CollaboratorDashboard() {
 
   // Messages de contact (accessibles au staff)
   const contactMessagesQuery = useMemoFirebase(() => {
-    if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) return null;
+    if (!profile || (profile.role !== 'collaborator' && profile.role !== 'collaborateur' && profile.role !== 'admin')) return null;
     return query(collection(db, 'contactMessages'), orderBy('submissionDate', 'desc'), limit(50));
   }, [db, profile]);
   const { data: contactMessages } = useCollection(contactMessagesQuery);
 
   // File active : À préparer ou en cours
   const activeOrdersQuery = useMemoFirebase(() => {
-    if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) return null;
+    if (!profile || (profile.role !== 'collaborator' && profile.role !== 'collaborateur' && profile.role !== 'admin')) return null;
     return query(
       collection(db, 'reservations'), 
       where('status', 'in', ['pending', 'processing']),
@@ -137,28 +137,28 @@ export default function CollaboratorDashboard() {
 
   // Inventaire Produits
   const productsQuery = useMemoFirebase(() => {
-    if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) return null;
+    if (!profile || (profile.role !== 'collaborator' && profile.role !== 'collaborateur' && profile.role !== 'admin')) return null;
     return query(collection(db, 'products'), limit(100));
   }, [db, profile]);
   const { data: products } = useCollection(productsQuery);
 
   // Chat Interne Staff
   const staffChatQuery = useMemoFirebase(() => {
-    if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) return null;
+    if (!profile || (profile.role !== 'collaborator' && profile.role !== 'collaborateur' && profile.role !== 'admin')) return null;
     return query(collection(db, 'staffMessages'), orderBy('createdAt', 'asc'), limit(50));
   }, [db, profile]);
   const { data: staffMessages } = useCollection(staffChatQuery);
 
   // Profils Patients (pour infos de contact)
   const clientsQuery = useMemoFirebase(() => {
-    if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) return null;
+    if (!profile || (profile.role !== 'collaborator' && profile.role !== 'collaborateur' && profile.role !== 'admin')) return null;
     return query(collection(db, 'userProfiles'), limit(100));
   }, [db, profile]);
   const { data: clients } = useCollection(clientsQuery);
 
   // Chat Support Patients
   const supportChatQuery = useMemoFirebase(() => {
-    if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) return null;
+    if (!profile || (profile.role !== 'collaborator' && profile.role !== 'collaborateur' && profile.role !== 'admin')) return null;
     return query(collection(db, 'supportMessages'), orderBy('createdAt', 'desc'), limit(100));
   }, [db, profile]);
   const { data: allSupportMessages } = useCollection(supportChatQuery);
@@ -248,7 +248,7 @@ export default function CollaboratorDashboard() {
     );
   }
 
-  if (!profile || (profile.role !== 'collaborator' && profile.role !== 'admin')) {
+  if (!profile || (profile.role !== 'collaborator' && profile.role !== 'collaborateur' && profile.role !== 'admin')) {
     return (
       <div className="min-h-screen flex flex-col bg-slate-50">
         <Header />
