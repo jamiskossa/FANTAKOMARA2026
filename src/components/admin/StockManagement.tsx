@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useFirestore, useCollection } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy, limit, updateDoc, doc } from 'firebase/firestore';
 import { 
   Package, 
@@ -30,7 +30,9 @@ export function StockManagement() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<any[]>([]);
 
-  const productsQuery = query(collection(db, 'products'), orderBy('stockFinal', 'asc'), limit(100));
+  const productsQuery = useMemoFirebase(() => {
+    return query(collection(db, 'products'), orderBy('stockFinal', 'asc'), limit(100));
+  }, [db]);
   const { data: products, isLoading } = useCollection(productsQuery);
 
   const filteredProducts = products?.filter(p => 
@@ -73,6 +75,60 @@ export function StockManagement() {
 
   return (
     <div className="space-y-6">
+      {/* AI Assistant Section */}
+      <Card className="border-none shadow-xl bg-gradient-to-r from-primary to-secondary rounded-[32px] overflow-hidden text-white relative group">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32 blur-3xl group-hover:bg-white/20 transition-all duration-700" />
+        <CardContent className="p-8 relative z-10">
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 animate-pulse">
+              <Bot className="w-10 h-10" />
+            </div>
+            <div className="flex-1 text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                <Badge className="bg-white/20 text-white font-black uppercase text-[8px] tracking-[0.2em] border-none px-3">IA PRO VERSION 2026</Badge>
+                <div className="flex gap-1">
+                  <div className="w-1 h-1 bg-white rounded-full animate-bounce" />
+                  <div className="w-1 h-1 bg-white rounded-full animate-bounce delay-100" />
+                  <div className="w-1 h-1 bg-white rounded-full animate-bounce delay-200" />
+                </div>
+              </div>
+              <h2 className="text-2xl font-black uppercase tracking-tighter">Assistant Intelligent de Stock</h2>
+              <p className="text-white/80 text-sm font-medium max-w-xl">
+                Analyse en temps réel des rotations, détection des ruptures imminentes et calcul des besoins pour le Click & Collect.
+              </p>
+            </div>
+            <Button 
+              onClick={runAiAudit} 
+              disabled={isAiLoading}
+              className="bg-white text-primary hover:bg-white/90 rounded-full px-8 h-14 font-black uppercase tracking-widest text-xs shadow-2xl transition-all active:scale-95"
+            >
+              {isAiLoading ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}
+              Lancer l'Audit Pro
+            </Button>
+          </div>
+
+          {aiSuggestions.length > 0 && (
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {aiSuggestions.map((s, i) => (
+                <div key={i} className="bg-white/10 backdrop-blur-sm border border-white/20 p-4 rounded-2xl">
+                  <div className="flex justify-between items-start mb-2">
+                    <p className="font-black text-[10px] uppercase tracking-widest truncate max-w-[120px]">{s.name}</p>
+                    <Badge className={s.action === 'URGENT_COMMANDER' ? 'bg-destructive text-white' : 'bg-secondary text-white'}>
+                      {s.action === 'URGENT_COMMANDER' ? 'Urgent' : 'Recco'}
+                    </Badge>
+                  </div>
+                  <p className="text-[11px] font-medium text-white/90 mb-3">{s.reason}</p>
+                  <div className="flex items-center justify-between text-[10px] font-black uppercase">
+                    <span className="text-white/60">Quantité : +{s.quantity}</span>
+                    <span className="flex items-center text-white"><CheckCircle2 className="w-3 h-3 mr-1" /> {Math.round(s.confidence * 100)}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* KPI Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="border-none shadow-soft bg-white rounded-2xl">

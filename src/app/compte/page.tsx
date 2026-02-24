@@ -35,9 +35,11 @@ export default function AccountRouterPage() {
 
   useEffect(() => {
     if (!isProfileLoading && profile) {
-      if (profile.role === 'collaborator' || profile.role === 'admin') {
-        router.push(`/${profile.role === 'admin' ? 'admin' : 'collaborateur'}/dashboard`);
-      } else if (profile.role === 'client') {
+      if (profile.role === 'admin') {
+        router.push('/admin/dashboard');
+      } else if (profile.role === 'collaborator') {
+        router.push('/collaborateur/dashboard');
+      } else {
         router.push('/client/dashboard');
       }
     }
@@ -48,10 +50,13 @@ export default function AccountRouterPage() {
     router.push('/');
   };
 
-  if (isUserLoading || isProfileLoading) {
+  if (isUserLoading || isProfileLoading || (user && profile)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-6">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">Redirection vers votre espace...</p>
+        </div>
       </div>
     );
   }

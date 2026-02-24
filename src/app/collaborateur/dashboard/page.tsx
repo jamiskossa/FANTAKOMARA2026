@@ -55,6 +55,13 @@ export default function CollaboratorDashboard() {
   const [showReplied, setShowReplied] = useState(false);
   const [sessionStartTime] = useState(new Date());
 
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user) return null;
+    return doc(db, 'userProfiles', user.uid);
+  }, [user, db]);
+
+  const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
+
   // Log connection when the dashboard is opened
   useEffect(() => {
     if (user && profile && profile.role === 'collaborator') {
@@ -93,13 +100,6 @@ export default function CollaboratorDashboard() {
       }
     }
   };
-
-  const userProfileRef = useMemoFirebase(() => {
-    if (!user) return null;
-    return doc(db, 'userProfiles', user.uid);
-  }, [user, db]);
-
-  const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -230,83 +230,59 @@ export default function CollaboratorDashboard() {
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-6">
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tighter flex items-center gap-3">
-                <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center text-white">
-                  <ClipboardList className="h-5 w-5" />
+        <div className="mb-8 bg-white p-8 rounded-[40px] shadow-soft border border-slate-100">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-16 bg-secondary rounded-[24px] flex items-center justify-center text-white shadow-2xl shadow-secondary/30 transform hover:rotate-3 transition-transform">
+                <ClipboardList className="h-8 w-8" />
+              </div>
+              <div>
+                <h1 className="text-2xl sm:text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-3">
+                  Flux Officine
+                </h1>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge className="bg-secondary text-white font-black uppercase text-[10px] px-4 py-1 rounded-full border-none">
+                    Espace Préparateur
+                  </Badge>
+                  <div className="px-4 py-1 rounded-full bg-slate-100 text-[10px] font-black uppercase text-slate-400 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    Session : {sessionStartTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                  </div>
                 </div>
-                Espace Préparateur
-              </h1>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Officine Nouvelle d'Ivry</p>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" className="rounded-full h-9 px-4 font-black uppercase text-[9px] border-slate-200" onClick={handleEndSession}>
-                <LogOut className="w-3.5 h-3.5 mr-2 text-destructive" /> Fin de poste
-              </Button>
-              <Button variant="outline" className="rounded-full h-9 px-4 font-black uppercase text-[9px] border-slate-200">
-                <Camera className="w-3.5 h-3.5 mr-2" /> Visio Patient
+            
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="destructive" 
+                className="rounded-full h-14 px-8 font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-destructive/20 active:scale-95 transition-all"
+                onClick={handleEndSession}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Terminer le poste
               </Button>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Card className="border-none shadow-soft bg-white rounded-2xl">
-              <CardContent className="p-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
+            {[
+              { label: 'À Préparer', val: activeOrders?.filter((o: any) => o.status === 'pending').length || 0, icon: AlertCircle, col: 'text-destructive', bg: 'bg-destructive/10' },
+              { label: 'En Cours', val: activeOrders?.filter((o: any) => o.status === 'processing').length || 0, icon: Clock, col: 'text-primary', bg: 'bg-primary/10' },
+              { label: 'Ruptures', val: products?.filter((p: any) => (p.stockFinal || 0) < 5).length || 0, icon: Package, col: 'text-destructive', bg: 'bg-destructive/10' },
+              { label: 'Produits OK', val: products?.filter((p: any) => (p.stockFinal || 0) >= 5).length || 0, icon: CheckCircle2, col: 'text-green-600', bg: 'bg-green-600/10' }
+            ].map((stat, i) => (
+              <div key={i} className="bg-slate-50/50 p-4 rounded-[24px] border border-slate-100/50">
                 <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">À Préparer</p>
-                    <p className="text-2xl font-black text-destructive mt-1">{activeOrders?.filter((o: any) => o.status === 'pending').length || 0}</p>
+                  <div>
+                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
+                    <p className={`text-2xl font-black ${stat.col}`}>{stat.val}</p>
                   </div>
-                  <div className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center text-destructive shrink-0">
-                    <AlertCircle className="w-4 h-4" />
+                  <div className={`w-8 h-8 rounded-xl ${stat.bg} flex items-center justify-center ${stat.col}`}>
+                    <stat.icon className="w-4 h-4" />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-none shadow-soft bg-white rounded-2xl">
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">En Cours</p>
-                    <p className="text-2xl font-black text-primary mt-1">{activeOrders?.filter((o: any) => o.status === 'processing').length || 0}</p>
-                  </div>
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                    <Clock className="w-4 h-4" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-none shadow-soft bg-white rounded-2xl">
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Ruptures</p>
-                    <p className="text-2xl font-black text-destructive mt-1">{products?.filter((p: any) => (p.stockFinal || 0) < 5).length || 0}</p>
-                  </div>
-                  <div className="w-8 h-8 rounded-lg bg-destructive/10 flex items-center justify-center text-destructive shrink-0">
-                    <Package className="w-4 h-4" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-none shadow-soft bg-white rounded-2xl">
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Produits OK</p>
-                    <p className="text-2xl font-black text-green-600 mt-1">{products?.filter((p: any) => (p.stockFinal || 0) >= 5).length || 0}</p>
-                  </div>
-                  <div className="w-8 h-8 rounded-lg bg-green-600/10 flex items-center justify-center text-green-600 shrink-0">
-                    <CheckCircle2 className="w-4 h-4" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            ))}
           </div>
         </div>
 

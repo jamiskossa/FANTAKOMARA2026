@@ -22,13 +22,34 @@ export function DocumentPreview({ isOpen, onClose, type, data }: DocumentPreview
   };
 
   const handleDownload = () => {
-    toast({ title: "Téléchargement", description: "Le document PDF a été généré." });
+    // Basic implementation: trigger print which allows PDF save
+    window.print();
+    toast({ title: "Génération PDF", description: "Utilisez 'Enregistrer au format PDF' dans la fenêtre d'impression." });
   };
 
   const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: getDocTitle(),
+        text: `Consultez ce document de la Pharmacie Nouvelle d'Ivry`,
+        url: window.location.href,
+      }).catch(() => {
+        copyToClipboard();
+      });
+    } else {
+      copyToClipboard();
+    }
+  };
+
+  const copyToClipboard = () => {
     const text = `Document Pharmacie: ${getDocTitle()}`;
     navigator.clipboard.writeText(text);
-    toast({ title: "Lien copié", description: "Vous pouvez maintenant partager ce document." });
+    toast({ title: "Lien copié", description: "Le lien du document a été copié." });
+  };
+
+  const handleWhatsAppShare = () => {
+    const text = `Document Pharmacie: ${getDocTitle()} - ${window.location.href}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   const getDocTitle = () => {
@@ -57,9 +78,11 @@ export function DocumentPreview({ isOpen, onClose, type, data }: DocumentPreview
             <Button variant="outline" size="sm" className="rounded-full h-8 px-4 text-[10px] font-black uppercase" onClick={handleShare}>
               <Share2 className="w-3.5 h-3.5 mr-2" /> Partager
             </Button>
+            <Button variant="outline" size="sm" className="rounded-full h-8 px-4 text-[10px] font-black uppercase border-green-500 text-green-600 hover:bg-green-50" onClick={handleWhatsAppShare}>
+              <MessageCircle className="w-3.5 h-3.5 mr-2" /> WhatsApp
+            </Button>
           </div>
           <div className="flex gap-2">
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-primary"><MessageCircle className="w-4 h-4" /></Button>
             <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8"><X className="w-4 h-4" /></Button>
           </div>
         </div>

@@ -25,8 +25,8 @@ export default function ClickCollect() {
             <p className="text-xl text-slate-600 mb-10">Commandez vos produits de parapharmacie en ligne et retirez-les gratuitement dans notre officine à Ivry-sur-Seine.</p>
             <Button 
               size="lg" 
-              className="rounded-full px-10 h-14 bg-primary text-lg font-bold hover:opacity-90 transition-opacity"
-              onClick={() => router.push('/categorie/beaute')}
+              className="rounded-full px-10 h-14 bg-primary text-lg font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-primary/20"
+              onClick={() => router.push('/categorie/sante')}
             >
               Commencer mon shopping
             </Button>
