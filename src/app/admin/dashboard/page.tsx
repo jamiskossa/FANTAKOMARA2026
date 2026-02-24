@@ -36,7 +36,8 @@ import {
   BarChart3,
   Box,
   Send,
-  Search
+  Search,
+  Calendar
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { DocumentPreview } from '@/components/admin/DocumentPreview';
@@ -92,6 +93,17 @@ export default function AdminDashboard() {
   }, [db, profile]);
   const { data: allSupportMessages } = useCollection(supportChatQuery);
 
+  const newsletterQuery = useMemoFirebase(() => {
+    if (!profile || profile.role !== 'admin') return null;
+    return query(collection(db, 'newsletter'), orderBy('subscribedAt', 'desc'), limit(100));
+  }, [db, profile]);
+  const { data: subscribers } = useCollection(newsletterQuery);
+
+  const totalSales = React.useMemo(() => {
+    if (!reservations) return 0;
+    return reservations.reduce((acc, r) => acc + (r.totalPrice || 0), 0);
+  }, [reservations]);
+
   const groupedChats = React.useMemo(() => {
     if (!allSupportMessages) return {};
     const groups: any = {};
@@ -135,6 +147,11 @@ export default function AdminDashboard() {
   const handleWhatsApp = (phone?: string) => {
     if (!phone) return toast({ title: "Erreur", description: "Pas de numéro", variant: "destructive" });
     window.open(`https://wa.me/${phone.replace(/\s/g, '')}`, '_blank');
+  };
+
+  const handleEmail = (email?: string) => {
+    if (!email) return toast({ title: "Erreur", description: "Pas d'email", variant: "destructive" });
+    window.open(`mailto:${email}`, '_blank');
   };
 
   const handleShare = (data: any) => {
@@ -240,6 +257,7 @@ export default function AdminDashboard() {
             <TabsTrigger value="messages" className="rounded-full font-black uppercase text-[9px] px-4">Messages Clients</TabsTrigger>
             <TabsTrigger value="users" className="rounded-full font-black uppercase text-[9px] px-4">Patients</TabsTrigger>
             <TabsTrigger value="staff" className="rounded-full font-black uppercase text-[9px] px-4">Collaborateurs</TabsTrigger>
+            <TabsTrigger value="newsletter" className="rounded-full font-black uppercase text-[9px] px-4">Newsletter</TabsTrigger>
             <TabsTrigger value="docs" className="rounded-full font-black uppercase text-[9px] px-4">Documents</TabsTrigger>
           </TabsList>
 
@@ -277,6 +295,7 @@ export default function AdminDashboard() {
                         <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-400 hover:text-primary" onClick={() => setActiveDoc({type: 'invoice', data: r})}><Printer className="h-3.5 w-3.5" /></Button>
                         <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-400 hover:text-secondary" onClick={() => setActiveDoc({type: 'invoice', data: r})}><Download className="h-3.5 w-3.5" /></Button>
                         <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-400 hover:text-green-600" onClick={() => handleWhatsApp(clients?.find(c => c.id === r.clientId)?.phone)}><MessageCircle className="h-3.5 w-3.5" /></Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-400 hover:text-blue-500" onClick={() => handleEmail(clients?.find(c => c.id === r.clientId)?.email)}><Mail className="h-3.5 w-3.5" /></Button>
                         <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-400 hover:text-slate-900" onClick={() => handleShare(r)}><Share2 className="h-3.5 w-3.5" /></Button>
                         <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDelete('reservations', r.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                       </TableCell>
@@ -519,6 +538,7 @@ export default function AdminDashboard() {
                       <TableCell className="py-2"><Badge variant="outline" className="text-[8px] uppercase">{c.role}</Badge></TableCell>
                       <TableCell className="text-right pr-6 py-2 space-x-1">
                         <Button size="icon" variant="ghost" className="h-7 w-7 text-secondary" onClick={() => handleWhatsApp(c.phone)}><MessageCircle className="h-3.5 w-3.5" /></Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-blue-500" onClick={() => handleEmail(c.email)}><Mail className="h-3.5 w-3.5" /></Button>
                         <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDelete('userProfiles', c.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                       </TableCell>
                     </TableRow>
@@ -526,6 +546,43 @@ export default function AdminDashboard() {
                     <TableRow>
                       <TableCell colSpan={3} className="text-center py-10 text-slate-400 font-bold uppercase text-[10px]">
                         Aucun patient enregistré
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="newsletter">
+            <Card className="border-none shadow-soft rounded-2xl overflow-hidden bg-white">
+              <Table>
+                <TableHeader className="bg-slate-50">
+                  <TableRow>
+                    <TableHead className="uppercase text-[9px] font-black pl-6 py-2">Email</TableHead>
+                    <TableHead className="uppercase text-[9px] font-black py-2">Date d'inscription</TableHead>
+                    <TableHead className="uppercase text-[9px] font-black text-right pr-6 py-2">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {subscribers && subscribers.length > 0 ? subscribers.map((s: any) => (
+                    <TableRow key={s.id} className="hover:bg-slate-50/50">
+                      <TableCell className="pl-6 py-2 font-bold text-xs">{s.email}</TableCell>
+                      <TableCell className="py-2 text-[10px] text-slate-500 font-mono">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {s.subscribedAt ? new Date(s.subscribedAt).toLocaleDateString() : 'N/A'}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right pr-6 py-2 space-x-1">
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-primary" onClick={() => window.open(`mailto:${s.email}`)}><Mail className="h-3.5 w-3.5" /></Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => handleDelete('newsletter', s.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                      </TableCell>
+                    </TableRow>
+                  )) : (
+                    <TableRow>
+                      <TableCell colSpan={3} className="text-center py-10 text-slate-400 font-bold uppercase text-[10px]">
+                        Aucun abonné newsletter
                       </TableCell>
                     </TableRow>
                   )}

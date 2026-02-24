@@ -4,11 +4,11 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import Link from 'next/link';
 import { Clock, ShieldCheck, ShoppingBag, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function ClickCollect() {
-  const router = useRouter();
   const steps = [
     { icon: ShoppingBag, title: "Commandez en ligne", desc: "Faites votre shopping parmi 1000+ références." },
     { icon: Clock, title: "Prêt en 2h", desc: "Nos pharmaciens préparent votre panier avec soin." },
@@ -26,9 +26,11 @@ export default function ClickCollect() {
             <Button 
               size="lg" 
               className="rounded-full px-10 h-14 bg-primary text-lg font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-primary/20"
-              onClick={() => router.push('/categorie/sante')}
+              asChild
             >
-              Commencer mon shopping
+              <Link href="/categorie/sante">
+                Commencer mon shopping
+              </Link>
             </Button>
           </div>
         </section>
