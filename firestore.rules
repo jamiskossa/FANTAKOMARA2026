@@ -12,13 +12,13 @@ service cloud.firestore {
     function isStaff() {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
-             (getUserData().role == "admin" || getUserData().role == "collaborator");
+             get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role in ["admin", "collaborator"];
     }
 
     function isAdmin() {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
-             getUserData().role == "admin";
+             get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == "admin";
     }
 
     function isOwner(uid) {
