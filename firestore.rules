@@ -11,14 +11,11 @@ service cloud.firestore {
 
     function isStaff() {
       return isAuthenticated() && 
-             exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
-             (getUserData().role == "admin" || getUserData().role == "collaborator");
+             getUserData().role in ["admin", "collaborator"];
     }
 
     function isAdmin() {
-      return isAuthenticated() && 
-             exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) &&
-             getUserData().role == "admin";
+      return isAuthenticated() && getUserData().role == "admin";
     }
 
     function isOwner(uid) {
@@ -40,22 +37,35 @@ service cloud.firestore {
     // Réservations
     match /reservations/{reservationId} {
       allow create: if isAuthenticated();
-      allow list: if isStaff() || isAuthenticated();
-      allow get: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
-      allow read: if isStaff() || (isAuthenticated() && resource.data.clientId == request.auth.uid);
-      
+      // Lecture autorisée pour le staff (tout) ou le client (ses propres docs)
+      allow read: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
       allow update: if isStaff() || (isAuthenticated() && resource.data.clientId == request.auth.uid && resource.data.status == "pending");
-      
       allow delete: if isAdmin();
     }
 
     // Support Clients (Chat)
     match /supportMessages/{msgId} {
       allow create: if isAuthenticated();
-      allow list: if isStaff() || isAuthenticated();
-      allow get: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
-      allow read: if isStaff() || (isAuthenticated() && resource.data.clientId == request.auth.uid);
+      allow read: if isAuthenticated() && (isStaff() || resource.data.clientId == request.auth.uid);
       allow update: if isStaff();
+    }
+
+    // Avis Pharmacie
+    match /pharmacyReviews/{reviewId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    // Sessions Collaborateurs
+    match /collaboratorSessions/{sessionId} {
+      allow read, write: if isStaff();
+    }
+
+    // Newsletter
+    match /newsletter/{id} {
+      allow create: if true;
+      allow read: if isStaff();
     }
 
     // Chat Interne Staff
