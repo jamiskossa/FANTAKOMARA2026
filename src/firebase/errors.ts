@@ -121,3 +121,16 @@ export class FirestorePermissionError extends Error {
     this.request = requestObject;
   }
 }
+
+/**
+ * A custom error class for authentication errors.
+ */
+export class AuthError extends Error {
+  public readonly code: string;
+
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = 'AuthError';
+    this.code = code;
+  }
+}

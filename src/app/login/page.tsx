@@ -31,6 +31,14 @@ export default function LoginPage() {
 
   const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
 
+  useEffect(() => {
+    const handleAuthError = () => {
+      setIsSubmitting(false);
+    };
+    errorEmitter.on('auth-error', handleAuthError);
+    return () => errorEmitter.off('auth-error', handleAuthError);
+  }, []);
+
   // Smart Redirection based on role
   useEffect(() => {
     if (user && profile) {
