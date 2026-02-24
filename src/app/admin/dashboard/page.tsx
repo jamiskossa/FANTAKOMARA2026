@@ -555,6 +555,11 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="newsletter">
+            <div className="flex justify-end mb-4">
+              <Button size="sm" className="rounded-full bg-secondary font-black uppercase text-[10px] h-9 px-6 shadow-lg shadow-secondary/20" onClick={() => toast({ title: "Newsletter", description: "Envoi en cours vers tous les abonnés..." })}>
+                <Send className="w-3.5 h-3.5 mr-2" /> Envoyer une Newsletter
+              </Button>
+            </div>
             <Card className="border-none shadow-soft rounded-2xl overflow-hidden bg-white">
               <Table>
                 <TableHeader className="bg-slate-50">
