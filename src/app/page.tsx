@@ -39,10 +39,19 @@ export default function Home() {
             <p className="text-lg lg:text-xl text-slate-600 leading-relaxed font-medium">
               Depuis plus de 10 ans, la Pharmacie Nouvelle d'Ivry vous accompagne au quotidien avec des conseils personnalisés et une sélection rigoureuse des meilleures marques de parapharmacie. Profitez de nos services digitaux : Click & Collect en 2h et Scan d'Ordonnance sécurisé pour gagner du temps.
             </p>
-            <div className="mt-12 flex flex-wrap justify-center gap-6 opacity-60">
-               <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 border border-slate-200 px-4 py-2 rounded-lg">Ordre National des Pharmaciens</div>
-               <div className="text-[9px] font-black uppercase tracking-widest text-primary border border-primary/20 px-4 py-2 rounded-lg">Paiement 100% Sécurisé</div>
-               <div className="text-[9px] font-black uppercase tracking-widest text-secondary border border-secondary/20 px-4 py-2 rounded-lg">Agréé ARS</div>
+            <div className="mt-16 flex flex-wrap justify-center items-center gap-8 md:gap-12">
+               <a href="https://www.ordre.pharmacien.fr/" target="_blank" rel="noopener noreferrer" className="grayscale hover:grayscale-0 transition-all hover:scale-110">
+                 <img src="/images/ordre-pharmaciens.png" alt="Ordre National des Pharmaciens" className="h-12 w-auto object-contain" />
+               </a>
+               <a href="https://ansm.sante.fr/" target="_blank" rel="noopener noreferrer" className="grayscale hover:grayscale-0 transition-all hover:scale-110">
+                 <img src="/images/ansm.png" alt="ANSM" className="h-10 w-auto object-contain" />
+               </a>
+               <a href="https://www.ars.sante.fr/" target="_blank" rel="noopener noreferrer" className="grayscale hover:grayscale-0 transition-all hover:scale-110">
+                 <img src="/images/ars.png" alt="Agréé ARS" className="h-10 w-auto object-contain" />
+               </a>
+               <a href="https://sante.gouv.fr/" target="_blank" rel="noopener noreferrer" className="grayscale hover:grayscale-0 transition-all hover:scale-110">
+                 <img src="/images/ministere-sante.png" alt="Ministère de la Santé" className="h-14 w-auto object-contain" />
+               </a>
             </div>
           </div>
         </section>
