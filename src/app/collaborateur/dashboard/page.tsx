@@ -5,8 +5,9 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { useFirestore, useCollection, useMemoFirebase, useUser, useDoc, addDocumentNonBlocking } from '@/firebase';
-import { collection, query, where, orderBy, limit, doc, serverTimestamp } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase, useUser, useDoc, addDocumentNonBlocking, useAuth } from '@/firebase';
+import { collection, query, where, orderBy, limit, doc, serverTimestamp, addDoc } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -31,7 +32,8 @@ import {
   Filter,
   BarChart3,
   Box,
-  Truck
+  Truck,
+  LogOut
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { OrderPreparationModal } from '@/components/admin/OrderPreparationModal';
@@ -42,6 +44,7 @@ import { suggestRestock } from '@/ai/flows/restock-suggestion-flow';
 
 export default function CollaboratorDashboard() {
   const { user, isUserLoading } = useUser();
+  const auth = useAuth();
   const db = useFirestore();
   const router = useRouter();
   const [staffMessage, setStaffMessage] = useState('');
@@ -50,6 +53,46 @@ export default function CollaboratorDashboard() {
   const [filterStock, setFilterStock] = useState('all');
   const [activeDoc, setActiveDoc] = useState<{type: string, data: any} | null>(null);
   const [showReplied, setShowReplied] = useState(false);
+  const [sessionStartTime] = useState(new Date());
+
+  // Log connection when the dashboard is opened
+  useEffect(() => {
+    if (user && profile && profile.role === 'collaborator') {
+      const logSessionStart = async () => {
+        try {
+          await addDoc(collection(db, 'collaboratorSessions'), {
+            collaboratorId: user.uid,
+            collaboratorName: `${profile.firstName} ${profile.lastName}`,
+            startTime: serverTimestamp(),
+            type: 'connection'
+          });
+        } catch (e) {
+          console.error("Error logging session start", e);
+        }
+      };
+      logSessionStart();
+    }
+  }, [user, profile]);
+
+  const handleEndSession = async () => {
+    if (user && profile) {
+      try {
+        await addDoc(collection(db, 'collaboratorSessions'), {
+          collaboratorId: user.uid,
+          collaboratorName: `${profile.firstName} ${profile.lastName}`,
+          startTime: sessionStartTime,
+          endTime: serverTimestamp(),
+          durationMinutes: Math.round((new Date().getTime() - sessionStartTime.getTime()) / 60000),
+          type: 'full_session'
+        });
+        await signOut(auth);
+        router.push('/login');
+        toast({ title: "Session terminée", description: "Votre temps de travail a été enregistré." });
+      } catch (e) {
+        toast({ title: "Erreur", description: "Impossible de clore la session.", variant: "destructive" });
+      }
+    }
+  };
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user) return null;
@@ -168,13 +211,13 @@ export default function CollaboratorDashboard() {
             <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-6 text-destructive">
               <ShieldAlert className="w-10 h-10" />
             </div>
-            <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-4">Accès Opérateur Refusé</h1>
+            <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-4">Accès Restreint</h1>
             <p className="text-slate-500 font-medium mb-8 leading-relaxed">
-              Votre compte est actuellement au statut **"Client"**. 
-              Demandez à l'administrateur de passer votre profil en **"Collaborateur"** dans Firestore pour accéder à cet espace.
+              Cet espace est réservé au personnel de l'officine. 
+              Si vous êtes client, vous pouvez accéder à votre espace de suivi via le bouton ci-dessous.
             </p>
             <Button asChild className="w-full rounded-full bg-primary font-black uppercase tracking-widest h-12">
-              <Link href="/compte">Mon Profil</Link>
+              <Link href="/client/dashboard">Accéder à mon Dashboard Client</Link>
             </Button>
           </Card>
         </main>
@@ -199,6 +242,9 @@ export default function CollaboratorDashboard() {
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Officine Nouvelle d'Ivry</p>
             </div>
             <div className="flex gap-2">
+              <Button variant="outline" className="rounded-full h-9 px-4 font-black uppercase text-[9px] border-slate-200" onClick={handleEndSession}>
+                <LogOut className="w-3.5 h-3.5 mr-2 text-destructive" /> Fin de poste
+              </Button>
               <Button variant="outline" className="rounded-full h-9 px-4 font-black uppercase text-[9px] border-slate-200">
                 <Camera className="w-3.5 h-3.5 mr-2" /> Visio Patient
               </Button>

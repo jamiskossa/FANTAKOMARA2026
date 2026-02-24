@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { UserPlus, Mail, Phone, User, Briefcase, Hash, MapPin, Loader2 } from 'lucide-react';
+import { UserPlus, Mail, Phone, User, Briefcase, Hash, MapPin, Loader2, MessageCircle } from 'lucide-react';
 import { useFirestore } from '@/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 
@@ -27,16 +27,17 @@ export function CollaboratorManagement() {
     role: 'collaborator'
   });
 
+  const sendWhatsAppNotification = (phone: string, firstName: string, email: string, pass: string) => {
+    const text = `Bonjour ${firstName}, votre accès à la Pharmacie Nouvelle d'Ivry a été créé.\n\n📧 Email : ${email}\n🔑 Mot de passe : ${pass}\n\n⚠️ Cet accès est sécurisé et non modifiable.\nAccès : https://pharmacienouvelledivryonline.netlify.app/login`;
+    window.open(`https://wa.me/${phone.replace(/\s/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // In a real app, you'd use Firebase Admin SDK or a Cloud Function to create the user
-      // Since we are in a client component, we'll simulate the creation by adding to userProfiles
-      // and assume the admin creates the auth account manually or via a secure function.
-      
-      const userId = `collab_${Date.now()}`; // Temporary ID simulation
+      const userId = `collab_${Date.now()}`;
       await setDoc(doc(db, 'userProfiles', userId), {
         ...formData,
         id: userId,
@@ -47,6 +48,11 @@ export function CollaboratorManagement() {
         title: "Collaborateur créé",
         description: `L'accès pour ${formData.firstName} a été configuré.`,
       });
+
+      // Notify via WhatsApp
+      if (formData.phone) {
+        sendWhatsAppNotification(formData.phone, formData.firstName, formData.email, formData.password);
+      }
       
       setFormData({
         email: '',
@@ -131,6 +137,7 @@ export function CollaboratorManagement() {
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                 required
               />
+              <p className="text-[8px] text-destructive font-black uppercase">* Ce mot de passe sera unique et non modifiable par le collaborateur.</p>
             </div>
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase text-slate-400">Téléphone</Label>

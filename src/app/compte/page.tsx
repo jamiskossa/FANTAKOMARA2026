@@ -37,6 +37,8 @@ export default function AccountRouterPage() {
     if (!isProfileLoading && profile) {
       if (profile.role === 'collaborator' || profile.role === 'admin') {
         router.push(`/${profile.role === 'admin' ? 'admin' : 'collaborateur'}/dashboard`);
+      } else if (profile.role === 'client') {
+        router.push('/client/dashboard');
       }
     }
   }, [profile, isProfileLoading, router]);
@@ -93,19 +95,7 @@ export default function AccountRouterPage() {
             </Button>
           </div>
 
-          {/* Message spécial si le collaborateur est reconnu comme client */}
-          {role === 'client' && (
-            <div className="mb-12 bg-amber-50 p-6 rounded-[24px] border border-amber-100 flex gap-4 items-start animate-in fade-in slide-in-from-top-4 duration-500 shadow-sm">
-              <AlertCircle className="w-6 h-6 text-amber-600 shrink-0 mt-1" />
-              <div>
-                <h4 className="font-black text-sm text-amber-700 uppercase tracking-tight">Accès restreint au personnel</h4>
-                <p className="text-sm text-amber-600 font-medium leading-relaxed">
-                  Si vous êtes un collaborateur de la pharmacie, votre rôle actuel est **"client"**. 
-                  Vous devez contacter l'administrateur pour qu'il modifie votre rôle dans Firestore afin d'accéder aux outils de préparation et de gestion des stocks.
-                </p>
-              </div>
-            </div>
-          )}
+          {/* No restriction message for clients as they redirect directly */}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {role === 'admin' && (
