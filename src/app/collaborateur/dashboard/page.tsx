@@ -35,7 +35,10 @@ import {
   Truck,
   LogOut,
   Search,
-  MessageCircle
+  MessageCircle,
+  Eye,
+  EyeOff,
+  Printer
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { OrderPreparationModal } from '@/components/admin/OrderPreparationModal';
@@ -108,8 +111,10 @@ export default function CollaboratorDashboard() {
   useEffect(() => {
     if (!isUserLoading && !user) {
       router.push('/login');
+    } else if (!isProfileLoading && profile && profile.role !== 'collaborator' && profile.role !== 'collaborateur' && profile.role !== 'admin') {
+      router.push('/client/dashboard');
     }
-  }, [user, isUserLoading, router]);
+  }, [user, isUserLoading, profile, isProfileLoading, router]);
 
   // Messages de contact (accessibles au staff)
   const contactMessagesQuery = useMemoFirebase(() => {

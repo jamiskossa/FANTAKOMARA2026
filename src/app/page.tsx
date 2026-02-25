@@ -41,6 +41,11 @@ export default function Home() {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="flex-1 md:flex-none rounded-2xl h-14 px-10 font-black uppercase tracking-widest text-xs border-blue-600 text-blue-600 hover:bg-blue-50 transition-all">
+                <Link href="/rappel-lait">
+                  RAPPEL LAIT INFANTILE
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="flex-1 md:flex-none rounded-2xl h-14 px-10 font-black uppercase tracking-widest text-xs border-blue-600 text-blue-600 hover:bg-blue-50 transition-all">
                 <Link href="/alertes-pro">
                   ALERTES PRO
                 </Link>

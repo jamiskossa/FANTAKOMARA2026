@@ -13,7 +13,7 @@ import { initiateEmailSignIn, initiateAnonymousSignIn } from '@/firebase/non-blo
 import { useRouter } from 'next/navigation';
 import { LogIn, UserPlus, ShieldCheck, Loader2, ArrowRight } from 'lucide-react';
 import { doc } from 'firebase/firestore';
-import { errorEmitter } from '@/firebase/error-emitter';
+import { errorEmitter } from '../../firebase/error-emitter';
 import Link from 'next/link';
 
 export default function LoginPage() {
