@@ -64,7 +64,7 @@ export default function AccountRouterPage() {
   if (!user) return null;
 
   const role = profile?.role || 'client';
-  const isStaff = role === 'admin' || role === 'collaborator';
+  const isStaff = role === 'admin' || role === 'collaborator' || role === 'collaborateur';
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
@@ -117,7 +117,7 @@ export default function AccountRouterPage() {
               </Card>
             )}
 
-            {(role === 'collaborator' || role === 'admin') && (
+            {(role === 'collaborator' || role === 'collaborateur' || role === 'admin') && (
               <Card className="border-none shadow-soft hover:shadow-xl transition-all cursor-pointer group bg-white rounded-[32px] overflow-hidden" asChild>
                 <Link href="/collaborateur/dashboard">
                   <CardHeader className="bg-secondary/5 p-6">

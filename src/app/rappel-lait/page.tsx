@@ -2,6 +2,7 @@
 import React from 'react';
 import { ShieldAlert, Info, ExternalLink, ArrowLeft, Baby } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 const RappelLaitPage = () => {
   const recalls = [

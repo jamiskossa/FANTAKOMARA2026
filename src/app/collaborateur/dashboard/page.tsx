@@ -46,6 +46,7 @@ import { StockManagement } from '@/components/admin/StockManagement';
 import { DocumentPreview } from '@/components/admin/DocumentPreview';
 import Link from 'next/link';
 import { suggestRestock } from '@/ai/flows/restock-suggestion-flow';
+import { errorEmitter } from '../../../firebase/error-emitter';
 
 export default function CollaboratorDashboard() {
   const { user, isUserLoading } = useUser();

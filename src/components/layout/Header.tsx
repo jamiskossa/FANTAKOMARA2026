@@ -52,7 +52,7 @@ export function Header() {
 
   const { data: profile } = useDoc(userProfileRef);
   const role = profile?.role || 'guest';
-  const isStaff = role === 'admin' || role === 'collaborator';
+  const isStaff = role === 'admin' || role === 'collaborator' || role === 'collaborateur';
   const isAdmin = role === 'admin';
   const canShop = role === 'client' || role === 'guest';
 

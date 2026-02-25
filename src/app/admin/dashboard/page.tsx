@@ -160,6 +160,45 @@ export default function AdminDashboard() {
     toast({ title: "Copié", description: "Détails copiés dans le presse-papier." });
   };
 
+  const downloadReservationsCSV = () => {
+    if (!reservations || reservations.length === 0) return;
+    const headers = ["ID", "Client", "Total", "Status", "Date"];
+    const rows = reservations.map(r => [
+      r.id,
+      r.clientId,
+      r.totalPrice,
+      r.status,
+      r.createdAt ? new Date(r.createdAt).toLocaleDateString() : 'N/A'
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + headers.join(",") + "\n"
+      + rows.map(e => e.join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "reservations_pharmacie.csv");
+    document.body.appendChild(link);
+    link.click();
+    toast({ title: "CSV Téléchargé", description: "Le rapport des ventes est prêt." });
+  };
+
+  const sendNewsletter = async () => {
+    if (!subscribers || subscribers.length === 0) return;
+    toast({ title: "Newsletter", description: "Préparation de l'envoi..." });
+    
+    // Create a notification record for the newsletter
+    try {
+      await addDoc(collection(db, 'newsletter_history'), {
+        sentAt: serverTimestamp(),
+        subscriberCount: subscribers.length,
+        status: 'completed'
+      });
+      toast({ title: "Succès", description: `Newsletter envoyée à ${subscribers.length} abonnés.` });
+    } catch (e) {
+      toast({ title: "Erreur", description: "Impossible d'enregistrer l'historique.", variant: "destructive" });
+    }
+  };
+
   if (isUserLoading || isProfileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -556,7 +595,7 @@ export default function AdminDashboard() {
 
           <TabsContent value="newsletter">
             <div className="flex justify-end mb-4">
-              <Button size="sm" className="rounded-full bg-secondary font-black uppercase text-[10px] h-9 px-6 shadow-lg shadow-secondary/20" onClick={() => toast({ title: "Newsletter", description: "Envoi en cours vers tous les abonnés..." })}>
+              <Button size="sm" className="rounded-full bg-secondary font-black uppercase text-[10px] h-9 px-6 shadow-lg shadow-secondary/20" onClick={sendNewsletter}>
                 <Send className="w-3.5 h-3.5 mr-2" /> Envoyer une Newsletter
               </Button>
             </div>

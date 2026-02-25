@@ -81,16 +81,14 @@ export function Hero() {
                         </p>
 
                         <div className="pt-2">
-                          <Link href="/categorie/sante">
-                            <button className="bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-[0.2em] text-[10px] sm:text-xs h-10 sm:h-14 px-6 sm:px-10 rounded-full shadow-2xl shadow-blue-600/40 transition-all hover:scale-105 active:scale-95 flex items-center gap-3">
+                          <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-[0.2em] text-[10px] sm:text-xs h-10 sm:h-14 px-6 sm:px-10 rounded-full shadow-2xl shadow-blue-600/40 transition-all hover:scale-105 active:scale-95 flex items-center gap-3">
+                            <Link href="/categorie/sante">
                               Commencer mon shopping
                               <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white/20 rounded-full flex items-center justify-center">
-                                <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" />
-                                </svg>
+                                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                               </div>
-                            </button>
-                          </Link>
+                            </Link>
+                          </Button>
                         </div>
                       </div>
                     </div>

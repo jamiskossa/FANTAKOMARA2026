@@ -41,7 +41,8 @@ service cloud.firestore {
     // Réservations
     match /reservations/{reservationId} {
       allow create: if isAuthenticated();
-      allow read: if isAuthenticated() && (isStaff() || (resource != null && resource.data.clientId == request.auth.uid));
+      allow list: if isStaff() || (isAuthenticated() && request.query.limit <= 100 && request.auth.uid != null); 
+      allow get: if isAuthenticated() && (isStaff() || (resource != null && resource.data.clientId == request.auth.uid));
       allow update: if isStaff() || (isAuthenticated() && resource != null && resource.data.clientId == request.auth.uid && resource.data.status == "pending");
       allow delete: if isAdmin();
     }
@@ -49,7 +50,8 @@ service cloud.firestore {
     // Support Clients (Chat)
     match /supportMessages/{msgId} {
       allow create: if isAuthenticated();
-      allow read: if isAuthenticated() && (isStaff() || (resource != null && resource.data.clientId == request.auth.uid));
+      allow list: if isStaff() || (isAuthenticated() && request.query.limit <= 100 && request.auth.uid != null); 
+      allow get: if isAuthenticated() && (isStaff() || (resource != null && resource.data.clientId == request.auth.uid));
       allow update: if isStaff();
     }
 
