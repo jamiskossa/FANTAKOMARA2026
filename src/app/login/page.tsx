@@ -1,7 +1,6 @@
-
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,9 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth, useUser, useFirestore, useDoc, errorEmitter } from '@/firebase';
-import { initiateEmailSignIn, initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
+import { initiateEmailSignIn } from '@/firebase/non-blocking-login';
 import { useRouter } from 'next/navigation';
-import { LogIn, UserPlus, ShieldCheck, Loader2, ArrowRight } from 'lucide-react';
+import { LogIn, ShieldCheck, Loader2, ArrowRight } from 'lucide-react';
 import { doc } from 'firebase/firestore';
 import Link from 'next/link';
 
@@ -20,54 +19,60 @@ export default function LoginPage() {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
   const router = useRouter();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const userProfileRef = React.useMemo(() => {
-    if (!user) return null;
-    return doc(db, 'userProfiles', user.uid);
-  }, [user, db]);
-
+  // Référence Firestore du profil
+  const userProfileRef = useMemo(() => (user ? doc(db, 'userProfiles', user.uid) : null), [user, db]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(userProfileRef);
 
+  // Gestion des erreurs Firebase
   useEffect(() => {
-    const handleAuthError = () => {
+    const handleAuthError = (err: any) => {
       setIsSubmitting(false);
+      setErrorMessage(err?.message || 'Erreur inconnue, réessayez');
     };
     errorEmitter.on('auth-error', handleAuthError);
     return () => errorEmitter.off('auth-error', handleAuthError);
   }, []);
 
-  // Smart Redirection based on role
+  // Redirection intelligente basée sur le rôle
   useEffect(() => {
-    if (user && profile) {
-      if (profile.role === 'admin') {
+    if (!user || !profile) return;
+
+    switch (profile.role) {
+      case 'admin':
         router.push('/admin/dashboard');
-      } else if (profile.role === 'collaborator' || profile.role === 'collaborateur') {
+        break;
+      case 'collaborator':
+      case 'collaborateur':
         router.push('/collaborateur/dashboard');
-      } else {
+        break;
+      default:
         router.push('/client/dashboard');
-      }
+        break;
     }
   }, [user, profile, router]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMessage('');
     initiateEmailSignIn(auth, email, password);
   };
 
-  const handleGuestLogin = () => {
-    initiateAnonymousSignIn(auth);
-  };
-
+  // Loader pendant la récupération des données utilisateur/profil
   if (isUserLoading || (user && isProfileLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="flex flex-col items-center gap-6">
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">Chargement de votre espace...</p>
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">
+            Chargement de votre espace...
+          </p>
         </div>
       </div>
     );
@@ -95,34 +100,48 @@ export default function LoginPage() {
             </CardHeader>
             <CardContent className="p-10">
               <form onSubmit={handleLogin} className="space-y-8">
+                {errorMessage && <p className="text-red-500 text-xs text-center">{errorMessage}</p>}
+
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-primary ml-2">Identifiant (Email)</Label>
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="votre@email.com" 
+                  <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-primary ml-2">
+                    Identifiant (Email)
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="votre@email.com"
                     className="rounded-3xl h-14 px-6 border-slate-100 focus:border-primary transition-all bg-slate-50/50 font-bold"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    required 
+                    required
                   />
                 </div>
+
                 <div className="space-y-2">
                   <div className="flex justify-between items-center px-2">
-                    <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest text-primary">Mot de passe</Label>
-                    <Button variant="link" className="text-[10px] font-black uppercase tracking-widest text-slate-400 p-0 h-auto hover:text-primary">Oublié ?</Button>
+                    <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest text-primary">
+                      Mot de passe
+                    </Label>
+                    <Button variant="link" className="text-[10px] font-black uppercase tracking-widest text-slate-400 p-0 h-auto hover:text-primary">
+                      Oublié ?
+                    </Button>
                   </div>
-                  <Input 
-                    id="password" 
-                    type="password" 
+                  <Input
+                    id="password"
+                    type="password"
                     placeholder="••••••••"
                     className="rounded-3xl h-14 px-6 border-slate-100 focus:border-primary transition-all bg-slate-50/50 font-bold"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    required 
+                    required
                   />
                 </div>
-                <Button type="submit" disabled={isSubmitting} className="w-full rounded-full bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.2em] h-16 shadow-2xl shadow-primary/20 transition-all active:scale-95">
+
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full rounded-full bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.2em] h-16 shadow-2xl shadow-primary/20 transition-all active:scale-95"
+                >
                   {isSubmitting ? <Loader2 className="animate-spin h-6 w-6" /> : (
                     <>
                       Se connecter
@@ -143,11 +162,8 @@ export default function LoginPage() {
                 <Button variant="outline" className="w-full rounded-full border-slate-100 font-black uppercase tracking-widest h-14 text-xs hover:bg-slate-50 transition-all" asChild>
                   <Link href="/register">
                     Créer mon compte patient
-                    <UserPlus className="ml-3 h-4 w-4" />
+                    <ArrowRight className="ml-3 h-4 w-4" />
                   </Link>
-                </Button>
-                <Button variant="ghost" className="w-full rounded-full font-black uppercase tracking-widest h-12 text-[10px] text-slate-400 hover:text-primary transition-colors" onClick={handleGuestLogin}>
-                  Continuer sans compte <ArrowRight className="ml-2 h-3 w-3" />
                 </Button>
               </div>
             </CardContent>
