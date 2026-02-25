@@ -1,0 +1,12 @@
+# Forcer LF pour tout le code source
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+
+# Fichiers binaires
+*.png binary
+*.jpg binary
+*.ico binary
