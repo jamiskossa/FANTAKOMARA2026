@@ -50,8 +50,14 @@ export default function ClientDashboard() {
   useEffect(() => {
     if (!isUserLoading && !user) {
       router.push('/login');
+    } else if (!isProfileLoading && profile) {
+      if (profile.role === 'admin') {
+        router.push('/admin/dashboard');
+      } else if (profile.role === 'collaborator' || profile.role === 'collaborateur') {
+        router.push('/collaborateur/dashboard');
+      }
     }
-  }, [user, isUserLoading, router]);
+  }, [user, isUserLoading, profile, isProfileLoading, router]);
 
   const reservationsQuery = useMemoFirebase(() => {
     if (!user || !profile) return null;

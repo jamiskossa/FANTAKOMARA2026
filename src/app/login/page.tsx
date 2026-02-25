@@ -8,12 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth, useUser, useFirestore, useDoc } from '@/firebase';
+import { useAuth, useUser, useFirestore, useDoc, errorEmitter } from '@/firebase';
 import { initiateEmailSignIn, initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
 import { useRouter } from 'next/navigation';
 import { LogIn, UserPlus, ShieldCheck, Loader2, ArrowRight } from 'lucide-react';
 import { doc } from 'firebase/firestore';
-import { errorEmitter } from '../../firebase/error-emitter';
 import Link from 'next/link';
 
 export default function LoginPage() {

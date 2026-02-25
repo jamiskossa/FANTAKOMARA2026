@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { useFirestore, useCollection, useMemoFirebase, useUser, useDoc, addDocumentNonBlocking, useAuth } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser, useDoc, addDocumentNonBlocking, useAuth, errorEmitter } from '@/firebase';
 import { collection, query, where, orderBy, limit, doc, serverTimestamp, addDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -46,7 +46,6 @@ import { StockManagement } from '@/components/admin/StockManagement';
 import { DocumentPreview } from '@/components/admin/DocumentPreview';
 import Link from 'next/link';
 import { suggestRestock } from '@/ai/flows/restock-suggestion-flow';
-import { errorEmitter } from '../../../firebase/error-emitter';
 
 export default function CollaboratorDashboard() {
   const { user, isUserLoading } = useUser();
