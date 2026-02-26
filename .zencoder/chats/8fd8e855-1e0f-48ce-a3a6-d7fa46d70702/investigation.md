@@ -38,15 +38,15 @@ The bug was fixed by refactoring `firestore.rules`:
 4.  **Added Missing Rules**: Added `update` permission for `pharmacyReviews` to allow clients to modify their own reviews.
 5.  **Improved Robustness**: Replaced `exists()` + `get()` in `getUserRole` with a safer check to avoid unnecessary operations.
 
-## Refinement: Dashboard Access and Index Issues
-- **Problem**: Persistent `permission-denied` errors and a new `failed-precondition` (missing index) error for the `reservations` collection.
+## Refinement: Deployment Failure (Install Dependencies)
+- **Problem**: Production deployment failed at the "Install dependencies" stage.
 - **Root Cause**: 
-  1. The query for client reservations ordered by `createdAt` (desc) was missing a proper composite index.
-  2. Documents missing the `clientId` field could cause rules to fail when comparing `resource.data.clientId` directly.
+  1. Potential peer dependency conflict between `@firebase/rules-unit-testing@5.0.0` and `firebase@11.x`.
+  2. Missing `engines` field in `package.json`, causing potential Node.js version mismatches in the CI/CD environment.
 - **Resolution**:
-  1. Added the precise composite index for `reservations` (`clientId` ASC, `createdAt` DESC, `__name__` DESC) to `firestore.indexes.json`.
-  2. Updated `firestore.rules` to use `resource.data.get('clientId', '')` for safer ownership checks.
-  3. Improved `useCollection` and `useDoc` hooks to report the specific Firestore error code (e.g., `failed-precondition`) instead of always wrapping it in a generic permission error. This allowed identifying the missing index.
+  1. Downgraded `@firebase/rules-unit-testing` to `^4.0.1` to maintain compatibility with `firebase@11.x`.
+  2. Added the `engines` field to `package.json` specifying `node >= 20.0.0` to ensure a consistent environment in Firebase App Hosting.
+  3. Verified that `npm install` and `package-lock.json` are synced locally.
 
 ## Persistent Hydration Mismatch
 - **Problem**: Hydration mismatch persisted even after adding `suppressHydrationWarning` to the `html` tag.

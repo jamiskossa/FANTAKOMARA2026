@@ -45,9 +45,10 @@ Save findings to `c:\Users\kanko\Documents\FANTAKOMARA2026-main\.zencoder\chats\
 5. [x] Make `firestore.rules` more robust with `exists()` checks in role resolution
 6. [x] Verify that Firebase is correctly initialized in all environments
 
-### [x] Step: Refine Firestore Indexes and Rules for Dashboard Access
+### [x] Step: Resolve Dependency Conflict and Build Failure
 
-1. [x] Add precise composite index for `reservations` with `clientId` (Asc), `createdAt` (Desc), and `__name__` (Desc)
-2. [x] Update `firestore.rules` to use `resource.data.get('clientId', '')` for safe ownership checks
-3. [x] Verify that "failed-precondition" (missing index) errors are resolved (by allowing the hook to show the REAL error)
-4. [x] Ensure that "permission-denied" errors are not caused by missing fields in documents
+1. [x] Identify conflict: `@firebase/rules-unit-testing@5.0.0` requires `firebase@^12.0.0`, but current version is `11.9.1`
+2. [x] Downgrade `@firebase/rules-unit-testing` to `^4.0.1` in `package.json` to match `firebase@11.x`
+3. [x] Add `engines` field to `package.json` to ensure Node version compatibility (>=20.0.0)
+4. [x] Run `npm install` to update `package-lock.json`
+5. [x] Verify that dependencies install without error
