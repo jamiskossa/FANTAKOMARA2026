@@ -12,6 +12,7 @@ import { Footer } from '@/components/layout/Footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import Image from 'next/image';
 import { AlertTriangle } from 'lucide-react';
 
 export default function Home() {
@@ -76,36 +77,28 @@ export default function Home() {
             </p>
             <div className="mt-16 flex flex-wrap justify-center items-center gap-8 md:gap-12">
                <a href="https://www.ordre.pharmacien.fr/" target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center gap-3 transition-all hover:scale-105">
-                 <div className="h-16 w-32 bg-slate-50 border-2 border-slate-100 rounded-2xl flex items-center justify-center p-3 grayscale group-hover:grayscale-0 group-hover:border-primary/20 transition-all shadow-sm group-hover:shadow-xl">
-                   <div className="text-center">
-                     <p className="text-[8px] font-black uppercase leading-tight text-slate-400 group-hover:text-primary">Ordre National</p>
-                     <p className="text-[10px] font-black uppercase leading-tight text-slate-600">Pharmaciens</p>
-                   </div>
+                 <div className="h-20 w-40 bg-white border-2 border-slate-100 rounded-3xl flex items-center justify-center p-4 grayscale group-hover:grayscale-0 group-hover:border-primary/20 transition-all shadow-sm group-hover:shadow-2xl">
+                   <Image src="/images/ordre-pharmaciens.png" alt="Ordre National des Pharmaciens" width={140} height={60} className="object-contain" />
                  </div>
+                 <p className="text-[10px] font-black uppercase text-slate-400 group-hover:text-primary tracking-widest transition-colors">Ordre National</p>
                </a>
                <a href="https://ansm.sante.fr/" target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center gap-3 transition-all hover:scale-105">
-                 <div className="h-16 w-32 bg-slate-50 border-2 border-slate-100 rounded-2xl flex items-center justify-center p-3 grayscale group-hover:grayscale-0 group-hover:border-primary/20 transition-all shadow-sm group-hover:shadow-xl">
-                   <div className="text-center">
-                     <p className="text-[10px] font-black uppercase text-slate-400 group-hover:text-primary">ANSM</p>
-                     <p className="text-[7px] font-bold text-slate-500 uppercase">Sécurité du médicament</p>
-                   </div>
+                 <div className="h-20 w-40 bg-white border-2 border-slate-100 rounded-3xl flex items-center justify-center p-4 grayscale group-hover:grayscale-0 group-hover:border-primary/20 transition-all shadow-sm group-hover:shadow-2xl">
+                   <Image src="/images/ansm.png" alt="ANSM" width={120} height={60} className="object-contain" />
                  </div>
+                 <p className="text-[10px] font-black uppercase text-slate-400 group-hover:text-primary tracking-widest transition-colors">ANSM</p>
                </a>
                <a href="https://www.ars.sante.fr/" target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center gap-3 transition-all hover:scale-105">
-                 <div className="h-16 w-32 bg-slate-50 border-2 border-slate-100 rounded-2xl flex items-center justify-center p-3 grayscale group-hover:grayscale-0 group-hover:border-primary/20 transition-all shadow-sm group-hover:shadow-xl">
-                   <div className="text-center">
-                     <p className="text-[10px] font-black uppercase text-slate-400 group-hover:text-primary">Agréé ARS</p>
-                     <p className="text-[7px] font-bold text-slate-500 uppercase">Île-de-France</p>
-                   </div>
+                 <div className="h-20 w-40 bg-white border-2 border-slate-100 rounded-3xl flex items-center justify-center p-4 grayscale group-hover:grayscale-0 group-hover:border-primary/20 transition-all shadow-sm group-hover:shadow-2xl">
+                   <Image src="/images/ars.png" alt="ARS" width={120} height={60} className="object-contain" />
                  </div>
+                 <p className="text-[10px] font-black uppercase text-slate-400 group-hover:text-primary tracking-widest transition-colors">Agréé ARS</p>
                </a>
                <a href="https://sante.gouv.fr/" target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center gap-3 transition-all hover:scale-105">
-                 <div className="h-16 w-32 bg-slate-50 border-2 border-slate-100 rounded-2xl flex items-center justify-center p-3 grayscale group-hover:grayscale-0 group-hover:border-primary/20 transition-all shadow-sm group-hover:shadow-xl">
-                   <div className="text-center">
-                     <p className="text-[8px] font-black uppercase leading-tight text-slate-400 group-hover:text-primary">Ministère de la</p>
-                     <p className="text-[10px] font-black uppercase leading-tight text-slate-600">Santé</p>
-                   </div>
+                 <div className="h-20 w-40 bg-white border-2 border-slate-100 rounded-3xl flex items-center justify-center p-4 grayscale group-hover:grayscale-0 group-hover:border-primary/20 transition-all shadow-sm group-hover:shadow-2xl">
+                   <Image src="/images/ministere-sante.png" alt="Ministère de la Santé" width={140} height={60} className="object-contain" />
                  </div>
+                 <p className="text-[10px] font-black uppercase text-slate-400 group-hover:text-primary tracking-widest transition-colors">Ministère de la Santé</p>
                </a>
             </div>
           </div>

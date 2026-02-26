@@ -1,4 +1,6 @@
 
+"use client";
+
 import React from 'react';
 import { ShieldAlert, Info, ExternalLink, ArrowLeft, Baby } from 'lucide-react';
 import Link from 'next/link';

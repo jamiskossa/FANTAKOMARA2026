@@ -62,7 +62,8 @@ export default function ClientDashboard() {
     return query(
       collection(db, 'supportMessages'),
       where('clientId', '==', user.uid),
-      orderBy('createdAt', 'asc')
+      orderBy('createdAt', 'asc'),
+      limit(50)
     );
   }, [user, db, profile]);
 

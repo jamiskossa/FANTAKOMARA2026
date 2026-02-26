@@ -53,8 +53,9 @@ export function CollaboratorManagement() {
       await signOut(secondaryAuth);
 
       // 4. Create Firestore profile with the real UID
+      const { password, ...profileData } = formData;
       await setDoc(doc(db, 'userProfiles', uid), {
-        ...formData,
+        ...profileData,
         id: uid,
         createdAt: serverTimestamp(),
       });

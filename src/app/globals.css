@@ -23,22 +23,22 @@
     /* Palette 2026 – Bio / Pharmacie moderne – plus impactante sans perdre la douceur */
     --pharma-green: 74 222 140;   /* #4ade8c   Menthe plus vive & saturée – principal impactant */
     --pharma-green-dark: 34 197 120;   /* #22c578   Plus profond, excellent pour hovers/accents */
-    --pharma-green-darker: 22 163 100;   /* #16a364   Contraste texte fort */
-    --pharma-green-light: 144 238 200;  /* #90eec8   Lumineux mais pas trop pastel */
-    --pharma-green-lighter: 236 253 245; /* #ecfdf5   Fond ultra-clair conservé */
-    --pharma-mint: 98 242 195;   /* #62f2c3   Mint frais & énergisant */
-    --pharma-mint-light: 189 250 230;  /* #bdfae6   Très lumineux pour fonds */
-    --pharma-sage: 148 200 170;  /* #94c8aa   Sage plus profond & premium */
-    --pharma-sage-dark: 100 150 120;  /* #649678   Sage foncé pour profondeur */
-    --pharma-emerald: 16 185 140;   /* #10b98c   Émeraude vif mais doux – luxe bio */
-    --pharma-emerald-dark: 5 150 110;    /* #05966e    Version sombre impactante */
-    --pharma-lime: 163 230 60;   /* #a3e63c   Lime plus présent & joyeux (accents/CTA) */
+    --pharma-green-darker: 15 90 60;   /* #0f5a3c   Profondeur luxe */
+    --pharma-green-light: 187 247 208;  /* #bbf7d0   Fonds doux */
+    --pharma-green-lighter: 240 253 244; /* #f0fdf4   Fond ultra-clair */
+    --pharma-mint: 52 211 153;   /* #34d399   Émeraude menthe dynamique */
+    --pharma-mint-light: 209 250 229;  /* #d1fae5   Clarté bio */
+    --pharma-sage: 110 142 122;  /* #6e8e7a   Sage premium mat */
+    --pharma-sage-dark: 74 95 82;   /* #4a5f52   Sage profond */
+    --pharma-emerald: 5 150 105;   /* #059669   Émeraude saturé impactant */
+    --pharma-emerald-dark: 6 95 70;    /* #065f46    Contraste extrême */
+    --pharma-lime: 132 204 22;   /* #84cc16   Lime moderne (accents) */
     --pharma-lime-light: 217 249 157;  /* #d9f99d   Touche claire */
-    --pharma-forest: 34 102 60;    /* #22663c    Forest plus utilisé pour contraste */
-    --pharma-teal: 45 212 191;   /* #2dd4bf    Teal moderne & dynamique */
-    --pharma-light: 248 253 250;  /* #f8fdfa   Conservé */
-    --pharma-gray: 75 85 99;     /* #4b5563    Gris plus moderne/neutre */
-    --pharma-dark: 17 24 39;     /* #111827    Texte très sombre pour meilleur contraste */
+    --pharma-forest: 20 83 45;    /* #14532d    Forest profondeur */
+    --pharma-teal: 20 184 166;   /* #14b8a6    Teal dynamique */
+    --pharma-light: 249 250 251;  /* #f9fafb   Gris neutre très clair */
+    --pharma-gray: 107 114 128;   /* #6b7280    Gris neutre moderne */
+    --pharma-dark: 15 23 42;     /* #0f172a    Slate sombre luxe */
 
     /* Shadcn system compatibility */
     --background: 0 0% 100%;

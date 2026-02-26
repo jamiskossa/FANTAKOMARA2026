@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth, useUser, useFirestore, useDoc, errorEmitter } from '@/firebase';
+import { useAuth, useUser, useFirestore, useDoc } from '@/firebase';
+import { errorEmitter } from '@/firebase/error-emitter';
 import { initiateEmailSignIn } from '@/firebase/non-blocking-login';
 import { useRouter } from 'next/navigation';
 import { LogIn, ShieldCheck, Loader2, ArrowRight } from 'lucide-react';

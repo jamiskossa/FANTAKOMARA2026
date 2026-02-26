@@ -223,9 +223,14 @@ export default function AdminDashboard() {
             </div>
             <h1 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Pilotage Officine</h1>
           </div>
-          <Button variant="outline" size="sm" className="rounded-full font-black uppercase text-[10px] h-9 px-4" onClick={() => setActiveDoc({type: 'report', data: {}})}>
-            <Printer className="w-3.5 h-3.5 mr-2" /> PDF Global
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="rounded-full font-black uppercase text-[10px] h-9 px-4" onClick={downloadReservationsCSV}>
+              <Download className="w-3.5 h-3.5 mr-2" /> Export Excel
+            </Button>
+            <Button variant="outline" size="sm" className="rounded-full font-black uppercase text-[10px] h-9 px-4" onClick={() => setActiveDoc({type: 'report', data: {}})}>
+              <Printer className="w-3.5 h-3.5 mr-2" /> PDF Global
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">

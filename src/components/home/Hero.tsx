@@ -81,13 +81,11 @@ export function Hero() {
                         </p>
 
                         <div className="pt-2">
-                          <Link href="/categorie/sante" className="inline-block">
-                            <Button className="bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-[0.2em] text-[10px] sm:text-xs h-10 sm:h-14 px-6 sm:px-10 rounded-full shadow-2xl shadow-blue-600/40 transition-all hover:scale-105 active:scale-95 flex items-center gap-3">
-                              Commencer mon shopping
-                              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white/20 rounded-full flex items-center justify-center">
-                                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
-                              </div>
-                            </Button>
+                          <Link href="/categorie/sante" className="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-[0.2em] text-[10px] sm:text-xs h-10 sm:h-14 px-6 sm:px-10 rounded-full shadow-2xl shadow-blue-600/40 transition-all hover:scale-105 active:scale-95">
+                            Commencer mon shopping
+                            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white/20 rounded-full flex items-center justify-center">
+                              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                            </div>
                           </Link>
                         </div>
                       </div>

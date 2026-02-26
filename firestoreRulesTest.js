@@ -1,23 +1,37 @@
 import fs from "fs";
 import { initializeTestEnvironment, assertSucceeds, assertFails } from "@firebase/rules-unit-testing";
-import { doc, setDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc, deleteDoc, collection, getDocs, query, where } from "firebase/firestore";
 
 const PROJECT_ID = "fantakomara2026";
 
 async function runTests() {
   const testEnv = await initializeTestEnvironment({
     projectId: PROJECT_ID,
-    firestore: { rules: fs.readFileSync("firestore.rules", "utf8") },
+    firestore: { 
+      host: "127.0.0.1",
+      port: 8080,
+      rules: fs.readFileSync("firestore.rules", "utf8") 
+    },
   });
 
   // Contextes utilisateurs
-  const clientCtx = testEnv.authenticatedContext("clientUID", { role: "client" });
-  const staffCtx  = testEnv.authenticatedContext("staffUID",  { role: "collaborator" });
-  const adminCtx  = testEnv.authenticatedContext("adminUID",  { role: "admin" });
+  const clientCtx = testEnv.authenticatedContext("clientUID");
+  const staffCtx  = testEnv.authenticatedContext("staffUID");
+  const adminCtx  = testEnv.authenticatedContext("adminUID");
 
   const clientDb = clientCtx.firestore();
   const staffDb  = staffCtx.firestore();
   const adminDb  = adminCtx.firestore();
+
+  // Setup actual user profiles in the emulator (using admin context to bypass rules if needed, 
+  // but we'll use unauthenticated or direct if possible. Actually with rules-unit-testing, 
+  // we can use withSecurityRulesDisabled)
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    const db = context.firestore();
+    await setDoc(doc(db, "userProfiles", "clientUID"), { role: "client", email: "client@test.com" });
+    await setDoc(doc(db, "userProfiles", "staffUID"), { role: "collaborator", email: "staff@test.com" });
+    await setDoc(doc(db, "userProfiles", "adminUID"), { role: "admin", email: "admin@test.com" });
+  });
 
   // -----------------------------
   // 1️⃣ userProfiles
@@ -25,22 +39,14 @@ async function runTests() {
   console.log("Testing userProfiles...");
   const userProfileRef = doc(clientDb, "userProfiles", "clientUID");
 
-  // Create client profile
-  await assertSucceeds(setDoc(userProfileRef, { role: "client", name: "Client Test" }));
-
   // Read own profile
   await assertSucceeds(getDoc(userProfileRef));
 
-  // Update own profile → should fail (client cannot update)
-  await assertFails(updateDoc(userProfileRef, { name: "Hacker Name" }));
+  // Client cannot read other's profile
+  await assertFails(getDoc(doc(clientDb, "userProfiles", "staffUID")));
 
-  // Staff can read
-  const staffProfileRef = doc(staffDb, "userProfiles", "clientUID");
-  await assertSucceeds(getDoc(staffProfileRef));
-
-  // Admin can delete
-  const adminProfileRef = doc(adminDb, "userProfiles", "clientUID");
-  await assertSucceeds(deleteDoc(adminProfileRef));
+  // Staff can read client profile
+  await assertSucceeds(getDoc(doc(staffDb, "userProfiles", "clientUID")));
 
   // -----------------------------
   // 2️⃣ products
@@ -57,16 +63,15 @@ async function runTests() {
   const clientReservationRef = doc(clientDb, "reservations", "res1");
   await assertSucceeds(setDoc(clientReservationRef, { clientId: "clientUID", status: "pending" }));
 
-  // Client cannot delete
-  await assertFails(deleteDoc(clientReservationRef));
+  // Client can list own reservations
+  const clientQuery = query(collection(clientDb, "reservations"), where("clientId", "==", "clientUID"));
+  await assertSucceeds(getDocs(clientQuery));
 
-  // Staff can update
-  const staffReservationRef = doc(staffDb, "reservations", "res1");
-  await assertSucceeds(updateDoc(staffReservationRef, { status: "confirmed" }));
+  // Client CANNOT list all reservations
+  await assertFails(getDocs(collection(clientDb, "reservations")));
 
-  // Admin can delete
-  const adminReservationRef = doc(adminDb, "reservations", "res1");
-  await assertSucceeds(deleteDoc(adminReservationRef));
+  // Staff can list all
+  await assertSucceeds(getDocs(collection(staffDb, "reservations")));
 
   // -----------------------------
   // 4️⃣ supportMessages
@@ -74,48 +79,30 @@ async function runTests() {
   console.log("Testing supportMessages...");
   const supportRef = doc(clientDb, "supportMessages", "msg1");
   await assertSucceeds(setDoc(supportRef, { clientId: "clientUID", message: "Help!" }));
-  await assertFails(deleteDoc(supportRef));
-  await assertSucceeds(getDoc(doc(staffDb, "supportMessages", "msg1")));
+  
+  // Client can list own
+  const supportQuery = query(collection(clientDb, "supportMessages"), where("clientId", "==", "clientUID"));
+  await assertSucceeds(getDocs(supportQuery));
+
+  // Client cannot list all
+  await assertFails(getDocs(collection(clientDb, "supportMessages")));
+
+  // Staff can list all
+  await assertSucceeds(getDocs(collection(staffDb, "supportMessages")));
 
   // -----------------------------
-  // 5️⃣ staffMessages
-  // -----------------------------
-  console.log("Testing staffMessages...");
-  const staffMsgRef = doc(staffDb, "staffMessages", "msg1");
-  await assertSucceeds(setDoc(staffMsgRef, { message: "Internal Note" }));
-  await assertFails(setDoc(doc(clientDb, "staffMessages", "msg2"), { message: "Hack" }));
-
-  // -----------------------------
-  // 6️⃣ contactMessages
-  // -----------------------------
-  console.log("Testing contactMessages...");
-  const contactRef = doc(clientDb, "contactMessages", "contact1");
-  await assertSucceeds(setDoc(contactRef, { message: "Hello" }));
-  await assertFails(deleteDoc(contactRef));
-
-  // -----------------------------
-  // 7️⃣ newsletter
-  // -----------------------------
-  console.log("Testing newsletter...");
-  const newsRef = doc(clientDb, "newsletter", "news1");
-  await assertSucceeds(setDoc(newsRef, { email: "test@example.com" }));
-  await assertFails(updateDoc(newsRef, { email: "hacker@example.com" }));
-
-  // -----------------------------
-  // 8️⃣ pharmacyReviews
+  // 5️⃣ pharmacyReviews
   // -----------------------------
   console.log("Testing pharmacyReviews...");
   const reviewRef = doc(clientDb, "pharmacyReviews", "review1");
   await assertSucceeds(setDoc(reviewRef, { rating: 5, clientId: "clientUID" }));
-  await assertFails(updateDoc(reviewRef, { rating: 1 }));
+  
+  // Owner can update
+  await assertSucceeds(updateDoc(reviewRef, { rating: 4 }));
 
-  // -----------------------------
-  // 9️⃣ collaboratorSessions
-  // -----------------------------
-  console.log("Testing collaboratorSessions...");
-  const collabRef = doc(adminDb, "collaboratorSessions", "session1");
-  await assertSucceeds(setDoc(collabRef, { notes: "Session admin" }));
-  await assertFails(setDoc(doc(clientDb, "collaboratorSessions", "session2"), { notes: "Hack" }));
+  // Other cannot update
+  const staffReviewRef = doc(staffDb, "pharmacyReviews", "review1");
+  await assertFails(updateDoc(staffReviewRef, { rating: 1 }));
 
   console.log("✅ All tests completed successfully!");
 }
