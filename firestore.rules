@@ -11,10 +11,10 @@ service cloud.firestore {
     }
 
     // Récupère le rôle de l'utilisateur. 
-    // Utilise get() directement car si le document n'existe pas, la règle échouera, 
-    // ce qui est le comportement attendu pour les accès privilégiés.
     function getUserRole() {
-      return get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role;
+      return exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) 
+        ? get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role 
+        : "none";
     }
 
     function isStaff() {
@@ -54,17 +54,17 @@ service cloud.firestore {
 
     match /reservations/{reservationId} {
       allow create: if isAuthenticated() && (
-        request.resource.data.clientId == request.auth.uid || isStaff()
+        request.resource.data.get('clientId', '') == request.auth.uid || isStaff()
       );
 
       // On sépare get et list pour être plus précis
       // Pour list: l'ownership doit être checké en premier pour le short-circuit
       allow read: if isAuthenticated() && (
-        resource.data.clientId == request.auth.uid || isStaff()
+        resource.data.get('clientId', '') == request.auth.uid || isStaff()
       );
 
       allow update: if isAuthenticated() && (
-        (resource.data.clientId == request.auth.uid && resource.data.status == "pending") || isStaff()
+        (resource.data.get('clientId', '') == request.auth.uid && resource.data.get('status', '') == "pending") || isStaff()
       );
 
       allow delete: if isAdmin();
@@ -85,11 +85,11 @@ service cloud.firestore {
 
     match /supportMessages/{id} {
       allow create: if isAuthenticated() && (
-        request.resource.data.clientId == request.auth.uid || isStaff()
+        request.resource.data.get('clientId', '') == request.auth.uid || isStaff()
       );
 
       allow read: if isAuthenticated() && (
-        resource.data.clientId == request.auth.uid || isStaff()
+        resource.data.get('clientId', '') == request.auth.uid || isStaff()
       );
 
       allow update, delete: if isAdmin();
