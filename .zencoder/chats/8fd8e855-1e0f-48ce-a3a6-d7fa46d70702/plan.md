@@ -27,9 +27,9 @@ Save findings to `c:\Users\kanko\Documents\FANTAKOMARA2026-main\.zencoder\chats\
 3. [x] Run relevant tests
 4. [x] Update `c:\Users\kanko\Documents\FANTAKOMARA2026-main\.zencoder\chats\8fd8e855-1e0f-48ce-a3a6-d7fa46d70702/investigation.md` with implementation notes and test results
 
-### [x] Step: Fix Permission Denied for reservations list
+### [ ] Step: Optimize Firestore Rules for List Queries (Owner First)
 
-1. [x] Analyze why `reservations` list is still denied for clients
-2. [x] Simplify `list` rules in `firestore.rules` (remove `resource == null` and redundant limit checks if problematic)
-3. [x] Verify if `isStaff()` call overhead is causing issues
-4. [x] Update investigation.md with new findings
+1. [ ] Reorder conditions in `list` rules: place `resource.data.clientId == request.auth.uid` BEFORE `isStaff()`
+2. [ ] Apply the same reordering to `get` rules for consistency and performance
+3. [ ] Verify if the "Missing or insufficient permissions" error for `supportMessages` is resolved
+4. [ ] Update investigation.md with findings on Firestore read limits in list rules

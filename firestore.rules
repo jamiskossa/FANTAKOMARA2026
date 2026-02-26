@@ -75,24 +75,18 @@ service cloud.firestore {
         && request.resource.data.clientId == request.auth.uid;
 
       // Lecture document unique
-      allow get: if isStaff()
-        || (isAuthenticated() && resource.data.clientId == request.auth.uid);
+      allow get: if (isAuthenticated() && resource.data.clientId == request.auth.uid)
+        || isStaff();
 
       // LIST (IMPORTANT pour ton dashboard)
       // Pour le client : on force le filtrage par clientId dans la règle
-      allow list: if isStaff()
-        || (
-          isAuthenticated()
-          && resource.data.clientId == request.auth.uid
-        );
+      // OPTIMISATION: On check l'ownership EN PREMIER pour court-circuiter isStaff() (qui fait un get())
+      allow list: if (isAuthenticated() && resource.data.clientId == request.auth.uid)
+        || isStaff();
 
       // Update
-      allow update: if isStaff()
-        || (
-          isAuthenticated()
-          && resource.data.clientId == request.auth.uid
-          && resource.data.status == "pending"
-        );
+      allow update: if (isAuthenticated() && resource.data.clientId == request.auth.uid && resource.data.status == "pending")
+        || isStaff();
 
       allow delete: if isAdmin();
     }
@@ -123,14 +117,11 @@ service cloud.firestore {
 
       allow create: if isAuthenticated();
 
-      allow get: if isStaff()
-        || (isAuthenticated() && resource.data.clientId == request.auth.uid);
+      allow get: if (isAuthenticated() && resource.data.clientId == request.auth.uid)
+        || isStaff();
 
-      allow list: if isStaff()
-        || (
-          isAuthenticated()
-          && resource.data.clientId == request.auth.uid
-        );
+      allow list: if (isAuthenticated() && resource.data.clientId == request.auth.uid)
+        || isStaff();
 
       allow update, delete: if isAdmin();
     }
@@ -154,11 +145,8 @@ service cloud.firestore {
       allow create: if isStaff()
         && request.resource.data.collaboratorId == request.auth.uid;
 
-      allow read: if isAdmin()
-        || (
-          isStaff()
-          && resource.data.collaboratorId == request.auth.uid
-        );
+      allow read: if (isAuthenticated() && resource.data.collaboratorId == request.auth.uid)
+        || isAdmin();
 
       allow delete: if isAdmin();
     }

@@ -38,10 +38,10 @@ The bug was fixed by refactoring `firestore.rules`:
 4.  **Added Missing Rules**: Added `update` permission for `pharmacyReviews` to allow clients to modify their own reviews.
 5.  **Improved Robustness**: Replaced `exists()` + `get()` in `getUserRole` with a safer check to avoid unnecessary operations.
 
-## Regression: Permission Denied for reservations and supportMessages list
-- **Problem**: Users were still getting "Missing or insufficient permissions" when listing `reservations` or `supportMessages` on the client dashboard.
-- **Cause**: The overly complex `list` rule which included `resource == null` and `request.query.limit` checks might have been causing issues during Firestore's query planning phase. Firestore `list` rules for clients are most reliably enforced by simply checking `resource.data.clientId == request.auth.uid`.
-- **Resolution**: Simplified the `list` rules for `reservations` and `supportMessages` to only check for `isStaff()` or `resource.data.clientId == request.auth.uid`.
+## Optimization: Firestore Read Limits in List Queries
+- **Problem**: Despite simplified rules, `Permission Denied` errors persisted for `list` operations.
+- **Root Cause**: In Firestore Security Rules, the `isStaff()` function performs a `get()` call to fetch the user's role. When this check is placed at the beginning of an `allow list` condition, it is evaluated for every document being considered. Firestore has a hard limit of 10 `get()`/`exists()` calls per request. For a query returning many documents, this limit is hit instantly, causing the entire request to be denied.
+- **Resolution**: Reordered the logic in `list` and `get` rules to place the `resource.data.clientId == request.auth.uid` check FIRST. This allows the rule to short-circuit for clients accessing their own data, preventing the `isStaff()` function (and its associated `get()` call) from ever running for those users. This stays well within the Firestore read limits.
 
 ## Persistent Hydration Mismatch
 - **Problem**: Hydration mismatch persisted even after adding `suppressHydrationWarning` to the `html` tag.
