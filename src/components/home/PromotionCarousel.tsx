@@ -111,6 +111,7 @@ export function PromotionCarousel() {
                         alt={product.name}
                         fill
                         className="object-cover group-hover:scale-110 transition-transform duration-700"
+                        sizes="(max-width: 768px) 50vw, 25vw"
                       />
                       <Badge className="absolute top-4 left-4 bg-destructive text-white font-black px-3 py-1 rounded-full text-xs shadow-sm">
                         {product.promo}

@@ -51,11 +51,11 @@ export default function ScanOrdonnance() {
       
       // Si l'IA n'a pas trouvé de médicaments, essayer le parser fallback
       if (!medications || medications.length === 0) {
-        const ocrText = extractedData.rawText || '';
+        const ocrText = (extractedData as any).rawText || '';
         const validation = validateOCRQuality(ocrText);
         
         if (validation.isValid) {
-          medications = parseMedications(ocrText);
+          medications = parseMedications(ocrText) as any;
         }
       }
 
@@ -68,7 +68,7 @@ export default function ScanOrdonnance() {
         medications: medications,
         items: medications.map((m: any) => ({
           name: m.name,
-          quantity: m.quantity || 1,
+          quantity: String(m.quantity || 1),
           dosage: m.dosage,
           instructions: m.instructions,
           confidence: m.confidence

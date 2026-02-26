@@ -152,6 +152,7 @@ export function Header() {
                   fill 
                   className="object-contain"
                   priority
+                  sizes="(max-width: 1024px) 40px, 56px"
                 />
               </div>
               <div className="flex flex-col">

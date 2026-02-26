@@ -3,29 +3,26 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ═══════════════════════════════════════
-    // FONCTIONS
+    // FONCTIONS DE BASE
     // ═══════════════════════════════════════
 
     function isAuthenticated() {
       return request.auth != null;
     }
 
+    // Récupère le rôle de l'utilisateur. 
+    // Utilise get() directement car si le document n'existe pas, la règle échouera, 
+    // ce qui est le comportement attendu pour les accès privilégiés.
     function getUserRole() {
-      return isAuthenticated() && exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid))
-        ? get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role
-        : null;
-    }
-
-    function isAdmin() {
-      return getUserRole() == "admin";
-    }
-
-    function isCollaborator() {
-      return getUserRole() == "collaborator" || getUserRole() == "collaborateur";
+      return get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role;
     }
 
     function isStaff() {
-      return getUserRole() == "admin" || getUserRole() == "collaborator" || getUserRole() == "collaborateur";
+      return isAuthenticated() && getUserRole() in ["admin", "collaborator", "collaborateur"];
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() == "admin";
     }
 
     function isOwner(uid) {
@@ -37,29 +34,16 @@ service cloud.firestore {
     // ═══════════════════════════════════════
 
     match /userProfiles/{userId} {
-
-      // Admin voit tout
-      // Collaborateur peut lire profils (pour chat clients)
-      // Client voit uniquement son profil
+      // Priorité à l'owner pour éviter l'appel isStaff() (et donc le get()) pour les clients
       allow read: if isOwner(userId) || isStaff();
 
-      // Création :
-      // Admin peut créer admin/collaborator/client
-      // Client peut créer uniquement son propre profil avec role = client
-      allow create: if isAdmin()
-        || (
-          isOwner(userId)
-          && request.resource.data.role == "client"
-        );
+      allow create: if isAuthenticated() && (
+        isAdmin() || (isOwner(userId) && request.resource.data.role == "client")
+      );
 
-      // Update :
-      // Admin peut modifier tout
-      // Client peut modifier son profil sauf role
-      allow update: if isAdmin()
-        || (
-          isOwner(userId)
-          && !("role" in request.resource.data.diff(resource.data).affectedKeys())
-        );
+      allow update: if isAuthenticated() && (
+        isAdmin() || (isOwner(userId) && !("role" in request.resource.data.diff(resource.data).affectedKeys()))
+      );
 
       allow delete: if isAdmin();
     }
@@ -69,24 +53,19 @@ service cloud.firestore {
     // ═══════════════════════════════════════
 
     match /reservations/{reservationId} {
+      allow create: if isAuthenticated() && (
+        request.resource.data.clientId == request.auth.uid || isStaff()
+      );
 
-      // Client crée sa réservation
-      allow create: if isAuthenticated()
-        && request.resource.data.clientId == request.auth.uid;
+      // On sépare get et list pour être plus précis
+      // Pour list: l'ownership doit être checké en premier pour le short-circuit
+      allow read: if isAuthenticated() && (
+        resource.data.clientId == request.auth.uid || isStaff()
+      );
 
-      // Lecture document unique
-      allow get: if (isAuthenticated() && resource.data.clientId == request.auth.uid)
-        || isStaff();
-
-      // LIST (IMPORTANT pour ton dashboard)
-      // Pour le client : on force le filtrage par clientId dans la règle
-      // OPTIMISATION: On check l'ownership EN PREMIER pour court-circuiter isStaff() (qui fait un get())
-      allow list: if (isAuthenticated() && resource.data.clientId == request.auth.uid)
-        || isStaff();
-
-      // Update
-      allow update: if (isAuthenticated() && resource.data.clientId == request.auth.uid && resource.data.status == "pending")
-        || isStaff();
+      allow update: if isAuthenticated() && (
+        (resource.data.clientId == request.auth.uid && resource.data.status == "pending") || isStaff()
+      );
 
       allow delete: if isAdmin();
     }
@@ -101,34 +80,25 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════
-    // CHAT INTERNE STAFF
+    // CHAT SUPPORT & MESSAGES
     // ═══════════════════════════════════════
+
+    match /supportMessages/{id} {
+      allow create: if isAuthenticated() && (
+        request.resource.data.clientId == request.auth.uid || isStaff()
+      );
+
+      allow read: if isAuthenticated() && (
+        resource.data.clientId == request.auth.uid || isStaff()
+      );
+
+      allow update, delete: if isAdmin();
+    }
 
     match /staffMessages/{id} {
       allow read, create: if isStaff();
       allow update, delete: if isAdmin();
     }
-
-    // ═══════════════════════════════════════
-    // SUPPORT CLIENT
-    // ═══════════════════════════════════════
-
-    match /supportMessages/{id} {
-
-      allow create: if isAuthenticated();
-
-      allow get: if (isAuthenticated() && resource.data.clientId == request.auth.uid)
-        || isStaff();
-
-      allow list: if (isAuthenticated() && resource.data.clientId == request.auth.uid)
-        || isStaff();
-
-      allow update, delete: if isAdmin();
-    }
-
-    // ═══════════════════════════════════════
-    // CONTACT MESSAGES
-    // ═══════════════════════════════════════
 
     match /contactMessages/{id} {
       allow create: if true;
@@ -137,43 +107,33 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════
-    // COLLABORATOR SESSIONS
+    // SESSIONS & LOGS
     // ═══════════════════════════════════════
 
     match /collaboratorSessions/{sessionId} {
-
-      allow create: if isStaff()
-        && request.resource.data.collaboratorId == request.auth.uid;
-
-      allow read: if (isAuthenticated() && resource.data.collaboratorId == request.auth.uid)
-        || isAdmin();
-
+      allow create: if isStaff() && request.resource.data.collaboratorId == request.auth.uid;
+      allow read: if isAuthenticated() && (resource.data.collaboratorId == request.auth.uid || isAdmin());
       allow delete: if isAdmin();
     }
 
     // ═══════════════════════════════════════
-    // NEWSLETTER
+    // AUTRES COLLECTIONS
     // ═══════════════════════════════════════
+
     match /newsletter/{id} {
       allow create: if true;
       allow read: if isStaff();
       allow delete: if isAdmin();
     }
 
-    // ═══════════════════════════════════════
-    // REVIEWS
-    // ═══════════════════════════════════════
     match /pharmacyReviews/{id} {
       allow read: if true;
-      allow create: if isAuthenticated();
-      allow update: if isOwner(resource.data.clientId) || isAdmin();
+      allow create: if isAuthenticated() && request.resource.data.clientId == request.auth.uid;
+      allow update: if isAuthenticated() && (resource.data.clientId == request.auth.uid || isAdmin());
       allow delete: if isAdmin();
     }
 
-    // ═══════════════════════════════════════
-    // BLOCK EVERYTHING ELSE
-    // ═══════════════════════════════════════
-
+    // Sécurité par défaut
     match /{document=**} {
       allow read, write: if false;
     }

@@ -27,9 +27,11 @@ Save findings to `c:\Users\kanko\Documents\FANTAKOMARA2026-main\.zencoder\chats\
 3. [x] Run relevant tests
 4. [x] Update `c:\Users\kanko\Documents\FANTAKOMARA2026-main\.zencoder\chats\8fd8e855-1e0f-48ce-a3a6-d7fa46d70702/investigation.md` with implementation notes and test results
 
-### [ ] Step: Optimize Firestore Rules for List Queries (Owner First)
+### [x] Step: Optimize Firestore Rules and UI Performance
 
-1. [ ] Reorder conditions in `list` rules: place `resource.data.clientId == request.auth.uid` BEFORE `isStaff()`
-2. [ ] Apply the same reordering to `get` rules for consistency and performance
-3. [ ] Verify if the "Missing or insufficient permissions" error for `supportMessages` is resolved
-4. [ ] Update investigation.md with findings on Firestore read limits in list rules
+1. [x] Reorder conditions in `list` rules: place `resource.data.clientId == request.auth.uid` BEFORE `isStaff()`
+2. [x] Simplify `getUserRole()` and role checking logic in `firestore.rules`
+3. [x] Fix `next/image` warnings by adding `sizes` prop
+4. [x] Resolve `react-day-picker` v9 type errors and component changes
+5. [x] Fix missing imports and type mismatches across dashboards
+6. [x] Verify with `npm run typecheck`

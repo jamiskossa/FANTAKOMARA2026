@@ -239,7 +239,7 @@ export default function ClientDashboard() {
                           {['pending','processing','prepared','ready','delivered'].map((stepStatus) => {
                             const statuses = ['pending','processing','prepared','ready','delivered'];
                             const isActive = statuses.indexOf(res.status) >= statuses.indexOf(stepStatus);
-                            const iconsMap: Record<string, JSX.Element> = {
+                            const iconsMap: Record<string, React.ReactNode> = {
                               pending: <AlertCircle className="w-3 h-3" />,
                               processing: <Clock className="w-3 h-3" />,
                               prepared: <CheckCircle2 className="w-3 h-3" />,
@@ -269,7 +269,7 @@ export default function ClientDashboard() {
                     </Card>
                   ))}
                   {/* Lazy load button */}
-                  {reservations?.length >= reservationsLimit && (
+                  {(reservations?.length || 0) >= reservationsLimit && (
                     <div className="text-center mt-4">
                       <Button onClick={() => setReservationsLimit(prev => prev + 5)} variant="outline">Voir plus</Button>
                     </div>
