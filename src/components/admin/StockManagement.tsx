@@ -1,339 +1,223 @@
-
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, limit, updateDoc, doc } from 'firebase/firestore';
 import { 
   Package, 
   Search, 
-  TrendingUp, 
   AlertTriangle, 
   CheckCircle2, 
-  RefreshCw, 
-  Bot, 
-  ArrowUpRight, 
-  ArrowDownRight,
   PlusCircle,
-  Truck,
-  Sparkles,
-  Loader2
+  Edit,
+  Trash2,
+  Eye,
+  EyeOff,
+  Percent,
+  XCircle,
+  MoreVertical
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import ProductForm from './ProductForm';
+import PromotionForm from './PromotionForm';
+import KapelForm from './KapelForm';
+
+interface Product {
+  id: string | number;
+  name: string;
+  category: string;
+  subCategory: string;
+  stockFinal: number;
+  threshold: number;
+  price: number;
+  status: 'available' | 'hidden';
+  onPromotion?: boolean;
+}
 
 export function StockManagement() {
-  const db = useFirestore();
   const [searchTerm, setSearchTerm] = useState('');
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [aiSuggestions, setAiSuggestions] = useState<any[]>([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [activeTab, setActiveTab] = useState<'list' | 'add' | 'promo' | 'kapel'>('list');
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
-  const productsQuery = useMemoFirebase(() => {
-    return query(collection(db, 'products'), orderBy('stockFinal', 'asc'), limit(100));
-  }, [db]);
-  const { data: products, isLoading } = useCollection(productsQuery);
+  // Initial products data - to be replaced by Firestore
+  const [products, setProducts] = useState<Product[]>([
+    { id: 1, name: "Nettoyants et Démaquillants", category: "Beauté", subCategory: "Visage", stockFinal: 50, threshold: 10, price: 15.99, status: 'available' },
+    { id: 2, name: "Gommages", category: "Beauté", subCategory: "Visage", stockFinal: 30, threshold: 5, price: 12.99, status: 'available' },
+    { id: 3, name: "Shampooing", category: "Beauté", subCategory: "Cheveux", stockFinal: 4, threshold: 10, price: 10.50, status: 'available' },
+  ]);
 
-  const filteredProducts = products?.filter(p => 
-    p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.category?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProducts = products.filter(p => 
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const lowStockCount = products?.filter(p => (p.stockFinal || 0) < 10).length || 0;
-  const criticalStockCount = products?.filter(p => (p.stockFinal || 0) < 5).length || 0;
-
-  const runAiAudit = async () => {
-    setIsAiLoading(true);
-    // Real-time stock analysis based on current levels and simulated rotation
-    setTimeout(() => {
-      const suggestions = products?.filter(p => {
-        const stock = p.stockFinal || 0;
-        // Logic: products with stock < 15 or specific categories with high rotation
-        return stock < 15 || p.category === 'BEBE' || p.category === 'PHARMA' || p.category === 'HYGIENE';
-      }).map(p => {
-        const stock = p.stockFinal || 0;
-        const isCritical = stock < 5;
-        const isHighRotation = p.category === 'BEBE' || p.category === 'PHARMA';
-        
-        // Advanced Rotation Logic 2026
-        const rotationFactor = isHighRotation ? 1.5 : 1.1;
-        const suggestedQty = Math.ceil((20 - stock) * rotationFactor);
-
-        return {
-          id: p.id,
-          name: p.name,
-          action: isCritical ? 'URGENT_COMMANDER' : 'REAPPROVISIONNER',
-          quantity: Math.max(suggestedQty, 12),
-          confidence: isCritical ? 0.99 : 0.88,
-          trend: isHighRotation ? 'up' : 'stable',
-          reason: isCritical 
-            ? "Rupture imminente - Priorité absolue" 
-            : (isHighRotation ? "Pic de demande saisonnier détecté" : "Optimisation du stock de sécurité")
-        };
-      }) || [];
-      
-      setAiSuggestions(suggestions.sort((a, b) => a.action === 'URGENT_COMMANDER' ? -1 : 1).slice(0, 6));
-      setIsAiLoading(false);
-      toast({
-        title: "Audit IA Pro Terminé",
-        description: `${suggestions.length} recommandations générées avec succès.`,
-      });
-    }, 2000);
+  const handleDeleteProduct = (id: string | number) => {
+    if (confirm("Voulez-vous vraiment supprimer ce produit ?")) {
+      setProducts(products.filter(p => p.id !== id));
+      toast({ title: "Produit supprimé", description: "Le produit a été retiré de l'inventaire." });
+    }
   };
 
-  const updateStock = async (id: string, newStock: number) => {
-    try {
-      await updateDoc(doc(db, 'products', id), { stockFinal: newStock });
-      toast({ title: "Stock mis à jour", description: `Nouveau niveau: ${newStock} unités.` });
-    } catch (error) {
-      toast({ title: "Erreur", description: "Impossible de modifier le stock.", variant: "destructive" });
-    }
+  const toggleStatus = (id: string | number) => {
+    setProducts(products.map(p => 
+      p.id === id ? { ...p, status: p.status === 'available' ? 'hidden' : 'available' } : p
+    ));
+    toast({ title: "Statut mis à jour", description: "La visibilité du produit a été modifiée." });
+  };
+
+  const handleAddProduct = (productData: any) => {
+    const newProduct: Product = {
+      ...productData,
+      id: Date.now(),
+      name: productData.product, // Mapping field from form
+      stockFinal: productData.stock,
+      status: 'available'
+    };
+    setProducts([newProduct, ...products]);
+    setActiveTab('list');
+    toast({ title: "Produit ajouté", description: "Le nouveau produit est maintenant en stock." });
   };
 
   return (
     <div className="space-y-6">
-      {/* AI Assistant Section */}
-      <Card className="border-none shadow-xl bg-gradient-to-r from-primary to-secondary rounded-[32px] overflow-hidden text-white relative group">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32 blur-3xl group-hover:bg-white/20 transition-all duration-700" />
-        <CardContent className="p-8 relative z-10">
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 animate-pulse">
-              <Bot className="w-10 h-10" />
-            </div>
-            <div className="flex-1 text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
-                <Badge className="bg-white/20 text-white font-black uppercase text-[8px] tracking-[0.2em] border-none px-3">IA PRO VERSION 2026</Badge>
-                <div className="flex gap-1">
-                  <div className="w-1 h-1 bg-white rounded-full animate-bounce" />
-                  <div className="w-1 h-1 bg-white rounded-full animate-bounce delay-100" />
-                  <div className="w-1 h-1 bg-white rounded-full animate-bounce delay-200" />
-                </div>
-              </div>
-              <h2 className="text-2xl font-black uppercase tracking-tighter">Assistant Intelligent de Stock</h2>
-              <p className="text-white/80 text-sm font-medium max-w-xl">
-                Analyse en temps réel des rotations, détection des ruptures imminentes et calcul des besoins pour le Click & Collect.
-              </p>
-            </div>
-            <Button 
-              onClick={runAiAudit} 
-              disabled={isAiLoading}
-              className="bg-white text-primary hover:bg-white/90 rounded-full px-8 h-14 font-black uppercase tracking-widest text-xs shadow-2xl transition-all active:scale-95"
-            >
-              {isAiLoading ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}
-              Lancer l'Audit Pro
-            </Button>
-          </div>
-
-          {aiSuggestions.length > 0 && (
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              {aiSuggestions.map((s, i) => (
-                <div key={i} className="bg-white/10 backdrop-blur-sm border border-white/20 p-4 rounded-2xl">
-                  <div className="flex justify-between items-start mb-2">
-                    <p className="font-black text-[10px] uppercase tracking-widest truncate max-w-[120px]">{s.name}</p>
-                    <Badge className={s.action === 'URGENT_COMMANDER' ? 'bg-destructive text-white' : 'bg-secondary text-white'}>
-                      {s.action === 'URGENT_COMMANDER' ? 'Urgent' : 'Recco'}
-                    </Badge>
-                  </div>
-                  <p className="text-[11px] font-medium text-white/90 mb-3">{s.reason}</p>
-                  <div className="flex items-center justify-between text-[10px] font-black uppercase">
-                    <span className="text-white/60">Quantité : +{s.quantity}</span>
-                    <span className="flex items-center text-white"><CheckCircle2 className="w-3 h-3 mr-1" /> {Math.round(s.confidence * 100)}%</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* KPI Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-none shadow-soft bg-white rounded-2xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Stock Critique</p>
-                <h3 className="text-3xl font-black text-destructive">{criticalStockCount}</h3>
-              </div>
-              <div className="w-12 h-12 rounded-2xl bg-destructive/10 flex items-center justify-center text-destructive">
-                <AlertTriangle className="w-6 h-6" />
-              </div>
-            </div>
-            <p className="text-[10px] font-bold text-slate-500 mt-4 flex items-center gap-1">
-              <ArrowUpRight className="w-3 h-3 text-destructive" /> +2 depuis hier
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-soft bg-white rounded-2xl">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Rotation Totale</p>
-                <h3 className="text-3xl font-black text-secondary">84%</h3>
-              </div>
-              <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-            </div>
-            <p className="text-[10px] font-bold text-slate-500 mt-4 flex items-center gap-1">
-              <ArrowDownRight className="w-3 h-3 text-green-500" /> Flux optimal
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-none shadow-soft bg-primary text-white rounded-2xl overflow-hidden relative group cursor-pointer" onClick={runAiAudit}>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-black uppercase text-white/80 mb-1">IA Assistant Pro</p>
-                <h3 className="text-xl font-black">{isAiLoading ? "Analyse..." : "Optimiser Stocks"}</h3>
-              </div>
-              <Bot className={`w-8 h-8 ${isAiLoading ? "animate-bounce" : ""}`} />
-            </div>
-            <Button size="sm" variant="secondary" className="mt-4 w-full rounded-xl font-black uppercase text-[10px] h-8">
-              {isAiLoading ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <RefreshCw className="w-3 h-3 mr-2" />}
-              Lancer l'audit
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* AI Suggestions Box */}
-      {aiSuggestions.length > 0 && (
-        <Card className="border-2 border-primary/20 bg-primary/5 shadow-none rounded-2xl overflow-hidden">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
-                <Bot className="w-4 h-4 text-primary" />
-                Alertes & Préconisations IA
-              </CardTitle>
-              <Badge className="bg-primary text-white uppercase text-[8px]">{aiSuggestions.length} Recommandations</Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="p-4 space-y-3">
-            {aiSuggestions.map((s, idx) => (
-              <div key={idx} className="bg-white p-3 rounded-xl shadow-sm border border-primary/10 flex items-center justify-between animate-in fade-in slide-in-from-top-2 duration-300">
-                <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${s.action === 'URGENT_COMMANDER' ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'}`}>
-                    {s.action === 'URGENT_COMMANDER' ? <AlertTriangle className="w-4 h-4" /> : <Truck className="w-4 h-4" />}
-                  </div>
-                  <div>
-                    <h4 className="text-[11px] font-black uppercase">{s.name}</h4>
-                    <p className="text-[9px] text-slate-500 font-bold">{s.reason}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-[8px] font-black">{s.quantity} unités suggérées</Badge>
-                  <Button size="sm" className="h-7 rounded-lg text-[9px] font-black uppercase bg-slate-900">Commander</Button>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Product List */}
-      <Card className="border-none shadow-soft rounded-2xl overflow-hidden bg-white">
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-          <div className="relative w-64">
+      {/* Action Header */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-3xl shadow-soft border border-slate-100">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Button 
+            variant={activeTab === 'list' ? 'default' : 'ghost'} 
+            onClick={() => setActiveTab('list')}
+            className="rounded-full font-black uppercase text-[10px] h-9 px-6"
+          >
+            Liste Stock
+          </Button>
+          <Button 
+            variant={activeTab === 'add' ? 'default' : 'ghost'} 
+            onClick={() => setActiveTab('add')}
+            className="rounded-full font-black uppercase text-[10px] h-9 px-6"
+          >
+            <PlusCircle className="w-3 h-3 mr-2" /> Nouveau
+          </Button>
+          <Button 
+            variant={activeTab === 'promo' ? 'default' : 'ghost'} 
+            onClick={() => setActiveTab('promo')}
+            className="rounded-full font-black uppercase text-[10px] h-9 px-6"
+          >
+            <Percent className="w-3 h-3 mr-2" /> Promo
+          </Button>
+          <Button 
+            variant={activeTab === 'kapel' ? 'default' : 'ghost'} 
+            onClick={() => setActiveTab('kapel')}
+            className="rounded-full font-black uppercase text-[10px] h-9 px-6"
+          >
+            KAPEL
+          </Button>
+        </div>
+        
+        {activeTab === 'list' && (
+          <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
             <Input 
-              placeholder="Rechercher un produit..." 
-              className="pl-10 h-9 rounded-full bg-white text-xs border-slate-200" 
+              placeholder="Rechercher..." 
+              className="pl-10 h-9 rounded-full bg-slate-50 text-xs border-none" 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button size="sm" className="rounded-full h-9 px-4 font-black uppercase text-[10px] bg-secondary">
-            <PlusCircle className="w-3.5 h-3.5 mr-2" /> Nouveau Produit
-          </Button>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent border-slate-100">
-              <TableHead className="uppercase text-[10px] font-black pl-6">Produit</TableHead>
-              <TableHead className="uppercase text-[10px] font-black">Catégorie</TableHead>
-              <TableHead className="uppercase text-[10px] font-black">Niveau Stock</TableHead>
-              <TableHead className="uppercase text-[10px] font-black">Status</TableHead>
-              <TableHead className="uppercase text-[10px] font-black text-right pr-6">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
+        )}
+      </div>
+
+      {activeTab === 'list' && (
+        <Card className="border-none shadow-soft rounded-[32px] overflow-hidden bg-white">
+          <Table>
+            <TableHeader className="bg-slate-50/50">
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-20">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
-                </TableCell>
+                <TableHead className="uppercase text-[10px] font-black pl-8">Produit</TableHead>
+                <TableHead className="uppercase text-[10px] font-black">Catégorie</TableHead>
+                <TableHead className="uppercase text-[10px] font-black">Stock</TableHead>
+                <TableHead className="uppercase text-[10px] font-black">Prix</TableHead>
+                <TableHead className="uppercase text-[10px] font-black">Visibilité</TableHead>
+                <TableHead className="uppercase text-[10px] font-black text-right pr-8">Actions</TableHead>
               </TableRow>
-            ) : filteredProducts?.map((p) => (
-              <TableRow key={p.id} className="hover:bg-slate-50/50 transition-colors border-slate-100">
-                <TableCell className="pl-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 text-[10px] font-black uppercase">
-                      IMG
-                    </div>
-                    <div>
-                      <p className="text-xs font-black uppercase text-slate-900">{p.name}</p>
-                      <p className="text-[9px] text-slate-500 font-bold uppercase">REF: {p.id.substring(0, 8)}</p>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline" className="text-[9px] font-black uppercase text-slate-500">{p.category}</Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-sm font-black ${ (p.stockFinal || 0) < 10 ? 'text-destructive' : 'text-slate-900'}`}>
-                      {p.stockFinal || 0}
-                    </span>
-                    <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full transition-all duration-500 ${ (p.stockFinal || 0) < 10 ? 'bg-destructive' : 'bg-primary' }`}
-                        style={{ width: `${Math.min(((p.stockFinal || 0) / 100) * 100, 100)}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {(p.stockFinal || 0) < 10 ? (
-                    <Badge className="bg-destructive/10 text-destructive border-none shadow-none text-[8px] uppercase font-black px-2 py-0.5">
-                      Alerte Rupture
-                    </Badge>
-                  ) : (
-                    <Badge className="bg-green-600/10 text-green-600 border-none shadow-none text-[8px] uppercase font-black px-2 py-0.5">
-                      En Stock
-                    </Badge>
-                  )}
-                </TableCell>
-                <TableCell className="text-right pr-6">
-                  <div className="flex justify-end gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8 rounded-lg bg-slate-100 text-slate-900 hover:bg-slate-200"
-                      onClick={() => updateStock(p.id, (p.stockFinal || 0) + 10)}
-                    >
-                      <PlusCircle className="w-4 h-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8 rounded-lg bg-slate-100 text-slate-900 hover:bg-slate-200"
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
+            </TableHeader>
+            <TableBody>
+              {filteredProducts.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-20 uppercase text-[10px] font-black text-slate-400">
+                    Aucun produit trouvé
+                  </TableCell>
+                </TableRow>
+              ) : filteredProducts.map((p) => {
+                const isCritical = p.stockFinal <= p.threshold;
+                return (
+                  <TableRow key={p.id} className="hover:bg-slate-50/50 transition-colors">
+                    <TableCell className="pl-8 py-4">
+                      <div>
+                        <p className="text-xs font-black uppercase text-slate-900">{p.name}</p>
+                        <p className="text-[9px] text-slate-500 font-bold uppercase">{p.subCategory}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-[9px] font-black uppercase">{p.category}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm font-black ${isCritical ? 'text-destructive' : 'text-slate-900'}`}>
+                          {p.stockFinal}
+                        </span>
+                        {isCritical && <AlertTriangle className="w-3 h-3 text-destructive" />}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-xs font-bold">{p.price.toFixed(2)}€</TableCell>
+                    <TableCell>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => toggleStatus(p.id)}
+                        className={`h-7 px-2 rounded-lg ${p.status === 'available' ? 'text-green-600' : 'text-slate-400'}`}
+                      >
+                        {p.status === 'available' ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                        <span className="ml-2 text-[9px] font-black uppercase">{p.status === 'available' ? 'En vente' : 'Masqué'}</span>
+                      </Button>
+                    </TableCell>
+                    <TableCell className="text-right pr-8">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-600 hover:bg-blue-50" title="Modifier">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => handleDeleteProduct(p.id)} title="Supprimer">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </Card>
+      )}
+
+      {activeTab === 'add' && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <ProductForm onSubmit={handleAddProduct} />
+        </div>
+      )}
+
+      {activeTab === 'promo' && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <PromotionForm products={products.map(p => p.name)} />
+        </div>
+      )}
+
+      {activeTab === 'kapel' && (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <KapelForm />
+        </div>
+      )}
     </div>
   );
 }
