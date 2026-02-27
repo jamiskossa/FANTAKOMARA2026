@@ -137,6 +137,13 @@ export function Footer() {
             </div>
           </div>
           <div className="flex flex-col md:flex-row items-center gap-2 md:gap-6 text-center md:text-right">
+            <div className="flex items-center gap-4 text-xs text-muted-foreground mb-2 md:mb-0">
+              <Link href="/mentions-legales" className="hover:text-primary transition-colors">Mentions légales</Link>
+              <span>|</span>
+              <Link href="/cgv" className="hover:text-primary transition-colors">CGV</Link>
+              <span>|</span>
+              <a href="https://www.ansm.sante.fr" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Site officiel ANSM</a>
+            </div>
             <p className="text-xs text-muted-foreground">
               © {new Date().getFullYear()} Pharmacie Nouvelle d'Ivry – Tous droits réservés.
             </p>

@@ -134,9 +134,18 @@ export function Header() {
 
   return (
     <>
-      {/* 1. Top Bar Promotionnelle */}
-      <div className="bg-[#001F3F] text-white py-2 text-center text-[9px] sm:text-[11px] font-bold tracking-wide px-4 z-[110]">
-        <p>HAPPY DAYS ! -10% , -15%, -20% dès 99€, 149€ et 199€ avec les codes HAPPY10, HAPPY15 et HAPPY20 !</p>
+      {/* 1. Top Bar Légale */}
+      <div className="bg-[#fff3cd] text-[#856404] py-2 text-center text-[9px] sm:text-[11px] font-bold tracking-wide px-4 z-[110] flex items-center justify-center gap-4">
+        <p>⚠️ La réservation en ligne ne vaut pas délivrance. La dispensation est réalisée par un pharmacien diplômé en officine.</p>
+        <a href="https://www.ansm.sante.fr" target="_blank" rel="noopener noreferrer" className="shrink-0">
+          <Image 
+            src="/images/logo-europeen.png" 
+            alt="Logo européen pharmacie en ligne" 
+            width={24} 
+            height={24} 
+            className="h-6 w-auto"
+          />
+        </a>
       </div>
 
       <header className="sticky top-0 z-[100] bg-white border-b shadow-sm">
@@ -268,41 +277,19 @@ export function Header() {
         <nav className="hidden lg:block border-t bg-white">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-center space-x-8 h-12">
-              {Object.entries(navigation).map(([key, cat]) => (
-                <DropdownMenu key={key}>
-                  <DropdownMenuTrigger className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-700 hover:text-primary transition-colors outline-none h-full border-b-2 border-transparent hover:border-primary">
-                    {cat.label} <ChevronDown className="h-3 w-3" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-64 p-2 rounded-xl shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-                    {cat.items.map((item, i) => (
-                      <React.Fragment key={i}>
-                        {('subItems' in item) ? (
-                          <div className="px-2 py-2">
-                            <p className="text-[10px] font-black text-primary uppercase mb-2">{item.label}</p>
-                            <div className="space-y-1.5 pl-2">
-                              {item.subItems?.map((sub, si) => (
-                                <DropdownMenuItem key={si} asChild className="p-0 hover:bg-transparent">
-                                  <Link href={sub.href} onClick={closeMenu} className="text-[11px] font-bold text-slate-600 hover:text-primary transition-colors block py-1">
-                                    {sub.label}
-                                  </Link>
-                                </DropdownMenuItem>
-                              ))}
-                            </div>
-                          </div>
-                        ) : (
-                          <DropdownMenuItem asChild className="rounded-lg py-2.5 font-bold text-slate-700 cursor-pointer text-xs">
-                            <Link href={item.href} onClick={closeMenu}>{item.label}</Link>
-                          </DropdownMenuItem>
-                        )}
-                      </React.Fragment>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ))}
-              
-              <Link href="/marques" className="text-[11px] font-black uppercase tracking-widest text-slate-700 hover:text-primary transition-colors">Marques</Link>
-              <Link href="/promotions" className="text-[11px] font-black uppercase tracking-widest text-destructive hover:text-destructive/80 transition-colors">Promotions</Link>
-              <Link href="/blog" className="text-[11px] font-black uppercase tracking-widest text-slate-700 hover:text-primary transition-colors">Blog</Link>
+              <Link href="/" className="text-[11px] font-black uppercase tracking-widest text-slate-700 hover:text-primary transition-colors">Accueil</Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-slate-700 hover:text-primary transition-colors outline-none h-full border-b-2 border-transparent hover:border-primary">
+                  Catalogue <ChevronDown className="h-3 w-3" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-64 p-2 rounded-xl shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                  {Object.entries(navigation).map(([key, cat]) => (
+                    <DropdownMenuItem key={key} asChild className="rounded-lg py-2.5 font-bold text-slate-700 cursor-pointer text-xs">
+                      <Link href={cat.href} onClick={closeMenu}>{cat.label}</Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Link href="/contact" className="text-[11px] font-black uppercase tracking-widest text-slate-700 hover:text-primary transition-colors">Contact</Link>
             </div>
           </div>

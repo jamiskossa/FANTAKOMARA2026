@@ -37,7 +37,8 @@ import {
   Box,
   Send,
   Search,
-  Calendar
+  Calendar,
+  XCircle
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { DocumentPreview } from '@/components/admin/DocumentPreview';
@@ -392,6 +393,19 @@ export default function AdminDashboard() {
                               {lastMsg?.text}
                             </p>
                           </div>
+                          {selectedChatUser === cid && (
+                            <Button 
+                              size="icon" 
+                              variant="ghost" 
+                              className="h-6 w-6 rounded-full hover:bg-white/20 text-white"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedChatUser(null);
+                              }}
+                            >
+                              <XCircle className="w-4 h-4" />
+                            </Button>
+                          )}
                         </button>
                       );
                     })}
@@ -411,6 +425,26 @@ export default function AdminDashboard() {
                         <h3 className="text-xs font-black uppercase tracking-tight">
                           {clients?.find(c => c.id === selectedChatUser)?.firstName} {clients?.find(c => c.id === selectedChatUser)?.lastName}
                         </h3>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="h-8 rounded-full text-[9px] font-black uppercase text-secondary border-secondary/20 hover:bg-secondary/10"
+                          onClick={() => handleWhatsApp(clients?.find(c => c.id === selectedChatUser)?.phone)}
+                        >
+                          <MessageCircle className="w-3.5 h-3.5 mr-2" />
+                          WhatsApp
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="h-8 rounded-full text-[9px] font-black uppercase text-primary border-primary/20 hover:bg-primary/10"
+                          onClick={() => handleEmail(clients?.find(c => c.id === selectedChatUser)?.email)}
+                        >
+                          <Mail className="w-3.5 h-3.5 mr-2" />
+                          Email
+                        </Button>
                       </div>
                     </div>
                     <ScrollArea className="flex-grow p-6">

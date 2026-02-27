@@ -118,7 +118,7 @@ export function ProductGrid({ title, subtitle }: { title: string, subtitle?: str
               <CardFooter className="p-2 sm:p-3 pt-0">
                 <Button className="w-full rounded-full bg-slate-900 hover:bg-primary text-white font-black text-[9px] sm:text-xs h-10 sm:h-12 transition-all shadow-lg hover:shadow-primary/40 group-hover:translate-y-[-2px] uppercase tracking-widest">
                   <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                  Ajouter
+                  Réserver en pharmacie
                 </Button>
               </CardFooter>
             </Card>

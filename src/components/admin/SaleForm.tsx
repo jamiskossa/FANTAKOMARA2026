@@ -8,6 +8,7 @@ interface Product {
   stock: number;
   threshold: number;
   price: number;
+  pharmacy: string;
 }
 
 interface SaleFormProps {

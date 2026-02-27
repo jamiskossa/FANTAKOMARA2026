@@ -123,13 +123,17 @@ export default function ClientDashboard() {
     }
   };
 
-  const getStatusDescription = (status: string) => {
+  const getStatusDescription = (status: string, type: string) => {
     switch (status) {
-      case 'pending': return 'Votre commande a été reçue';
-      case 'processing': return 'Notre équipe prépare votre commande';
-      case 'prepared': return 'Votre commande est en cours de finition';
-      case 'ready': return 'Votre commande est prête au retrait';
-      case 'delivered': return 'Commande livrée';
+      case 'pending': return 'Votre commande a été reçue et sera traitée prochainement';
+      case 'processing': return 'Notre équipe prépare actuellement vos produits';
+      case 'prepared': return 'Préparation terminée, en attente de validation finale';
+      case 'ready': 
+        return type === 'delivery' 
+          ? 'Votre commande est prête pour l\'expédition' 
+          : 'Votre commande est prête ! Vous pouvez passer à la pharmacie';
+      case 'delivering': return 'Votre commande est en cours de livraison par notre coursier';
+      case 'delivered': return 'Commande livrée avec succès';
       default: return '';
     }
   };
@@ -208,7 +212,7 @@ export default function ClientDashboard() {
                               </div>
                               <div>
                                 <h4 className="text-xs font-black text-slate-900 uppercase">{getStatusLabel(res.status)}</h4>
-                                <p className="text-[8px] text-slate-500">{getStatusDescription(res.status)}</p>
+                                <p className="text-[8px] text-slate-500">{getStatusDescription(res.status, res.type)}</p>
                               </div>
                             </div>
                             <h3 className="text-xl lg:text-2xl font-black text-slate-900 uppercase tracking-tighter mt-2">

@@ -77,8 +77,8 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
     });
     
     toast({
-      title: "Ajouté au panier",
-      description: `${quantity} x ${product.name} a été ajouté à votre panier.`,
+      title: "Réservation ajoutée",
+      description: `${quantity} x ${product.name} a été ajouté à votre réservation.`,
     });
     onClose();
   };
@@ -127,8 +127,11 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                 <h2 className="text-2xl sm:text-4xl font-black text-slate-900 leading-tight mb-6 uppercase tracking-tighter">
                   {product.name}
                 </h2>
-                <p className="text-slate-500 font-medium text-base sm:text-lg leading-relaxed">
+                <p className="text-slate-500 font-medium text-base sm:text-lg leading-relaxed mb-4">
                   {product.description || "Une formule experte sélectionnée par nos pharmaciens pour sa haute tolérance et son efficacité prouvée. Sans paraben, respecte le pH physiologique."}
+                </p>
+                <p className="text-red-600 font-bold text-sm bg-red-50 p-4 rounded-2xl border border-red-100">
+                  ⚠️ Ce médicament peut ne pas être adapté à votre situation. Un pharmacien analysera votre réservation avant validation.
                 </p>
               </div>
 
@@ -230,7 +233,7 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                     onClick={handleAddToCart}
                   >
                     <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 mr-3 sm:mr-4" />
-                    <span>Ajouter au panier</span>
+                    <span>Réserver en pharmacie</span>
                   </Button>
                 ) : (
                   <div className="grow bg-slate-100 rounded-full px-6 h-14 sm:h-16 flex items-center justify-center gap-3 text-slate-400">
